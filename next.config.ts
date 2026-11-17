@@ -1,6 +1,35 @@
 import type { NextConfig } from "next";
 
-const supabaseHost = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname;
+/**
+ * O host do Supabase, de onde vêm todas as fotos.
+ *
+ * Isto roda antes de qualquer página, na carga da configuração. Se a
+ * variável não existir, `new URL(undefined)` estoura um "Invalid URL" sem
+ * dizer de onde veio — foi o que aconteceu na primeira tentativa de
+ * deploy. A mensagem abaixo troca isso pelo que precisa ser feito.
+ */
+const supabaseHost = (() => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+  if (!url) {
+    throw new Error(
+      "NEXT_PUBLIC_SUPABASE_URL não está definida.\n\n" +
+        "Localmente: copie o .env.example para .env.local e preencha.\n" +
+        "Na Vercel: Settings → Environment Variables, marcando Production, " +
+        "Preview e Development. O build lê o banco para gerar as páginas, " +
+        "então sem isso ele não termina.",
+    );
+  }
+
+  try {
+    return new URL(url).hostname;
+  } catch {
+    throw new Error(
+      `NEXT_PUBLIC_SUPABASE_URL não é uma URL válida: "${url}". ` +
+        "Esperado algo como https://seuprojeto.supabase.co",
+    );
+  }
+})();
 
 /**
  * Cabeçalhos de segurança de toda resposta.
