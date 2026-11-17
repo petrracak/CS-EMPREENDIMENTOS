@@ -1,0 +1,475 @@
+@import "tailwindcss";
+
+/* ===================================================================
+   CS Empreendimentos — design tokens
+
+   As cores saem dos SVGs oficiais da marca, não de aproximação:
+     #004527  verde institucional (logo e favicon)
+     #F3D694 → #FFF1D7  dourado do símbolo do favicon
+     #FFB275  a barra vertical que separa símbolo e nome na logo
+
+   O site é claro e quente. O verde da marca é escuro demais para viver
+   sobre fundo preto: sobre papel ele respira, e as fotos de obra em
+   Santarém são de muita luz natural.
+   =================================================================== */
+
+@theme {
+  /* ------------------------------------------------- verde da marca */
+  --color-verde-50: #f0f7f3;
+  --color-verde-100: #dbede3;
+  --color-verde-200: #b9dbc9;
+  --color-verde-300: #8bc1a7;
+  --color-verde-400: #55a180;
+  --color-verde-500: #2f8361;
+  --color-verde-600: #1b6a4d;
+  --color-verde-700: #0d5540;
+  --color-verde-800: #004527; /* a cor da logo */
+  --color-verde-900: #033821;
+  --color-verde-950: #012616;
+
+  /* ----------------------------------------------------- dourado */
+  /* O claro vem do favicon. Os escuros existem porque dourado claro
+     sobre papel não tem contraste: texto dourado legível precisa descer
+     até o bronze. */
+  --color-ouro-100: #fff1d7;
+  --color-ouro-200: #f9e4bb;
+  --color-ouro-300: #f3d694;
+  --color-ouro-400: #e5c078;
+  --color-ouro-500: #d2a355;
+  --color-ouro-600: #b8873c;
+  --color-ouro-700: #996d2c;
+  --color-ouro-800: #7a5622;
+  --color-ouro-900: #5c401a;
+
+  /* ------------------------------------------------------- acento */
+  /* O detalhe mais vivo da marca, e o único que não é verde nem ouro. */
+  --color-acento: #ffb275;
+  --color-acento-forte: #f59248;
+
+  /* ---------------------------------------------------- tipografia */
+  /* Uma família só, no site e no painel. Título e interface se separam
+     por tamanho, peso e espaçamento — não por famílias diferentes. */
+  --font-sans: var(--font-switzer), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-switzer), ui-sans-serif, system-ui, sans-serif;
+
+  /* Escala de display. O topo é achatado para o celular não quebrar
+     palavra no meio, e o tracking negativo cresce com o tamanho. */
+  --text-display-sm: 1.75rem;
+  --text-display-sm--line-height: 1.14;
+  --text-display-sm--letter-spacing: -0.02em;
+  --text-display-md: 2.5rem;
+  --text-display-md--line-height: 1.06;
+  --text-display-md--letter-spacing: -0.028em;
+  --text-display-lg: 3.5rem;
+  --text-display-lg--line-height: 1.02;
+  --text-display-lg--letter-spacing: -0.034em;
+  --text-display-xl: 4.75rem;
+  --text-display-xl--line-height: 0.98;
+  --text-display-xl--letter-spacing: -0.038em;
+
+  /* ------------------------------------------------------- curvas */
+  /* Entrada suave, sem mola. Construtora é sobriedade, não salto. */
+  --ease-saida: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-entrada-saida: cubic-bezier(0.65, 0, 0.35, 1);
+  /* A curva do dia a dia — hover, cor, sombra. Parte depressa e chega
+     devagar, em vez de frear de uma vez como o ease padrão. */
+  --ease-suave: cubic-bezier(0.33, 1, 0.68, 1);
+
+  /* ------------------------------------------------------ duração */
+  /* Todo utilitário transition-* do Tailwind herda estes dois. É aqui
+     que o hover deixa de ser seco: 150 ms é um corte, 420 ms é um
+     gesto. Mexer nestas duas linhas muda o site inteiro de uma vez. */
+  --default-transition-duration: 420ms;
+  --default-transition-timing-function: var(--ease-suave);
+}
+
+/* =================================================== tema (claro) */
+:root {
+  /* Papel quente, não creme. O creme saturado é o fundo que todo site
+     gerado usa; este puxa para o bege frio do concreto curado. */
+  --bg: #f9f7f2;
+  --bg-elevado: #ffffff;
+  --bg-fundo: #f1eee6;
+  --bg-tinta: #012616;
+
+  /* Preto esverdeado: o texto carrega um traço da marca sem pintar. */
+  --fg: #16211c;
+  --fg-suave: #4c5a52;
+  --fg-tenue: #6f7d74;
+  --fg-sobre-tinta: #e8efe9;
+
+  --borda: #e3ded2;
+  --borda-forte: #cfc8b8;
+
+  --acento: var(--color-verde-800);
+  --acento-hover: var(--color-verde-600);
+  --acento-fg: #ffffff;
+  --anel: var(--color-verde-600);
+
+  /* Gradiente de destaque sobre papel: desce do verde da marca para um
+     verde vivo. Dourado sobre claro não tem contraste. */
+  --grad-claro-de: #004527;
+  --grad-claro-ate: #2f8361;
+  /* Gradiente de destaque sobre tinta: aqui o dourado do favicon brilha. */
+  --grad-escuro-de: #f3d694;
+  --grad-escuro-ate: #fff1d7;
+
+  --sombra-card: 0 1px 2px rgb(1 38 22 / 0.04), 0 10px 30px rgb(1 38 22 / 0.07);
+  --sombra-alta: 0 2px 4px rgb(1 38 22 / 0.05), 0 24px 60px rgb(1 38 22 / 0.12);
+  --veu: rgb(1 38 22 / 0.55);
+}
+
+@layer base {
+  * {
+    border-color: var(--borda);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* O cabeçalho é fixo: âncora precisa parar abaixo dele. */
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Números de ficha técnica e preço alinhados em coluna. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background-color: var(--color-verde-800);
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--anel);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  /* ----------------------------------------- destaque em gradiente */
+  /* Substitui a serifada itálica das referências: a palavra em evidência
+     dentro do título ganha o gradiente da marca em vez de outra fonte. */
+  .destaque {
+    background-image: linear-gradient(
+      100deg,
+      var(--grad-claro-de),
+      var(--grad-claro-ate)
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    /* Sem isto o descendente do "g" e do "p" é cortado pelo clip. */
+    padding-bottom: 0.08em;
+  }
+
+  /* Sobre foto escura, o mesmo recurso em dourado — e aqui o gradiente
+     anda. Cinco paradas em vez de duas: o branco do meio é um brilho que
+     atravessa a palavra devagar, porque o fundo é mais largo que o texto.
+     As pontas repetem a mesma cor, então a volta não dá salto. */
+  .destaque-ouro {
+    background-image: linear-gradient(
+      100deg,
+      var(--grad-escuro-de) 0%,
+      var(--grad-escuro-ate) 30%,
+      #ffffff 46%,
+      var(--grad-escuro-ate) 62%,
+      var(--grad-escuro-de) 100%
+    );
+    background-size: 240% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    padding-bottom: 0.08em;
+    animation: varrer 11s linear infinite;
+  }
+
+  @keyframes varrer {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: 0% 0;
+    }
+  }
+
+  /* ------------------------------------------------- olho de seção */
+  /* A linha miúda em caixa alta que abre cada seção, com o traço do
+     acento da logo à esquerda. */
+  .olho {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fg-tenue);
+  }
+
+  .olho::before {
+    content: "";
+    width: 1.5rem;
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(
+      90deg,
+      var(--color-acento),
+      var(--color-ouro-300)
+    );
+  }
+}
+
+@layer utilities {
+  /* =================================================================
+     ENTRADA DOS ELEMENTOS
+
+     Dois caminhos, e a diferença entre eles é quem dispara:
+
+       data-entrada   o CSS anima sozinho, no carregamento da página
+       data-revelar   um observador no cliente marca quando entra na tela
+
+     A primeira dobra usa data-entrada. Antes ela também dependia do
+     observador, e o observador só existe depois da hidratação: num
+     celular em Santarém isso é meio segundo de título invisível. O que
+     ninguém vê antes de rolar pode esperar pelo JS; o que abre a página,
+     não.
+     ================================================================= */
+
+  @keyframes surgir {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  [data-entrada] {
+    animation: surgir 0.9s var(--ease-saida) both;
+    animation-delay: var(--atraso, 0ms);
+  }
+
+  /* ------------------------------------------ revelação ao rolar */
+  /* Sem JS nada fica escondido: a regra só vale se a marca existir. */
+  [data-revelar] {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    transition:
+      opacity 0.9s var(--ease-saida),
+      transform 0.9s var(--ease-saida),
+      filter 0.9s var(--ease-saida);
+    transition-delay: var(--atraso, 0ms);
+  }
+
+  [data-revelar][data-visivel="sim"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Desfoque é opcional, e só em texto: num card com foto, a imagem
+     entrando fora de foco parece filtro, não movimento. */
+  [data-revelar][data-desfoque] {
+    filter: blur(7px);
+  }
+
+  [data-revelar][data-desfoque][data-visivel="sim"] {
+    filter: blur(0);
+  }
+
+  /* =================================================================
+     TEXTO PALAVRA POR PALAVRA
+
+     O efeito da referência: cada palavra sobe de dentro de um desfoque,
+     com um atraso curto entre elas. Vale para títulos e para uma linha
+     de abertura — num parágrafo inteiro o escalonamento atrasa a
+     leitura em vez de enfeitar.
+     ================================================================= */
+
+  [data-palavras] > span {
+    display: inline-block;
+  }
+
+  @keyframes surgir-palavra {
+    from {
+      opacity: 0;
+      transform: translateY(0.45em);
+      filter: blur(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: blur(0);
+    }
+  }
+
+  [data-palavras="entrada"] > span {
+    animation: surgir-palavra 1s var(--ease-saida) both;
+    animation-delay: var(--atraso, 0ms);
+  }
+
+  /* A palavra em dourado tem duas animações ao mesmo tempo: a entrada,
+     que acontece uma vez, e o brilho que a atravessa sem parar. Sem esta
+     regra a entrada sobrescreveria o brilho — é a mesma propriedade, e
+     utilities vem depois de components na cascata. */
+  [data-palavras="entrada"] > span.destaque-ouro {
+    animation:
+      surgir-palavra 1s var(--ease-saida) both,
+      varrer 11s linear infinite;
+    animation-delay: var(--atraso, 0ms), 0ms;
+  }
+
+  [data-palavras="rolagem"] > span {
+    opacity: 0;
+    transform: translateY(0.45em);
+    filter: blur(12px);
+    transition:
+      opacity 1s var(--ease-saida),
+      transform 1s var(--ease-saida),
+      filter 1s var(--ease-saida);
+    transition-delay: var(--atraso, 0ms);
+  }
+
+  [data-palavras="rolagem"][data-visivel="sim"] > span {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+
+  /* --------------------------------- o quadro da foto que abre */
+  /* A imagem é descoberta de baixo para cima por um clip, em vez de
+     aparecer por opacidade. É a animação da referência Aurevant. */
+  [data-quadro] {
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 1.2s var(--ease-saida);
+    transition-delay: var(--atraso, 0ms);
+  }
+
+  [data-quadro][data-visivel="sim"] {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* =================================================================
+     O FUNDO VIVO DA PRIMEIRA DOBRA
+
+     Três camadas lentas sobre a foto do topo: ela cresce de leve, um
+     brilho dourado passeia por baixo do título e linhas finas marcam
+     uma grade. Nada pisca — o ciclo mais curto tem 20 s, e é por isso
+     que o conjunto lê como luz mudando, não como animação.
+     ================================================================= */
+
+  @keyframes respirar {
+    from {
+      transform: scale(1.015);
+    }
+    to {
+      transform: scale(1.09);
+    }
+  }
+
+  .respirar {
+    animation: respirar 34s var(--ease-entrada-saida) infinite alternate;
+  }
+
+  @keyframes passear {
+    0% {
+      opacity: 0.28;
+      transform: translate3d(-6%, 4%, 0) scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: translate3d(7%, -4%, 0) scale(1.18);
+    }
+    100% {
+      opacity: 0.28;
+      transform: translate3d(-6%, 4%, 0) scale(1);
+    }
+  }
+
+  .brilho {
+    background: radial-gradient(
+      circle at center,
+      rgb(255 178 117 / 0.5) 0%,
+      rgb(243 214 148 / 0.2) 38%,
+      transparent 70%
+    );
+    filter: blur(26px);
+    animation: passear 22s ease-in-out infinite;
+  }
+
+  /* Grade fina, cortada em cima e embaixo para não virar papel de
+     parede. A máscara é o que faz as linhas sumirem no céu da foto. */
+  .linhas {
+    background-image: repeating-linear-gradient(
+      to right,
+      rgb(255 255 255 / 0.07) 0 1px,
+      transparent 1px 7rem
+    );
+    mask-image: linear-gradient(
+      to top,
+      transparent 0%,
+      #000 28%,
+      #000 72%,
+      transparent 100%
+    );
+  }
+
+  /* Faixa que corre, usada na esteira de palavras da home. */
+  @keyframes correr {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .esteira {
+    animation: correr var(--duracao, 40s) linear infinite;
+  }
+
+  /* =================================================================
+     Quem pediu menos movimento recebe o conteúdo parado, não escondido,
+     e nenhum laço infinito rodando atrás.
+     ================================================================= */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    [data-entrada],
+    [data-palavras="entrada"] > span,
+    [data-palavras="entrada"] > span.destaque-ouro,
+    .esteira,
+    .respirar,
+    .brilho,
+    .destaque-ouro {
+      animation: none;
+    }
+
+    [data-revelar],
+    [data-quadro],
+    [data-palavras] > span {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      clip-path: none;
+      transition: none;
+    }
+
+    .brilho {
+      opacity: 0.4;
+    }
+  }
+}

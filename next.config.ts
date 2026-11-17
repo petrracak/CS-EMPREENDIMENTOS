@@ -1,0 +1,81 @@
+import type { NextConfig } from "next";
+
+const supabaseHost = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname;
+
+/**
+ * Cabeçalhos de segurança de toda resposta.
+ *
+ * A CSP leva só as diretivas que não dependem de saber de onde vêm os
+ * scripts: impedem que o site seja embutido em página de terceiros (clique
+ * enganoso), que um <base> forjado reescreva os links e que um formulário
+ * seja enviado para fora.
+ */
+const SEGURANCA = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value:
+      "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+  },
+  {
+    key: "Content-Security-Policy",
+    value:
+      "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'; upgrade-insecure-requests",
+  },
+];
+
+const nextConfig: NextConfig = {
+  images: {
+    // As fotos já são guardadas prontas no Storage, em dois tamanhos, então
+    // o carregador só escolhe qual servir. Evita a cota do otimizador da
+    // Vercel, que no plano free responde 402 e faz a imagem sumir.
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: supabaseHost,
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+  },
+  experimental: {
+    // Cache de navegação no aparelho. Toda alteração feita pelo painel chama
+    // revalidatePath, então a Carolina nunca vê o cache escondendo o que ela
+    // acabou de salvar.
+    staleTimes: { dynamic: 30, static: 60 },
+    // Marca que as atualizações de segurança do Next são aplicadas por
+    // agente. O próprio `next build` interrompe quando a versão instalada
+    // tem aviso publicado; isto registra como a correção é feita aqui.
+    agentUpgrade: "security",
+  },
+  async headers() {
+    return [
+      { source: "/:path*", headers: SEGURANCA },
+      // Arquivos de public/ não têm hash no nome: um dia fresco, uma semana
+      // servindo o antigo enquanto confere.
+      {
+        source:
+          "/:arquivo((?!_next|midia).*\\.(?:webp|png|jpg|jpeg|svg|ico|avif))",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+    ];
+  },
+  turbopack: {
+    rules: {
+      "*.css": {
+        loaders: ["@tailwindcss/turbopack"],
+        as: "*.css",
+      },
+    },
+  },
+};
+
+export default nextConfig;

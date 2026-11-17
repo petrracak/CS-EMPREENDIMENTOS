@@ -1,0 +1,33 @@
+# dependências
+/node_modules
+/.pnp
+.pnp.*
+
+# build
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+
+# segredos — nada aqui pode ir para o repositório, que é público
+.env
+.env.*
+!.env.example
+
+# material do cliente: briefing com senha, apresentações, fotos originais
+/material-do-cliente/
+/assets/originais/
+
+# plataformas
+.vercel
+.DS_Store
+*.pem
+
+# logs
+npm-debug.log*
+yarn-error.log*
+.npm
+
+# credenciais de teste geradas localmente
+/acessos-locais.md
