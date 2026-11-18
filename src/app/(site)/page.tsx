@@ -57,6 +57,11 @@ export default async function PaginaInicial() {
               alt=""
               fill
               priority
+              /* Esta é a maior imagem da primeira tela, a que define o
+                 LCP. O `priority` já adianta o download; o fetchPriority
+                 diz ao navegador para colocá-la à frente do resto da
+                 fila, que em conexão de celular é onde se ganha tempo. */
+              fetchPriority="high"
               sizes="100vw"
               /* A foto cresce 7% em 34 s. É lento o bastante para a
                  pessoa não ver o movimento, só sentir que a imagem não

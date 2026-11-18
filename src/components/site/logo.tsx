@@ -25,6 +25,11 @@ export function Logo({
       width={1339}
       height={602}
       priority={prioridade}
+      /* SVG não tem o que redimensionar, e o carregador do projeto escolhe
+         entre dois tamanhos de WebP. Sem isto o Next avisa, com razão, que
+         o carregador ignora a largura pedida — e ainda monta um srcset de
+         1x e 2x apontando para o mesmo arquivo. */
+      unoptimized
       className={cn("h-9 w-auto", className)}
     />
   );

@@ -113,6 +113,7 @@ export default async function PaginaEmpreendimento({
               alt={item.nome}
               fill
               priority
+              fetchPriority="high"
               sizes="100vw"
               className="respirar object-cover"
             />

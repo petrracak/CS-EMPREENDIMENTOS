@@ -1,6 +1,30 @@
 import type { NextConfig } from "next";
 
 /**
+ * O que este build enxerga do ambiente, sem revelar valor nenhum.
+ *
+ * Quando a variável "não existe", a causa quase nunca é ela faltar de
+ * verdade: é o nome com uma letra trocada, o valor vazio, ou a variável
+ * cadastrada só em Preview quando o build é de Production. Listar os
+ * nomes parecidos e o ambiente da Vercel separa essas causas de uma vez,
+ * direto no log de deploy. Só nomes e "preenchida"/"VAZIA" saem daqui.
+ */
+function diagnosticoDoAmbiente(): string {
+  const parecidas = Object.keys(process.env)
+    .filter((nome) => /supabase|site_url/i.test(nome))
+    .sort()
+    .map((nome) => `  - ${nome}: ${process.env[nome] ? "preenchida" : "VAZIA"}`);
+
+  return [
+    `Ambiente deste build (VERCEL_ENV): ${process.env.VERCEL_ENV ?? "fora da Vercel"}`,
+    parecidas.length
+      ? "Variáveis com nome parecido que o build enxerga:\n" +
+        parecidas.join("\n")
+      : "Nenhuma variável com SUPABASE ou SITE_URL no nome chegou a este build.",
+  ].join("\n");
+}
+
+/**
  * O host do Supabase, de onde vêm todas as fotos.
  *
  * Isto roda antes de qualquer página, na carga da configuração. Se a
@@ -17,7 +41,8 @@ const supabaseHost = (() => {
         "Localmente: copie o .env.example para .env.local e preencha.\n" +
         "Na Vercel: Settings → Environment Variables, marcando Production, " +
         "Preview e Development. O build lê o banco para gerar as páginas, " +
-        "então sem isso ele não termina.",
+        "então sem isso ele não termina.\n\n" +
+        diagnosticoDoAmbiente(),
     );
   }
 
