@@ -48,7 +48,7 @@ function Campo({
         defaultValue={padrao}
         className={cn(
           "mt-2 w-full rounded-xl border border-[var(--borda)] bg-[var(--bg)]",
-          "px-4 py-3 text-sm transition-colors duration-400",
+          "px-4 py-3 text-base sm:text-sm transition-colors duration-400",
           "placeholder:text-[var(--fg-tenue)]",
           "focus:border-[var(--acento)] focus:outline-none",
         )}
@@ -163,7 +163,7 @@ export function FormularioCompleto({
           <select
             name="empreendimento_id"
             defaultValue={empreendimentoPadrao ?? ""}
-            className="mt-2 w-full rounded-xl border border-[var(--borda)] bg-[var(--bg)] px-4 py-3 text-sm focus:border-[var(--acento)] focus:outline-none"
+            className="mt-2 w-full rounded-xl border border-[var(--borda)] bg-[var(--bg)] px-4 py-3 text-base sm:text-sm focus:border-[var(--acento)] focus:outline-none"
           >
             <option value="">Ainda não sei</option>
             {empreendimentos.map((e) => (
@@ -231,7 +231,7 @@ export function FormularioCurto({
         <select
           name="empreendimento_id"
           defaultValue=""
-          className="w-full rounded-xl border border-[var(--borda)] bg-[var(--bg)] px-4 py-3 text-sm focus:border-[var(--acento)] focus:outline-none"
+          className="w-full rounded-xl border border-[var(--borda)] bg-[var(--bg)] px-4 py-3 text-base sm:text-sm focus:border-[var(--acento)] focus:outline-none"
         >
           <option value="">Ainda não sei</option>
           {empreendimentos.map((e) => (
@@ -258,7 +258,7 @@ function Consentimento({ texto }: { texto: string }) {
         type="checkbox"
         name="consentimento"
         required
-        className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--acento)]"
+        className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--acento)]"
       />
       <span className="text-xs leading-relaxed text-[var(--fg-suave)]">
         {texto}

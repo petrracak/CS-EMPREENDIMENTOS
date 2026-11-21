@@ -70,6 +70,22 @@ sem animação. `data-palavras` divide a frase e anima palavra por
 palavra, saindo de um desfoque; o componente é
 `src/components/site/palavras.tsx`.
 
+**Entrada por fora, hover por dentro.** As regras de entrada
+(`data-revelar`, `data-quadro`) definem a `transition` inteira do
+elemento. Num elemento que também tem hover, elas apagam a transição do
+hover, e o zoom e a sombra passam a trocar de uma vez. Por isso todo card
+tem três camadas: um invólucro com a entrada, o `CartaoVivo` com o hover
+e o conteúdo dentro — e o `data-quadro` fica na moldura da foto, não na
+foto. Em desenvolvimento, o `Revelar` avisa no console se alguém juntar
+os dois no mesmo elemento.
+
+**Rolagem em camadas.** O topo da página inicial e da ficha é um palco
+parado (sticky); o resto sobe por cima, numa `.cortina`. A dobra do
+Girlan fica presa enquanto os destaques passam por cima (`Empilhada` e
+`.sobrepor`). Texto saindo e foto escurecendo são animações ligadas à
+rolagem, em CSS; onde o navegador não tem suporte, o resto funciona sem
+elas. No celular a seção presa é desligada.
+
 **A duração do hover é um ajuste só.** `--default-transition-duration` e
 `--default-transition-timing-function`, no `@theme` de `globals.css`,
 valem para todo utilitário `transition-*` do Tailwind. O padrão da

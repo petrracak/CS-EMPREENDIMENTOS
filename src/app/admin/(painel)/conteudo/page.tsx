@@ -3,7 +3,8 @@ import Link from "next/link";
 
 import { BlocoConteudo, Interruptor } from "@/components/admin/bloco-conteudo";
 import { EnviarImagem } from "@/components/admin/enviar-imagem";
-import { Area, Campo, Entrada } from "@/components/admin/ui";
+import { Area, Campo, Entrada, Selecao } from "@/components/admin/ui";
+import { ICONES_NUMERO } from "@/components/site/numeros-bento";
 import { exigirPerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
@@ -27,7 +28,12 @@ export default async function PaginaConteudo() {
   const faixa = mapa.faixa_campanha ?? {};
   const construtor = mapa.construtor ?? {};
   const numeros = Array.isArray(hero.numeros)
-    ? (hero.numeros as { valor: string; texto: string }[])
+    ? (hero.numeros as {
+        valor: string;
+        texto: string;
+        icone?: string | null;
+        imagem?: string | null;
+      }[])
     : [];
 
   return (
@@ -138,22 +144,55 @@ export default async function PaginaConteudo() {
             <legend className="px-1.5 text-sm font-medium">
               Números de apoio
             </legend>
-            <p className="mb-4 text-xs text-[var(--fg-tenue)]">
-              Os três quadros logo abaixo da foto. Deixe em branco para
-              esconder um deles.
+            <p className="mb-4 text-xs leading-relaxed text-[var(--fg-tenue)]">
+              As três peças logo abaixo da foto do topo. O número conta até o
+              valor quando a pessoa rola até ele. Com foto, a peça mostra a
+              foto com o número por cima; sem foto, ela alterna entre verde e
+              claro. Deixe o número em branco para esconder a peça.
             </p>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="grid gap-3 sm:grid-cols-[160px_1fr]">
-                  <Entrada
-                    name={`numeros.${i}.valor`}
-                    defaultValue={numeros[i]?.valor ?? ""}
-                    placeholder="140"
-                  />
-                  <Entrada
-                    name={`numeros.${i}.texto`}
-                    defaultValue={numeros[i]?.texto ?? ""}
-                    placeholder="unidades entregues"
+                <div
+                  key={i}
+                  className="space-y-3 rounded-lg bg-[var(--bg-fundo)] p-4"
+                >
+                  <p className="text-xs font-semibold tracking-wide text-[var(--fg-tenue)] uppercase">
+                    Peça {i + 1}
+                  </p>
+                  <div className="grid gap-3 sm:grid-cols-[140px_1fr_180px]">
+                    <Entrada
+                      name={`numeros.${i}.valor`}
+                      defaultValue={numeros[i]?.valor ?? ""}
+                      placeholder="140"
+                      aria-label={`Número da peça ${i + 1}`}
+                    />
+                    <Entrada
+                      name={`numeros.${i}.texto`}
+                      defaultValue={numeros[i]?.texto ?? ""}
+                      placeholder="unidades entregues"
+                      aria-label={`Texto da peça ${i + 1}`}
+                    />
+                    <Selecao
+                      name={`numeros.${i}.icone`}
+                      defaultValue={numeros[i]?.icone ?? ""}
+                      aria-label={`Ícone da peça ${i + 1}`}
+                    >
+                      <option value="">Ícone automático</option>
+                      {Object.entries(ICONES_NUMERO).map(([chave, { rotulo }]) => (
+                        <option key={chave} value={chave}>
+                          {rotulo}
+                        </option>
+                      ))}
+                    </Selecao>
+                  </div>
+                  <EnviarImagem
+                    nome={`numeros.${i}.imagem`}
+                    valor={numeros[i]?.imagem || null}
+                    pasta="site"
+                    rotulo="Foto da peça (opcional)"
+                    apoio="Uma foto real de obra ou de empreendimento. O número e o texto ficam por cima, em branco."
+                    larguraIdeal={1200}
+                    alturaIdeal={800}
                   />
                 </div>
               ))}

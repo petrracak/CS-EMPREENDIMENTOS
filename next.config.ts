@@ -104,6 +104,9 @@ const nextConfig: NextConfig = {
     // agente. O próprio `next build` interrompe quando a versão instalada
     // tem aviso publicado; isto registra como a correção é feita aqui.
     agentUpgrade: "security",
+    // O Phosphor exporta mais de 1500 ícones num índice só. Sem isto o
+    // modo de desenvolvimento carrega todos para usar meia dúzia.
+    optimizePackageImports: ["@phosphor-icons/react"],
   },
   async headers() {
     return [

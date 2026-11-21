@@ -1,53 +1,37 @@
-import type { SVGProps } from "react";
+import { HeadsetIcon } from "@phosphor-icons/react/ssr";
 
 import { cn } from "@/lib/utils";
 
 /**
- * Headset com ondas saindo dele, em laço.
+ * O headset da faixa de contato.
  *
- * Desenhado aqui, e não tirado de biblioteca, porque o que faz o
- * desenho funcionar é a animação: três arcos que nascem no centro,
- * abrem e somem, um a cada segundo e meio. Ícone de biblioteca é uma
- * forma parada, e parado isto seria só mais um ícone.
+ * O ícone é o Headset do Phosphor, em duotone. A versão anterior era
+ * desenhada à mão, pequena, com ondas finas, e lia como improviso.
  *
- * O ciclo é de 4,5 s e as ondas nunca passam de 55% de opacidade. É o
- * que separa "a linha está aberta" de "banner piscando".
+ * O movimento vem de três camadas, cada uma num ritmo:
+ *   um arco dourado que gira em volta do círculo (6 s, constante)
+ *   um halo quente atrás, que respira (3,6 s)
+ *   o próprio headset, flutuando dois pixels (4,2 s)
+ *
+ * Ritmos diferentes de propósito: nunca coincidem, então o conjunto não
+ * "bate" num compasso — parece vivo em vez de mecânico.
  */
-export function IconeAtendimento({
-  className,
-  ...props
-}: SVGProps<SVGSVGElement>) {
+export function IconeAtendimento({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 96 96"
-      fill="none"
+    <span
       aria-hidden="true"
-      className={cn("atendimento h-16 w-16 sm:h-20 sm:w-20", className)}
-      {...props}
+      className={cn(
+        "atendimento relative grid h-24 w-24 place-items-center sm:h-28 sm:w-28",
+        className,
+      )}
     >
-      {/* As ondas ficam atrás, saindo de trás do headset. */}
-      <g className="ondas" stroke="currentColor">
-        <circle cx="48" cy="48" r="30" />
-        <circle cx="48" cy="48" r="30" />
-        <circle cx="48" cy="48" r="30" />
-      </g>
-
-      <g
-        className="fone"
-        stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {/* O arco por cima da cabeça. */}
-        <path d="M30 52v-5a18 18 0 0 1 36 0v5" />
-        {/* As duas conchas. */}
-        <rect x="22" y="49" width="11" height="17" rx="5.5" />
-        <rect x="63" y="49" width="11" height="17" rx="5.5" />
-        {/* A haste que desce até o microfone. */}
-        <path d="M68.5 66v2.5a7.5 7.5 0 0 1-7.5 7.5h-5.5" />
-        <circle cx="51" cy="76" r="2.75" fill="currentColor" stroke="none" />
-      </g>
-    </svg>
+      <span className="atendimento-halo absolute inset-0 rounded-full" />
+      <span className="atendimento-arco absolute inset-0 rounded-full" />
+      <span className="absolute inset-[6px] rounded-full bg-white/[0.06] ring-1 ring-white/15 backdrop-blur-sm" />
+      <HeadsetIcon
+        weight="duotone"
+        className="atendimento-fone relative h-12 w-12 text-[var(--color-ouro-300)] sm:h-14 sm:w-14"
+      />
+    </span>
   );
 }

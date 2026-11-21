@@ -59,7 +59,7 @@ export function FaixaCampanha({
         {linkTexto ? (
           <Link
             href={linkUrl || "/cadastro"}
-            className="group inline-flex shrink-0 items-center gap-1 font-medium text-white underline-offset-4 hover:underline"
+            className="group -my-2 inline-flex shrink-0 items-center gap-1 py-2 font-medium text-white underline-offset-4 hover:underline"
           >
             {linkTexto}
             <ArrowRight className="h-3.5 w-3.5 transition-transform duration-500 group-hover:translate-x-1" />
@@ -71,7 +71,7 @@ export function FaixaCampanha({
         type="button"
         onClick={fechar}
         aria-label="Fechar aviso"
-        className="absolute top-1/2 right-3 -translate-y-1/2 rounded-full p-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+        className="absolute top-1/2 right-1 -translate-y-1/2 rounded-full p-3 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
       >
         <X className="h-3.5 w-3.5" />
       </button>

@@ -45,6 +45,23 @@ export function Revelar() {
       return;
     }
 
+    // Armadilha que já custou três rodadas de ajuste: as regras de
+    // entrada definem a `transition` inteira do elemento, então num
+    // elemento que também tem hover elas apagam a transição do hover.
+    // Em desenvolvimento, quem cair nela fica sabendo na hora.
+    if (process.env.NODE_ENV !== "production") {
+      document.querySelectorAll(ALVOS).forEach((el) => {
+        if (/(^|\s)(transition|duration-)/.test(el.getAttribute("class") ?? "")) {
+          console.warn(
+            "[Revelar] Este elemento tem animação de entrada E transição " +
+              "própria — a de entrada vai apagar a outra. Ponha a entrada " +
+              "num invólucro por fora (ver card-empreendimento.tsx).",
+            el,
+          );
+        }
+      });
+    }
+
     const vistos = new WeakSet<Element>();
 
     const observador = new IntersectionObserver(

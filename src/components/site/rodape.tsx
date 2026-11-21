@@ -37,12 +37,12 @@ export async function Rodape() {
             <h3 className="text-xs font-semibold tracking-[0.16em] text-[var(--color-ouro-300)] uppercase">
               Empreendimentos
             </h3>
-            <ul className="mt-5 space-y-3 text-sm">
+            <ul className="mt-3 space-y-0 text-sm">
               {emDestaque.map((e) => (
                 <li key={e.id}>
                   <Link
                     href={`/empreendimentos/${e.slug}`}
-                    className="text-white/60 transition-colors hover:text-white"
+                    className="inline-block py-2.5 text-white/60 transition-colors hover:text-white"
                   >
                     {e.nome}
                   </Link>
@@ -51,7 +51,7 @@ export async function Rodape() {
               <li>
                 <Link
                   href="/empreendimentos"
-                  className="font-medium text-white underline-offset-4 hover:underline"
+                  className="inline-block py-2.5 font-medium text-white underline-offset-4 hover:underline"
                 >
                   Ver todos
                 </Link>
@@ -73,7 +73,7 @@ export async function Rodape() {
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-white/35" />
                 <a
                   href={`mailto:${empresa.email}`}
-                  className="break-all transition-colors hover:text-white"
+                  className="-my-2.5 inline-block py-2.5 break-all transition-colors hover:text-white"
                 >
                   {empresa.email}
                 </a>
@@ -84,7 +84,7 @@ export async function Rodape() {
                   href={empresa.whatsapp_link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-colors hover:text-white"
+                  className="-my-2.5 inline-block py-2.5 transition-colors hover:text-white"
                 >
                   {empresa.whatsapp}
                 </a>

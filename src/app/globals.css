@@ -431,56 +431,517 @@
     );
   }
 
-  /* ------------------------------- o headset da faixa de contato */
-  /* As ondas nascem pequenas no centro, abrem e somem. Cada uma leva
-     4,5 s e elas saem com 1,5 s de diferença, então há sempre uma no
-     ar e nunca três ao mesmo tempo no auge. */
-  @keyframes onda {
+  /* =================================================================
+     ROLAGEM EM CAMADAS (referência: cliffbrook.framer.website)
+
+     O palco é o topo da página. Ele fica parado (sticky) enquanto a
+     cortina — todo o resto — sobe por cima dele, com cantos arredondados
+     e uma sombra na borda. Enquanto a cortina sobe, o texto do palco
+     sai para cima e a foto escurece, ligados à rolagem e não ao tempo.
+
+     Esses dois movimentos usam animação ligada à rolagem, que é CSS puro
+     e roda fora da linha principal do navegador. Onde não há suporte
+     (o Firefox, por enquanto), o palco e a cortina continuam funcionando
+     — só sem o texto saindo e a foto escurecendo.
+     ================================================================= */
+
+  .cortina {
+    position: relative;
+    z-index: 10;
+    /* Sobe um pouco sobre o palco: a borda arredondada já aparece na
+       primeira tela e convida a rolar. */
+    margin-top: -2rem;
+    background: var(--bg);
+    border-radius: 1.75rem 1.75rem 0 0;
+    box-shadow: 0 -30px 60px -30px rgb(1 38 22 / 0.5);
+  }
+
+  @media (min-width: 768px) {
+    .cortina {
+      margin-top: -3rem;
+      border-radius: 2.5rem 2.5rem 0 0;
+    }
+  }
+
+  /* A sombra que escurece o palco. Opacidade, e não filtro na foto,
+     porque opacidade é a única propriedade que o navegador anima sem
+     redesenhar a imagem. */
+  .palco-sombra {
+    opacity: 0;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    @keyframes palco-conteudo-sair {
+      to {
+        opacity: 0;
+        transform: translateY(-12vh);
+      }
+    }
+
+    @keyframes palco-sombra-descer {
+      to {
+        opacity: 0.6;
+      }
+    }
+
+    @keyframes palco-fundo-recuar {
+      to {
+        transform: scale(1.06);
+      }
+    }
+
+    .palco-conteudo {
+      animation: palco-conteudo-sair linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 60vh;
+    }
+
+    .palco-sombra {
+      animation: palco-sombra-descer linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100vh;
+    }
+
+    .palco-fundo {
+      animation: palco-fundo-recuar linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100vh;
+    }
+  }
+
+  /* ------------------------------------------------ empilhamento */
+  /* Uma seção fica presa quando o pé dela chega ao pé da tela, e a
+     seguinte sobe por cima. O `top` vem do componente Empilhada, que mede
+     a altura; até ele medir, a seção rola normal — por isso o sticky só
+     vale com data-pronto. */
+  .empilhada {
+    position: relative;
+    z-index: 0;
+    background: var(--bg);
+  }
+
+  .empilhada[data-pronto] {
+    position: sticky;
+  }
+
+  /* Véu que escurece a seção presa enquanto a outra passa por cima. */
+  .empilhada::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--color-verde-950);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sobrepor {
+    position: relative;
+    z-index: 1;
+    /* Recorta a esteira de palavras, que é a borda do painel e tem
+       fundo retangular, no arredondado dos cantos. */
+    overflow: hidden;
+    background: var(--bg);
+    border-radius: 2.5rem 2.5rem 0 0;
+    box-shadow: 0 -30px 60px -30px rgb(1 38 22 / 0.35);
+  }
+
+  @supports (animation-timeline: view()) {
+    .area-empilhada {
+      timeline-scope: --sobrepor;
+    }
+
+    .sobrepor {
+      view-timeline-name: --sobrepor;
+    }
+
+    @keyframes escurecer-presa {
+      to {
+        opacity: 0.4;
+      }
+    }
+
+    .empilhada[data-pronto]::after {
+      animation: escurecer-presa linear both;
+      animation-timeline: --sobrepor;
+      animation-range: entry 0% entry 100%;
+    }
+  }
+
+  /* No celular a seção presa atrapalha mais do que encanta: a tela é
+     curta, a barra do navegador muda de altura e o dedo perde o texto.
+     Abaixo de 768 px tudo rola normal. */
+  @media (max-width: 767px) {
+    .empilhada[data-pronto] {
+      position: relative;
+      top: auto !important;
+    }
+
+    .empilhada::after {
+      display: none;
+    }
+
+    .sobrepor {
+      border-radius: 0;
+      box-shadow: none;
+    }
+  }
+
+  /* =================================================================
+     O CARTÃO VIVO
+
+     Hover dos cards de empreendimento e de blog. Três coisas, todas
+     lentas e na mesma curva, para o gesto ler como um só:
+
+       o cartão sobe e ganha sombra
+       a borda acende onde o cursor está (::before)
+       um brilho suave acompanha a mão por cima da foto (::after)
+
+     A borda é um degradê radial recortado por máscara: o miolo é
+     transparente e só o anel de 1 px aparece. É a técnica do Magic Card.
+     ================================================================= */
+
+  .cartao-vivo {
+    position: relative;
+    border-radius: 1rem;
+    transition:
+      transform 0.8s var(--ease-lento),
+      box-shadow 0.8s var(--ease-lento);
+  }
+
+  .cartao-vivo:hover {
+    transform: translateY(-0.5rem);
+    box-shadow:
+      0 2px 4px rgb(1 38 22 / 0.04),
+      0 28px 60px -12px rgb(1 38 22 / 0.22);
+  }
+
+  .cartao-vivo::before,
+  .cartao-vivo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.7s var(--ease-lento);
+  }
+
+  /* A borda que acende perto do cursor. */
+  .cartao-vivo::before {
+    z-index: 3;
+    padding: 1px;
+    background: radial-gradient(
+      280px circle at var(--x, 50%) var(--y, 50%),
+      rgb(255 178 117 / 0.95),
+      rgb(243 214 148 / 0.55) 40%,
+      transparent 72%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+  }
+
+  /* O brilho que segue a mão, em luz suave para não lavar a foto. */
+  .cartao-vivo::after {
+    z-index: 2;
+    background: radial-gradient(
+      420px circle at var(--x, 50%) var(--y, 50%),
+      rgb(255 241 215 / 0.38),
+      transparent 62%
+    );
+    mix-blend-mode: soft-light;
+  }
+
+  .cartao-vivo:hover::before,
+  .cartao-vivo:hover::after {
+    opacity: 1;
+  }
+
+  /* =================================================================
+     OS GESTOS DOS ÍCONES DO BENTO
+
+     Cada ícone tem um movimento que diz o que ele é: a chave gira na
+     fechadura, a casa sobe do chão, o calendário carimba a data. Roda
+     uma vez quando a peça entra na tela e de novo a cada hover.
+
+     São dois pares de keyframes iguais com nomes diferentes (-a e -b)
+     porque o navegador só reinicia uma animação quando o NOME muda:
+     com um nome só, o hover não tocaria de novo o gesto da entrada.
+     ================================================================= */
+
+  @keyframes girar-a {
     0% {
-      transform: scale(0.5);
-      opacity: 0;
+      transform: rotate(0);
     }
     25% {
-      opacity: 0.5;
+      transform: rotate(-18deg);
+    }
+    55% {
+      transform: rotate(12deg);
+    }
+    80% {
+      transform: rotate(-5deg);
     }
     100% {
-      transform: scale(1.4);
-      opacity: 0;
+      transform: rotate(0);
+    }
+  }
+  @keyframes girar-b {
+    0% {
+      transform: rotate(0);
+    }
+    25% {
+      transform: rotate(-18deg);
+    }
+    55% {
+      transform: rotate(12deg);
+    }
+    80% {
+      transform: rotate(-5deg);
+    }
+    100% {
+      transform: rotate(0);
+    }
+  }
+  @keyframes subir-a {
+    0% {
+      transform: translateY(0) scale(1);
+    }
+    40% {
+      transform: translateY(-6px) scale(1.08);
+    }
+    70% {
+      transform: translateY(1px) scale(0.98);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+    }
+  }
+  @keyframes subir-b {
+    0% {
+      transform: translateY(0) scale(1);
+    }
+    40% {
+      transform: translateY(-6px) scale(1.08);
+    }
+    70% {
+      transform: translateY(1px) scale(0.98);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+    }
+  }
+  @keyframes carimbo-a {
+    0% {
+      transform: scale(1) rotate(0);
+    }
+    35% {
+      transform: scale(0.84) rotate(-8deg);
+    }
+    70% {
+      transform: scale(1.12) rotate(4deg);
+    }
+    100% {
+      transform: scale(1) rotate(0);
+    }
+  }
+  @keyframes carimbo-b {
+    0% {
+      transform: scale(1) rotate(0);
+    }
+    35% {
+      transform: scale(0.84) rotate(-8deg);
+    }
+    70% {
+      transform: scale(1.12) rotate(4deg);
+    }
+    100% {
+      transform: scale(1) rotate(0);
     }
   }
 
-  .atendimento .ondas circle {
-    fill: none;
-    stroke-width: 1.25;
-    opacity: 0;
-    /* Sem isto o scale usa a caixa do SVG inteiro e a onda sai torta. */
-    transform-box: view-box;
-    transform-origin: 48px 48px;
-    animation: onda 4.5s var(--ease-entrada-saida) infinite;
+  .icone-gesto {
+    transform-origin: 50% 60%;
+    animation-duration: 1.1s;
+    animation-timing-function: var(--ease-entrada-saida);
+    animation-fill-mode: both;
   }
 
-  .atendimento .ondas circle:nth-child(2) {
-    animation-delay: 1.5s;
+  /* Na entrada: quando a peça deixa de estar oculta. Atraso para o
+     gesto acontecer depois que a peça termina de subir. */
+  .bento-peca:not([data-oculto]) .icone-girar {
+    animation-name: girar-a;
+    animation-delay: calc(var(--atraso, 0ms) + 0.45s);
+  }
+  .bento-peca:not([data-oculto]) .icone-subir {
+    animation-name: subir-a;
+    animation-delay: calc(var(--atraso, 0ms) + 0.45s);
+  }
+  .bento-peca:not([data-oculto]) .icone-carimbo {
+    animation-name: carimbo-a;
+    animation-delay: calc(var(--atraso, 0ms) + 0.45s);
   }
 
-  .atendimento .ondas circle:nth-child(3) {
-    animation-delay: 3s;
+  /* No hover: o nome troca para o par -b e o gesto toca de novo. */
+  .bento-peca:hover .icone-girar {
+    animation-name: girar-b;
+    animation-delay: 0s;
+  }
+  .bento-peca:hover .icone-subir {
+    animation-name: subir-b;
+    animation-delay: 0s;
+  }
+  .bento-peca:hover .icone-carimbo {
+    animation-name: carimbo-b;
+    animation-delay: 0s;
   }
 
-  /* O headset respira junto, dois pixels para cima e para baixo. */
-  @keyframes flutuar {
+  /* ------------------------------- o headset da faixa de contato */
+  /* O arco é um degradê cônico recortado em anel por máscara: só uma
+     fatia dourada, que gira. O halo é luz quente desfocada que respira. */
+  @keyframes girar-arco {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  @keyframes respirar-halo {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: scale(0.92);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.12);
+    }
+  }
+
+  @keyframes flutuar-fone {
     0%,
     100% {
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-2px);
+      transform: translateY(-3px);
     }
   }
 
-  .atendimento .fone {
-    transform-box: view-box;
-    animation: flutuar 4.5s var(--ease-entrada-saida) infinite;
+  .atendimento-arco {
+    background: conic-gradient(
+      from 0deg,
+      transparent 0 55%,
+      rgb(243 214 148 / 0.25) 68%,
+      #f3d694 90%,
+      #fff1d7 96%,
+      transparent 100%
+    );
+    -webkit-mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 3px),
+      #000 calc(100% - 2.5px)
+    );
+    mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 3px),
+      #000 calc(100% - 2.5px)
+    );
+    animation: girar-arco 6s linear infinite;
+  }
+
+  .atendimento-halo {
+    background: radial-gradient(
+      circle,
+      rgb(255 178 117 / 0.55),
+      rgb(243 214 148 / 0.15) 45%,
+      transparent 70%
+    );
+    filter: blur(14px);
+    animation: respirar-halo 3.6s var(--ease-entrada-saida) infinite;
+  }
+
+  .atendimento-fone {
+    animation: flutuar-fone 4.2s var(--ease-entrada-saida) infinite;
+  }
+
+  /* =================================================================
+     AURORA (modelo: Aurora Background, ui.aceternity.com)
+
+     Faixas diagonais repetidas, uma camada escura e uma com as cores da
+     marca, desfocadas e correndo devagar. A segunda cópia corre em outra
+     velocidade por cima, em luz suave, e o cruzamento das duas faz as
+     cortinas de luz tremeluzirem.
+
+     Diferença do original: lá a cópia de cima usa o modo "diferença",
+     que inverte as cores. Com o laranja da marca isso dava faixas
+     vermelhas, fora da paleta. Aqui é luz suave, e só verdes e dourados
+     — o laranja fica para o brilho que sobe da esquerda.
+     ================================================================= */
+  .aurora {
+    --aurora-escura: repeating-linear-gradient(
+      100deg,
+      #012616 0%,
+      #012616 7%,
+      transparent 10%,
+      transparent 12%,
+      #012616 16%
+    );
+    --aurora-cores: repeating-linear-gradient(
+      100deg,
+      #1b6a4d 10%,
+      #f3d694 15%,
+      #2f8361 20%,
+      #fff1d7 25%,
+      #0d5540 30%
+    );
+    position: absolute;
+    inset: -10px;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: var(--aurora-escura), var(--aurora-cores);
+    background-size: 300%, 200%;
+    background-position:
+      50% 50%,
+      50% 50%;
+    filter: blur(12px);
+    -webkit-mask-image: radial-gradient(
+      ellipse 75% 95% at 88% 0%,
+      #000 12%,
+      transparent 78%
+    );
+    mask-image: radial-gradient(
+      ellipse 75% 95% at 88% 0%,
+      #000 12%,
+      transparent 78%
+    );
+    animation: correr-aurora 90s linear infinite;
+  }
+
+  .aurora::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--aurora-escura), var(--aurora-cores);
+    background-size: 200%, 100%;
+    mix-blend-mode: soft-light;
+    animation: correr-aurora 55s linear infinite reverse;
+  }
+
+  @keyframes correr-aurora {
+    from {
+      background-position:
+        50% 50%,
+        50% 50%;
+    }
+    to {
+      background-position:
+        350% 50%,
+        350% 50%;
+    }
   }
 
   /* Faixa que corre, usada na esteira de palavras da home. */
@@ -513,15 +974,30 @@
     .respirar,
     .brilho,
     .destaque-ouro,
-    .atendimento .fone,
-    .atendimento .ondas circle {
+    .atendimento-arco,
+    .atendimento-halo,
+    .atendimento-fone,
+    .aurora,
+    .aurora::after {
       animation: none;
     }
 
-    /* Sem a animação as ondas ficariam invisíveis; aqui elas viram um
-       halo parado, que é o desenho completo em repouso. */
-    .atendimento .ondas circle {
-      opacity: 0.25;
+    .icone-gesto,
+    .palco-conteudo,
+    .palco-sombra,
+    .palco-fundo,
+    .empilhada::after {
+      animation: none !important;
+    }
+
+    .empilhada[data-pronto] {
+      position: relative;
+    }
+
+    .cartao-vivo,
+    .cartao-vivo:hover {
+      transform: none;
+      transition: box-shadow 0.3s;
     }
 
     /* O Revelar não esconde nada com movimento reduzido, mas a regra

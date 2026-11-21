@@ -75,7 +75,9 @@ export function Campo({
 
 const ENTRADA =
   "w-full rounded-lg border border-[var(--borda)] bg-[var(--bg)] px-3.5 py-2.5 " +
-  "text-sm transition-colors duration-200 placeholder:text-[var(--fg-tenue)] " +
+  // 16 px no celular: abaixo disso o Safari do iPhone dá zoom na página
+  // ao tocar no campo, e a Carolina pode editar o site pelo telefone.
+  "text-base sm:text-sm transition-colors duration-200 placeholder:text-[var(--fg-tenue)] " +
   "focus:border-[var(--acento)] focus:outline-none";
 
 export function Entrada({ className, ...props }: ComponentProps<"input">) {

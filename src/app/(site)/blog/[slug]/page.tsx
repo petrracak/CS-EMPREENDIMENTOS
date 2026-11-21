@@ -50,7 +50,7 @@ export default async function PaginaPost({
         <div className="mx-auto max-w-3xl">
           <Link
             href="/blog"
-            className="group inline-flex items-center gap-1.5 text-sm text-[var(--fg-tenue)] transition-colors hover:text-[var(--acento)]"
+            className="group -my-2.5 inline-flex items-center gap-1.5 py-2.5 text-sm text-[var(--fg-tenue)] transition-colors hover:text-[var(--acento)]"
           >
             <ArrowLeft className="h-4 w-4 transition-transform duration-500 group-hover:-translate-x-1" />
             Voltar para o blog
