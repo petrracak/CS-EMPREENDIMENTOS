@@ -69,3 +69,26 @@ export function slugificar(texto: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+
+/**
+ * Separa o número do resto, para o número poder ser tipografado grande e
+ * o resto pequeno: "Desde 2016" vira { antes: "Desde", numero: "2016" },
+ * "140" vira só o número, "10 anos" guarda o "anos" para depois.
+ *
+ * Existe porque o valor vem de um campo livre do painel, e a CS escreve
+ * o que quiser ali. Sem isto, "Desde 2016" sairia inteiro em corpo 60, o
+ * que desequilibra a linha.
+ */
+export function partirNumero(valor: string): {
+  antes: string;
+  numero: string;
+  depois: string;
+} {
+  const casado = valor.trim().match(/^(\D*?)\s*([\d][\d.,]*)\s*(.*)$/);
+  if (!casado) return { antes: "", numero: valor.trim(), depois: "" };
+  return {
+    antes: casado[1].trim(),
+    numero: casado[2],
+    depois: casado[3].trim(),
+  };
+}

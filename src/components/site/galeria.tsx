@@ -67,7 +67,7 @@ export function Galeria({ fotos }: { fotos: Foto[] }) {
               alt={foto.legenda ?? ""}
               fill
               sizes="(max-width: 768px) 50vw, 33vw"
-              className="object-cover transition-transform duration-700 [transition-timing-function:var(--ease-saida)] group-hover:scale-[1.05]"
+              className="object-cover transition-transform duration-[2000ms] [transition-timing-function:var(--ease-lento)] group-hover:scale-[1.07]"
             />
             {foto.legenda ? (
               <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-left text-xs text-white opacity-0 transition-opacity duration-500 group-hover:opacity-100">

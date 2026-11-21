@@ -213,7 +213,7 @@ export default async function PaginaEmpreendimento({
             >
               <BotaoLink href="#cadastro" aparencia="claro" className="group">
                 {textoUtil(item.botao_primario) ?? "Quero atendimento"}
-                <ArrowRight className="h-4 w-4 transition-transform duration-500 [transition-timing-function:var(--ease-suave)] group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1" />
               </BotaoLink>
               <BotaoExterno
                 href={empresa.whatsapp_link}

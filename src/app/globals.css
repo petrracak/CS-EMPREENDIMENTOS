@@ -74,6 +74,10 @@
   /* A curva do dia a dia — hover, cor, sombra. Parte depressa e chega
      devagar, em vez de frear de uma vez como o ease padrão. */
   --ease-suave: cubic-bezier(0.33, 1, 0.68, 1);
+  /* Para os gestos longos, onde o movimento é para ser sentido e não
+     visto: parte devagar e chega devagar. Em card grande a curva de
+     cima ainda sai rápido demais no primeiro quarto do caminho. */
+  --ease-lento: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   /* ------------------------------------------------------ duração */
   /* Todo utilitário transition-* do Tailwind herda estes dois. É aqui
@@ -425,6 +429,58 @@
     );
   }
 
+  /* ------------------------------- o headset da faixa de contato */
+  /* As ondas nascem pequenas no centro, abrem e somem. Cada uma leva
+     4,5 s e elas saem com 1,5 s de diferença, então há sempre uma no
+     ar e nunca três ao mesmo tempo no auge. */
+  @keyframes onda {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    25% {
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(1.4);
+      opacity: 0;
+    }
+  }
+
+  .atendimento .ondas circle {
+    fill: none;
+    stroke-width: 1.25;
+    opacity: 0;
+    /* Sem isto o scale usa a caixa do SVG inteiro e a onda sai torta. */
+    transform-box: view-box;
+    transform-origin: 48px 48px;
+    animation: onda 4.5s var(--ease-entrada-saida) infinite;
+  }
+
+  .atendimento .ondas circle:nth-child(2) {
+    animation-delay: 1.5s;
+  }
+
+  .atendimento .ondas circle:nth-child(3) {
+    animation-delay: 3s;
+  }
+
+  /* O headset respira junto, dois pixels para cima e para baixo. */
+  @keyframes flutuar {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+
+  .atendimento .fone {
+    transform-box: view-box;
+    animation: flutuar 4.5s var(--ease-entrada-saida) infinite;
+  }
+
   /* Faixa que corre, usada na esteira de palavras da home. */
   @keyframes correr {
     from {
@@ -454,8 +510,16 @@
     .esteira,
     .respirar,
     .brilho,
-    .destaque-ouro {
+    .destaque-ouro,
+    .atendimento .fone,
+    .atendimento .ondas circle {
       animation: none;
+    }
+
+    /* Sem a animação as ondas ficariam invisíveis; aqui elas viram um
+       halo parado, que é o desenho completo em repouso. */
+    .atendimento .ondas circle {
+      opacity: 0.25;
     }
 
     [data-revelar],

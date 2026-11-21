@@ -25,7 +25,6 @@ export default async function PaginaConteudo() {
 
   const hero = mapa.hero ?? {};
   const faixa = mapa.faixa_campanha ?? {};
-  const banner = mapa.banner_campanha ?? {};
   const construtor = mapa.construtor ?? {};
   const numeros = Array.isArray(hero.numeros)
     ? (hero.numeros as { valor: string; texto: string }[])
@@ -196,67 +195,10 @@ export default async function PaginaConteudo() {
           </div>
         </BlocoConteudo>
 
-        {/* ============================================ seção da campanha */}
-        {/* Nada desta seção é fixo no site: é a mesma caixa para Black
-            Friday, aniversário da CS ou lançamento. Daí o título do bloco
-            trazer a campanha que está no ar — é o que a Carolina vê na
-            página e o que ela procura aqui. */}
-        <BlocoConteudo
-          chave="banner_campanha"
-          titulo={
-            t(banner, "titulo")
-              ? `Seção de campanha — ${t(banner, "titulo")}`
-              : "Seção de campanha"
-          }
-          apoio="O quadro escuro da página inicial, logo abaixo dos números. Desligue o interruptor quando a campanha acabar: a seção sai do site e o texto fica guardado aqui para a próxima."
-        >
-          <Interruptor
-            nome="ativo"
-            rotulo="Mostrar esta seção na página inicial"
-            apoio="Desligado, a seção desaparece do site por completo — nem o espaço fica."
-            padrao={b(banner, "ativo")}
-          />
-          <div className="grid gap-4 sm:grid-cols-[220px_1fr]">
-            <Campo
-              rotulo="Etiqueta de cima"
-              apoio="A linha miúda em caixa alta. Deixe em branco para esconder."
-            >
-              <Entrada
-                name="olho"
-                defaultValue={t(banner, "olho")}
-                placeholder="Campanha"
-              />
-            </Campo>
-            <Campo rotulo="Título">
-              <Entrada name="titulo" defaultValue={t(banner, "titulo")} />
-            </Campo>
-          </div>
-          <Campo rotulo="Texto">
-            <Area name="texto" defaultValue={t(banner, "texto")} rows={3} />
-          </Campo>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Campo rotulo="Botão">
-              <Entrada name="botao" defaultValue={t(banner, "botao")} />
-            </Campo>
-            <Campo rotulo="Para onde ele leva">
-              <Entrada name="botao_url" defaultValue={t(banner, "botao_url")} />
-            </Campo>
-          </div>
-          <EnviarImagem
-            nome="imagem"
-            valor={t(banner, "imagem") || null}
-            pasta="site"
-            rotulo="Imagem da campanha (opcional)"
-            apoio="Entra à direita do texto. Sem imagem, a seção fica só com o texto sobre o verde escuro."
-            larguraIdeal={1200}
-            alturaIdeal={900}
-          />
-        </BlocoConteudo>
-
         {/* ============================================== o construtor */}
         <BlocoConteudo
           chave="construtor"
-          titulo="Conheça o construtor"
+          titulo="Bloco do fundador"
           apoio="O bloco do Girlan na página inicial. Enquanto não houver foto, o espaço mostra a marca da CS."
         >
           <EnviarImagem
@@ -268,9 +210,37 @@ export default async function PaginaConteudo() {
             larguraIdeal={1200}
             alturaIdeal={1500}
           />
-          <Campo rotulo="Título do bloco">
-            <Entrada name="titulo" defaultValue={t(construtor, "titulo")} />
+          <Campo
+            rotulo="Chamada de cima"
+            apoio="A linha miúda em caixa alta, acima do título."
+          >
+            <Entrada
+              name="olho"
+              defaultValue={t(construtor, "olho")}
+              placeholder="A CS"
+            />
           </Campo>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Campo rotulo="Título, início">
+              <Entrada
+                name="titulo_antes"
+                defaultValue={t(construtor, "titulo_antes")}
+                placeholder="Conheça o"
+              />
+            </Campo>
+            <Campo
+              rotulo="Palavra em destaque"
+              apoio="Sai em verde degradê no site."
+            >
+              <Entrada
+                name="titulo_destaque"
+                defaultValue={t(construtor, "titulo_destaque")}
+                placeholder="Girlan"
+              />
+            </Campo>
+          </div>
+
           <Campo rotulo="Legenda da foto">
             <Entrada name="legenda" defaultValue={t(construtor, "legenda")} />
           </Campo>

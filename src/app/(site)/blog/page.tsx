@@ -51,7 +51,7 @@ export default async function PaginaBlog() {
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover transition-transform duration-700 [transition-timing-function:var(--ease-saida)] group-hover:scale-[1.04]"
+                    className="object-cover transition-transform duration-[2000ms] [transition-timing-function:var(--ease-lento)] group-hover:scale-[1.07]"
                   />
                 </div>
               ) : null}
@@ -68,7 +68,7 @@ export default async function PaginaBlog() {
                   </time>
                 </div>
 
-                <h2 className="font-display mt-4 text-lg leading-snug font-medium text-balance transition-colors duration-500 group-hover:text-[var(--acento)]">
+                <h2 className="font-display mt-4 text-lg leading-snug font-medium text-balance transition-colors duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:text-[var(--acento)]">
                   {post.titulo}
                 </h2>
 
@@ -80,7 +80,7 @@ export default async function PaginaBlog() {
 
                 <span className="mt-auto inline-flex items-center gap-1 pt-6 text-sm font-medium text-[var(--acento)]">
                   Ler publicação
-                  <ArrowUpRight className="h-4 w-4 transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                  <ArrowUpRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1 group-hover:-translate-y-1" />
                 </span>
               </div>
             </Link>

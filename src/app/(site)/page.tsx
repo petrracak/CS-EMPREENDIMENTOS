@@ -1,15 +1,22 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Building2, CalendarDays, KeyRound } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { CardEmpreendimento } from "@/components/site/card-empreendimento";
+import { IconeAtendimento } from "@/components/site/icone-atendimento";
 import { Palavras } from "@/components/site/palavras";
 import { Paragrafos } from "@/components/site/texto";
 import { Simbolo } from "@/components/site/logo";
-import { BotaoExterno, BotaoLink, Olho, Secao, Titulo } from "@/components/site/ui";
+import {
+  BotaoExterno,
+  BotaoLink,
+  Olho,
+  Secao,
+  Titulo,
+} from "@/components/site/ui";
 import { listarDestaques, listarMarcos, listarPosts } from "@/lib/queries";
-import { lerConfigs, lerEmpresa, lista, txt, bool } from "@/lib/settings";
-import { formatarData } from "@/lib/utils";
+import { lerConfigs, lerEmpresa, lista, txt } from "@/lib/settings";
+import { formatarData, partirNumero } from "@/lib/utils";
 
 // As páginas públicas são geradas e revalidadas de hora em hora. O painel
 // chama revalidatePath ao salvar, então a CS nunca espera por isso.
@@ -19,7 +26,6 @@ export default async function PaginaInicial() {
   const [configs, empresa, destaques, marcos, posts] = await Promise.all([
     lerConfigs([
       "hero",
-      "banner_campanha",
       "construtor",
       "destaques",
       "todos_empreendimentos",
@@ -33,12 +39,9 @@ export default async function PaginaInicial() {
   ]);
 
   const hero = configs.hero;
-  const banner = configs.banner_campanha;
   const construtor = configs.construtor;
   const numeros = lista<{ valor: string; texto: string }>(hero, "numeros");
   const imagemHero = txt(hero, "imagem_desktop");
-
-  const ICONES = [CalendarDays, KeyRound, Building2];
 
   return (
     <>
@@ -135,7 +138,7 @@ export default async function PaginaInicial() {
                 className="group"
               >
                 {txt(hero, "botao_primario")}
-                <ArrowRight className="h-4 w-4 transition-transform duration-500 [transition-timing-function:var(--ease-suave)] group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1" />
               </BotaoLink>
               <BotaoLink
                 href={txt(hero, "botao_secundario_url", "/cadastro")}
@@ -149,114 +152,83 @@ export default async function PaginaInicial() {
         </div>
       </section>
 
-      {/* ======================================= números, em bento curto */}
+      {/* ============================================ a régua de números */}
+      {/* Antes isto eram três cartões iguais, cada um com um ícone em
+          cima do número. É o desenho que todo gerador entrega, e lia
+          como tal. Agora é uma régua: uma superfície só, dividida por
+          fios de um pixel, com o numeral em corpo grande carregando a
+          tipografia e o rótulo pequeno embaixo. Sem ícone nenhum — o
+          ícone genérico é justamente o que denunciava o bloco.
+
+          As colunas têm larguras diferentes, acompanhando o tamanho de
+          cada rótulo, porque três colunas idênticas é o outro sinal de
+          grade automática. */}
       {numeros.length ? (
         <section className="relative z-10 px-5 sm:px-8">
-          <div className="mx-auto -mt-14 grid w-full max-w-6xl gap-px overflow-hidden rounded-2xl border border-[var(--borda)] bg-[var(--borda)] shadow-[var(--sombra-card)] sm:grid-cols-3">
-            {numeros.map((numero, i) => {
-              const Icone = ICONES[i % ICONES.length];
-              return (
-                <div
-                  key={i}
-                  /* Em tela grande estes quadros sobem por cima da foto,
-                     dentro da primeira dobra: também entram sem esperar
-                     o observador, depois dos botões do topo. */
-                  data-entrada
-                  style={
-                    { "--atraso": `${900 + i * 110}ms` } as React.CSSProperties
-                  }
-                  className="group relative overflow-hidden bg-[var(--bg-elevado)] p-7 transition-colors duration-700 hover:bg-[var(--color-verde-50)]"
-                >
-                  {/* O fio do acento cresce no topo do quadro no hover. */}
-                  <span className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-[var(--color-acento)] via-[var(--color-ouro-300)] to-transparent transition-transform duration-700 [transition-timing-function:var(--ease-suave)] group-hover:scale-x-100" />
-                  <Icone className="h-5 w-5 text-[var(--color-ouro-600)] transition-all duration-700 [transition-timing-function:var(--ease-suave)] group-hover:-translate-y-1 group-hover:scale-110 group-hover:text-[var(--color-acento-forte)]" />
-                  <p className="font-display mt-4 text-3xl font-medium tracking-tight transition-colors duration-700 group-hover:text-[var(--acento)]">
-                    {numero.valor}
-                  </p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-[var(--fg-suave)]">
-                    {numero.texto}
-                  </p>
-                </div>
-              );
-            })}
+          <div className="mx-auto -mt-16 w-full max-w-6xl overflow-hidden rounded-2xl bg-[var(--bg-elevado)] shadow-[var(--sombra-alta)]">
+            {/* Fio da marca atravessando o topo da régua. */}
+            <div
+              aria-hidden
+              className="h-0.5 w-full bg-gradient-to-r from-[var(--color-acento)] via-[var(--color-ouro-300)] to-transparent"
+            />
+
+            <div className="grid divide-y divide-[var(--borda)] sm:grid-cols-[1fr_0.9fr_1.3fr] sm:divide-x sm:divide-y-0">
+              {numeros.map((numero, i) => {
+                const {
+                  antes,
+                  numero: valor,
+                  depois,
+                } = partirNumero(numero.valor);
+                return (
+                  <div
+                    key={i}
+                    data-entrada
+                    style={
+                      {
+                        "--atraso": `${900 + i * 120}ms`,
+                      } as React.CSSProperties
+                    }
+                    className="group relative px-7 py-8 sm:px-8 sm:py-10"
+                  >
+                    {/* Índice de dois dígitos, como numeração de prancha. */}
+                    <span className="tabular text-[0.625rem] font-semibold tracking-[0.2em] text-[var(--color-ouro-600)] transition-colors duration-700 group-hover:text-[var(--color-acento-forte)]">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+
+                    <p className="font-display mt-5 flex items-baseline gap-2 font-medium">
+                      {antes ? (
+                        <span className="text-lg text-[var(--fg-tenue)]">
+                          {antes}
+                        </span>
+                      ) : null}
+                      <span className="tabular text-5xl leading-none tracking-[-0.045em] sm:text-6xl">
+                        {valor}
+                      </span>
+                      {depois ? (
+                        <span className="text-lg text-[var(--fg-tenue)]">
+                          {depois}
+                        </span>
+                      ) : null}
+                    </p>
+
+                    {/* O fio embaixo do número cresce devagar no hover. */}
+                    <span
+                      aria-hidden
+                      className="mt-5 block h-px w-10 origin-left bg-gradient-to-r from-[var(--color-acento)] to-[var(--borda-forte)] transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:scale-x-[4]"
+                    />
+
+                    <p className="mt-4 max-w-[28ch] text-[0.8125rem] leading-[1.65] text-[var(--fg-suave)]">
+                      {numero.texto}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
       ) : null}
 
-      {/* ===================================== dobra 2: banner da campanha */}
-      {/* A seção da campanha do momento — hoje a Black Friday. Nada aqui
-          é fixo no código: título, texto, botão, foto e o próprio
-          interruptor saem de site_settings, em Conteúdo do site. Com o
-          interruptor desligado a seção não existe na página, e o texto
-          fica guardado para a campanha seguinte. */}
-      {bool(banner, "ativo") ? (
-        <Secao className="pb-0 md:pb-0">
-          <div
-            data-revelar
-            className="relative overflow-hidden rounded-2xl bg-[var(--bg-tinta)] px-7 py-10 sm:px-12 sm:py-14"
-          >
-            {/* Brilho dourado no canto, o mesmo recurso do topo em dose
-                menor: dá calor ao bloco escuro sem pedir atenção. */}
-            <div
-              aria-hidden
-              className="brilho pointer-events-none absolute -top-[30%] -right-[10%] h-[36rem] w-[36rem] rounded-full opacity-50"
-            />
-            <Simbolo className="pointer-events-none absolute -right-6 -bottom-10 h-48 w-auto text-white/[0.04]" />
-
-            <div className="relative grid items-center gap-10 lg:grid-cols-[1fr_auto]">
-              <div className="max-w-2xl">
-                {txt(banner, "olho") ? (
-                  <span className="olho text-[var(--color-ouro-300)] [&::before]:from-[var(--color-acento)] [&::before]:to-[var(--color-ouro-300)]">
-                    {txt(banner, "olho")}
-                  </span>
-                ) : null}
-
-                <Palavras
-                  como="p"
-                  passo={45}
-                  segmentos={[{ texto: txt(banner, "titulo") }]}
-                  className="font-display mt-4 text-2xl font-medium text-[var(--color-ouro-300)] sm:text-3xl"
-                />
-
-                <p
-                  data-revelar
-                  data-desfoque
-                  style={{ "--atraso": "180ms" } as React.CSSProperties}
-                  className="mt-3 leading-relaxed text-white/70"
-                >
-                  {txt(banner, "texto")}
-                </p>
-
-                <BotaoLink
-                  href={txt(banner, "botao_url", "/cadastro")}
-                  aparencia="claro"
-                  className="group mt-7"
-                >
-                  {txt(banner, "botao")}
-                  <ArrowRight className="h-4 w-4 transition-transform duration-500 [transition-timing-function:var(--ease-suave)] group-hover:translate-x-1" />
-                </BotaoLink>
-              </div>
-
-              {/* A foto é opcional: sem ela o bloco fica só com o texto e
-                  a marca d'água, do jeito que está hoje. */}
-              {txt(banner, "imagem") ? (
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl lg:w-80">
-                  <Image
-                    src={txt(banner, "imagem")}
-                    alt=""
-                    fill
-                    data-quadro
-                    sizes="(max-width: 1024px) 100vw, 20rem"
-                    className="object-cover"
-                  />
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </Secao>
-      ) : null}
-
-      {/* ================================= dobra 3: conheça o construtor */}
+      {/* ================================= dobra 2: conheça o construtor */}
       <Secao>
         <div className="grid items-start gap-12 lg:grid-cols-[0.85fr_1fr] lg:gap-16">
           <div data-revelar className="lg:sticky lg:top-28">
@@ -288,13 +260,17 @@ export default async function PaginaInicial() {
           <div>
             {/* O olho entra inteiro; o título entra palavra por palavra.
                 Se os dois fossem data-revelar, o bloco subiria junto e o
-                escalonamento das palavras se perderia no caminho. */}
+                escalonamento das palavras se perderia no caminho.
+
+                Nada aqui é fixo: olho, título e a palavra em destaque saem
+                de site_settings. Se a CS trocar de fundador, de nome ou de
+                discurso, muda no painel. */}
             <div data-revelar>
-              <Olho>A CS</Olho>
+              <Olho>{txt(construtor, "olho", "A CS")}</Olho>
             </div>
             <Titulo
-              antes="Conheça o"
-              destaque="construtor"
+              antes={txt(construtor, "titulo_antes")}
+              destaque={txt(construtor, "titulo_destaque")}
               atraso={120}
               className="mt-5"
             />
@@ -336,7 +312,7 @@ export default async function PaginaInicial() {
               className="group mt-10"
             >
               {txt(construtor, "botao")}
-              <ArrowRight className="h-4 w-4 transition-transform duration-500 [transition-timing-function:var(--ease-suave)] group-hover:translate-x-1" />
+              <ArrowRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1" />
             </BotaoLink>
           </div>
         </div>
@@ -349,7 +325,10 @@ export default async function PaginaInicial() {
         aria-hidden
         className="overflow-hidden border-y border-[var(--borda)] bg-[var(--bg-fundo)] py-5"
       >
-        <div className="esteira flex w-max gap-10" style={{ "--duracao": "48s" } as React.CSSProperties}>
+        <div
+          className="esteira flex w-max gap-10"
+          style={{ "--duracao": "48s" } as React.CSSProperties}
+        >
           {Array.from({ length: 2 }).map((_, volta) => (
             <div key={volta} className="flex shrink-0 items-center gap-10">
               {[
@@ -373,7 +352,7 @@ export default async function PaginaInicial() {
         </div>
       </div>
 
-      {/* ================================ dobra 4: destaques */}
+      {/* ================================ dobra 3: destaques */}
       <Secao>
         <div className="max-w-2xl">
           <span data-revelar className="olho">
@@ -402,11 +381,11 @@ export default async function PaginaInicial() {
         </div>
       </Secao>
 
-      {/* ============================= dobra 5: todos os empreendimentos */}
+      {/* ============================= dobra 4: todos os empreendimentos */}
       <Secao className="pt-0 md:pt-0">
         <div
           data-revelar
-          className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] p-8 transition-shadow duration-700 hover:shadow-[var(--sombra-card)] sm:p-12 lg:flex-row lg:items-center"
+          className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] p-8 transition-shadow duration-[1100ms] [transition-timing-function:var(--ease-lento)] hover:shadow-[var(--sombra-card)] sm:p-12 lg:flex-row lg:items-center"
         >
           <div className="max-w-xl">
             <Titulo
@@ -420,16 +399,20 @@ export default async function PaginaInicial() {
             </p>
           </div>
           <BotaoLink
-            href={txt(configs.todos_empreendimentos, "botao_url", "/empreendimentos")}
+            href={txt(
+              configs.todos_empreendimentos,
+              "botao_url",
+              "/empreendimentos",
+            )}
             className="group shrink-0"
           >
             {txt(configs.todos_empreendimentos, "botao")}
-            <ArrowRight className="h-4 w-4 transition-transform duration-500 [transition-timing-function:var(--ease-suave)] group-hover:translate-x-1" />
+            <ArrowRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1" />
           </BotaoLink>
         </div>
       </Secao>
 
-      {/* ============================================== dobra 6: o blog */}
+      {/* ============================================== dobra 5: o blog */}
       {posts.length ? (
         <Secao className="pt-0 md:pt-0">
           <div
@@ -453,7 +436,7 @@ export default async function PaginaInicial() {
               className="group inline-flex items-center gap-1.5 text-sm font-medium text-[var(--acento)]"
             >
               {txt(configs.blog_home, "botao")}
-              <ArrowUpRight className="h-4 w-4 transition-transform duration-500 [transition-timing-function:var(--ease-suave)] group-hover:translate-x-1 group-hover:-translate-y-1" />
+              <ArrowUpRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1 group-hover:-translate-y-1" />
             </Link>
           </div>
 
@@ -464,33 +447,52 @@ export default async function PaginaInicial() {
                 href={`/blog/${post.slug}`}
                 data-revelar
                 style={{ "--atraso": `${i * 90}ms` } as React.CSSProperties}
-                className="group flex flex-col rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] p-7 transition-all duration-700 [transition-timing-function:var(--ease-suave)] hover:-translate-y-1.5 hover:border-[var(--borda-forte)] hover:shadow-[var(--sombra-alta)]"
+                className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] transition-all duration-[1100ms] [transition-timing-function:var(--ease-lento)] hover:-translate-y-2 hover:border-[var(--borda-forte)] hover:shadow-[var(--sombra-alta)]"
               >
-                <div className="flex items-center gap-3 text-xs text-[var(--fg-tenue)]">
-                  {post.categoria ? (
-                    <span className="rounded-full bg-[var(--bg-fundo)] px-2.5 py-1 font-medium text-[var(--fg-suave)]">
-                      {post.categoria}
-                    </span>
-                  ) : null}
-                  <time dateTime={post.publicado_em ?? undefined}>
-                    {formatarData(post.publicado_em)}
-                  </time>
-                </div>
-
-                <h3 className="font-display mt-4 text-lg leading-snug font-medium text-balance transition-colors duration-500 group-hover:text-[var(--acento)]">
-                  {post.titulo}
-                </h3>
-
-                {post.resumo ? (
-                  <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[var(--fg-suave)]">
-                    {post.resumo}
-                  </p>
+                {/* A capa do post, no mesmo recorte da listagem do blog.
+                    Sem capa o card começa pelo texto, sem buraco. */}
+                {post.capa_url ? (
+                  <div
+                    data-quadro
+                    className="relative aspect-[16/10] overflow-hidden bg-[var(--bg-fundo)]"
+                  >
+                    <Image
+                      src={post.capa_url}
+                      alt=""
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover transition-transform duration-[2000ms] [transition-timing-function:var(--ease-lento)] group-hover:scale-[1.07]"
+                    />
+                  </div>
                 ) : null}
 
-                <span className="mt-auto inline-flex items-center gap-1 pt-6 text-sm font-medium text-[var(--acento)]">
-                  Ler publicação
-                  <ArrowUpRight className="h-4 w-4 transition-transform duration-500 [transition-timing-function:var(--ease-suave)] group-hover:translate-x-1 group-hover:-translate-y-1" />
-                </span>
+                <div className="flex flex-1 flex-col p-7">
+                  <div className="flex items-center gap-3 text-xs text-[var(--fg-tenue)]">
+                    {post.categoria ? (
+                      <span className="rounded-full bg-[var(--bg-fundo)] px-2.5 py-1 font-medium text-[var(--fg-suave)]">
+                        {post.categoria}
+                      </span>
+                    ) : null}
+                    <time dateTime={post.publicado_em ?? undefined}>
+                      {formatarData(post.publicado_em)}
+                    </time>
+                  </div>
+
+                  <h3 className="font-display mt-4 text-lg leading-snug font-medium text-balance transition-colors duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:text-[var(--acento)]">
+                    {post.titulo}
+                  </h3>
+
+                  {post.resumo ? (
+                    <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[var(--fg-suave)]">
+                      {post.resumo}
+                    </p>
+                  ) : null}
+
+                  <span className="mt-auto inline-flex items-center gap-1 pt-6 text-sm font-medium text-[var(--acento)]">
+                    Ler publicação
+                    <ArrowUpRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1 group-hover:-translate-y-1" />
+                  </span>
+                </div>
               </Link>
             ))}
           </div>
@@ -505,6 +507,14 @@ export default async function PaginaInicial() {
         >
           <Simbolo className="pointer-events-none absolute -top-16 -left-10 h-64 w-auto text-white/[0.03]" />
           <div className="relative mx-auto max-w-2xl">
+            {/* O headset com as ondas em laço. É a única coisa em
+                movimento contínuo nesta dobra, então ele carrega o
+                convite sozinho, sem precisar de mais nada. */}
+            <IconeAtendimento
+              className="mx-auto mb-7 text-[var(--color-ouro-300)]"
+              data-entrada
+            />
+
             <Palavras
               como="h2"
               passo={50}
@@ -521,12 +531,16 @@ export default async function PaginaInicial() {
             </p>
             <div className="mt-9 flex flex-wrap justify-center gap-3">
               <BotaoLink
-                href={txt(configs.faixa_contato, "botao_primario_url", "/cadastro")}
+                href={txt(
+                  configs.faixa_contato,
+                  "botao_primario_url",
+                  "/cadastro",
+                )}
                 aparencia="claro"
                 className="group"
               >
                 {txt(configs.faixa_contato, "botao_primario")}
-                <ArrowRight className="h-4 w-4 transition-transform duration-500 [transition-timing-function:var(--ease-suave)] group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1" />
               </BotaoLink>
               <BotaoExterno
                 href={empresa.whatsapp_link}
