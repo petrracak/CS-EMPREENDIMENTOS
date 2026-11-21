@@ -58,13 +58,17 @@ entrega: enquanto a CS não preencher, o campo some do site junto com o
 rótulo, em vez de virar "R$ 0,00" ou "a consultar". A regra está em
 `textoUtil` e `formatarValor`, em `src/lib/utils.ts`.
 
-**O movimento tem dois gatilhos.** `data-entrada` é animação de CSS e
-corre no carregamento; `data-revelar` espera um IntersectionObserver, que
-só existe depois da hidratação. A primeira dobra usa o primeiro — título
-de abertura não pode esperar por JavaScript. O resto da página usa o
-segundo, com um quarto de tela de antecedência para a entrada terminar
-antes de ser vista. `data-palavras` divide a frase e anima palavra por
-palavra, saindo de um desfoque; o componente é `src/components/site/palavras.tsx`.
+**Nada nasce escondido.** O HTML que sai do servidor tem todo o
+conteúdo visível. Depois que o JavaScript carrega, o componente
+`Revelar` (`src/components/site/revelar.tsx`) esconde só o que está
+abaixo da tela, marcando `data-oculto`, e tira a marca quando a pessoa
+rola até lá — é quando a transição do CSS roda. Um MutationObserver faz
+a mesma triagem nas páginas que o React troca sem recarregar. A
+primeira dobra usa `data-entrada`, que é animação de CSS pura e corre
+no carregamento. Se o JS falhar ou demorar, o site aparece inteiro, só
+sem animação. `data-palavras` divide a frase e anima palavra por
+palavra, saindo de um desfoque; o componente é
+`src/components/site/palavras.tsx`.
 
 **A duração do hover é um ajuste só.** `--default-transition-duration` e
 `--default-transition-timing-function`, no `@theme` de `globals.css`,

@@ -240,13 +240,19 @@
      Dois caminhos, e a diferença entre eles é quem dispara:
 
        data-entrada   o CSS anima sozinho, no carregamento da página
-       data-revelar   um observador no cliente marca quando entra na tela
+       data-revelar   anima quando entra na tela, ao rolar
 
-     A primeira dobra usa data-entrada. Antes ela também dependia do
-     observador, e o observador só existe depois da hidratação: num
-     celular em Santarém isso é meio segundo de título invisível. O que
-     ninguém vê antes de rolar pode esperar pelo JS; o que abre a página,
-     não.
+     A regra que vale para os dois: NADA NASCE ESCONDIDO. O conteúdo
+     está visível no HTML que chega do servidor. Só depois que o
+     JavaScript carrega é que o componente Revelar esconde o que está
+     abaixo da tela (com data-oculto) para mostrá-lo de novo quando a
+     pessoa rolar até lá.
+
+     Antes era o contrário — a marca já vinha escondendo do servidor e
+     dependia do JS para aparecer. Com internet lenta a página ficava em
+     branco até o pacote inteiro carregar, e na navegação entre páginas
+     os blocos não apareciam nunca. Se o JS falhar ou demorar, agora o
+     pior que acontece é o site aparecer sem animação.
      ================================================================= */
 
   @keyframes surgir {
@@ -266,10 +272,11 @@
   }
 
   /* ------------------------------------------ revelação ao rolar */
-  /* Sem JS nada fica escondido: a regra só vale se a marca existir. */
+  /* O estado normal é visível. A transição mora aqui, no estado normal,
+     para disparar quando data-oculto SAI — é a entrada. Quando ele
+     entra, a regra de baixo zera a transição e o bloco some na hora,
+     fora da tela, sem ninguém ver. */
   [data-revelar] {
-    opacity: 0;
-    transform: translateY(1.5rem);
     transition:
       opacity 0.9s var(--ease-saida),
       transform 0.9s var(--ease-saida),
@@ -277,19 +284,16 @@
     transition-delay: var(--atraso, 0ms);
   }
 
-  [data-revelar][data-visivel="sim"] {
-    opacity: 1;
-    transform: none;
+  [data-revelar][data-oculto] {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    transition: none;
   }
 
   /* Desfoque é opcional, e só em texto: num card com foto, a imagem
      entrando fora de foco parece filtro, não movimento. */
-  [data-revelar][data-desfoque] {
+  [data-revelar][data-desfoque][data-oculto] {
     filter: blur(7px);
-  }
-
-  [data-revelar][data-desfoque][data-visivel="sim"] {
-    filter: blur(0);
   }
 
   /* =================================================================
@@ -335,9 +339,6 @@
   }
 
   [data-palavras="rolagem"] > span {
-    opacity: 0;
-    transform: translateY(0.45em);
-    filter: blur(12px);
     transition:
       opacity 1s var(--ease-saida),
       transform 1s var(--ease-saida),
@@ -345,23 +346,24 @@
     transition-delay: var(--atraso, 0ms);
   }
 
-  [data-palavras="rolagem"][data-visivel="sim"] > span {
-    opacity: 1;
-    transform: none;
-    filter: blur(0);
+  [data-palavras="rolagem"][data-oculto] > span {
+    opacity: 0;
+    transform: translateY(0.45em);
+    filter: blur(12px);
+    transition: none;
   }
 
   /* --------------------------------- o quadro da foto que abre */
   /* A imagem é descoberta de baixo para cima por um clip, em vez de
      aparecer por opacidade. É a animação da referência Aurevant. */
   [data-quadro] {
-    clip-path: inset(100% 0 0 0);
     transition: clip-path 1.2s var(--ease-saida);
     transition-delay: var(--atraso, 0ms);
   }
 
-  [data-quadro][data-visivel="sim"] {
-    clip-path: inset(0 0 0 0);
+  [data-quadro][data-oculto] {
+    clip-path: inset(100% 0 0 0);
+    transition: none;
   }
 
   /* =================================================================
@@ -522,9 +524,15 @@
       opacity: 0.25;
     }
 
+    /* O Revelar não esconde nada com movimento reduzido, mas a regra
+       fica aqui também: com a mesma especificidade do estado oculto,
+       ela garante o conteúdo à vista mesmo se algo marcar data-oculto. */
     [data-revelar],
+    [data-revelar][data-oculto],
     [data-quadro],
-    [data-palavras] > span {
+    [data-quadro][data-oculto],
+    [data-palavras] > span,
+    [data-palavras][data-oculto] > span {
       opacity: 1;
       transform: none;
       filter: none;

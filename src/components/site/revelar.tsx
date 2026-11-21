@@ -2,62 +2,100 @@
 
 import { useEffect } from "react";
 
+const ALVOS = '[data-revelar], [data-palavras="rolagem"], [data-quadro]';
+
 /**
- * Liga as animações que dependem de rolagem.
+ * As animações que acontecem ao rolar a página.
  *
- * Um único IntersectionObserver para o documento inteiro, em vez de um
- * componente com estado por bloco: a página inicial tem dezenas de
- * elementos que entram, e um observador por elemento custaria caro à toa.
+ * O conteúdo chega VISÍVEL do servidor. Este componente, depois que o
+ * JavaScript carrega, esconde só o que está abaixo da tela (marcando
+ * data-oculto) e tira a marca quando o bloco chega perto — é aí que a
+ * transição do CSS roda e o bloco entra.
  *
- * O CSS é quem desenha o movimento (ver globals.css):
- *   data-revelar            sobe e aparece
- *   data-palavras=rolagem   palavra por palavra, saindo do desfoque
- *   data-quadro             descobre a foto de baixo para cima
+ * Era o contrário até a versão anterior, e isso quebrava duas coisas:
  *
- * A primeira dobra NÃO passa por aqui — ela usa data-entrada, que o CSS
- * anima no carregamento. Este componente só existe depois da hidratação,
- * e título de abertura não pode esperar por JS.
+ * 1. No F5 e em internet lenta, tudo abaixo do topo ficava em branco
+ *    até o pacote de JS inteiro baixar e o React hidratar.
+ * 2. Navegando entre páginas pelo próprio site, os blocos da página
+ *    nova não apareciam nunca. Este componente fica no layout, que não
+ *    remonta entre páginas, e só tinha olhado a primeira.
  *
- * Uma vez visível, o elemento para de ser observado: nada volta a
- * desaparecer quando a pessoa rola para cima, que é o tique de site
- * animado demais.
+ * O primeiro problema some porque nada depende do JS para existir. O
+ * segundo, porque um MutationObserver acompanha o que o React insere
+ * na página: cada bloco novo passa pela mesma triagem, na hora em que
+ * entra no documento e antes de ser pintado.
+ *
+ * Só esconde o que está ABAIXO da tela. O que está à vista fica como
+ * está, e o que já ficou para trás (um F5 no meio da página restaura a
+ * rolagem) também — ninguém precisa ver de novo a entrada de um bloco
+ * por onde já passou.
+ *
+ * E esconder acontece depois da hidratação, nunca antes. Marcar o HTML
+ * antes de o React assumir faria ele acusar diferença entre servidor e
+ * cliente.
  */
 export function Revelar() {
   useEffect(() => {
-    const alvos = document.querySelectorAll<HTMLElement>(
-      "[data-revelar]:not([data-visivel])," +
-        '[data-palavras="rolagem"]:not([data-visivel]),' +
-        "[data-quadro]:not([data-visivel])",
-    );
-    if (!alvos.length) return;
-
-    // Sem suporte (ou com movimento reduzido), tudo aparece de uma vez.
-    const paradoPorPreferencia = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    if (paradoPorPreferencia || !("IntersectionObserver" in window)) {
-      alvos.forEach((el) => el.setAttribute("data-visivel", "sim"));
+    // Quem pediu menos movimento, ou navegador sem o observador, fica
+    // com tudo à vista — que já é o estado do HTML.
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !("IntersectionObserver" in window)
+    ) {
       return;
     }
+
+    const vistos = new WeakSet<Element>();
 
     const observador = new IntersectionObserver(
       (entradas) => {
         for (const entrada of entradas) {
           if (!entrada.isIntersecting) continue;
-          entrada.target.setAttribute("data-visivel", "sim");
+          entrada.target.removeAttribute("data-oculto");
           observador.unobserve(entrada.target);
         }
       },
-      // Dispara bem ANTES de o elemento encostar na tela: a entrada leva
-      // perto de um segundo, e com o gatilho na borda quem rola rápido
-      // passa por blocos ainda a meio caminho. Um quarto de tela de
-      // antecedência é o que faz a animação terminar antes de ser vista.
-      { rootMargin: "0px 0px 25% 0px", threshold: 0 },
+      // Começa um pouco antes de o bloco encostar na tela, para a
+      // entrada já estar andando quando ele aparece — sem adiantar tanto
+      // que a animação termine antes de alguém ver.
+      { rootMargin: "0px 0px 15% 0px", threshold: 0 },
     );
 
-    alvos.forEach((el) => observador.observe(el));
-    return () => observador.disconnect();
+    const preparar = (el: Element) => {
+      if (vistos.has(el)) return;
+      vistos.add(el);
+
+      // Só o que está abaixo da dobra. Medir aqui força o layout, mas é
+      // uma vez por bloco e na hora em que ele entra no documento.
+      if (el.getBoundingClientRect().top < window.innerHeight) return;
+
+      el.setAttribute("data-oculto", "");
+      observador.observe(el);
+    };
+
+    const varrer = (raiz: Element) => {
+      if (raiz.matches(ALVOS)) preparar(raiz);
+      raiz.querySelectorAll(ALVOS).forEach(preparar);
+    };
+
+    varrer(document.body);
+
+    // A navegação entre páginas troca o conteúdo sem recarregar. O
+    // callback roda antes da próxima pintura, então o bloco novo abaixo
+    // da tela some antes de alguém chegar a vê-lo.
+    const vigia = new MutationObserver((mudancas) => {
+      for (const mudanca of mudancas) {
+        mudanca.addedNodes.forEach((no) => {
+          if (no instanceof Element) varrer(no);
+        });
+      }
+    });
+    vigia.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      vigia.disconnect();
+      observador.disconnect();
+    };
   }, []);
 
   return null;
