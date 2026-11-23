@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
  * rente ao desenho: a altura pedida na classe é a altura da marca, sem
  * margem embutida no arquivo.
  */
+const VERSAO_DA_LOGO = 2;
+
 export function Logo({
   variante = "colorida",
   className,
@@ -22,7 +24,10 @@ export function Logo({
 }) {
   return (
     <Image
-      src={`/marca/logo-${variante}.svg`}
+      // A pasta /marca fica um dia no cache do navegador. Trocou o
+      // desenho da logo, troque a versão, senão quem já visitou o site
+      // continua vendo a antiga.
+      src={`/marca/logo-${variante}.svg?v=${VERSAO_DA_LOGO}`}
       alt="CS Empreendimentos"
       width={2426}
       height={518}
