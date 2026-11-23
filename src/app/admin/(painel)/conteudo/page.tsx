@@ -11,6 +11,7 @@ import { EntradaLink } from "@/components/admin/entrada-link";
 import { EnviarImagem } from "@/components/admin/enviar-imagem";
 import { classeBotao } from "@/components/admin/estilos";
 import { FundoTopo } from "@/components/admin/fundo-topo";
+import { PreviaFaixa } from "@/components/admin/previa-faixa";
 import {
   Area,
   Cabecalho,
@@ -21,7 +22,7 @@ import {
 import { ICONES_NUMERO } from "@/components/site/numeros-bento";
 import { exigirPerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { lerTitulo } from "@/lib/texto-rico";
+import { lerMensagemDaFaixa, lerTitulo } from "@/lib/texto-rico";
 
 type Config = Record<string, unknown>;
 
@@ -290,23 +291,32 @@ export default async function PaginaConteudo() {
             apoio="Desligue quando a campanha terminar. O texto fica guardado para a próxima."
             padrao={b(faixa, "ativo")}
           />
-          <div className="grid gap-x-5 gap-y-5 sm:grid-cols-[14rem_1fr]">
-            <Campo rotulo="Começo em negrito">
-              <Entrada
-                name="texto_forte"
-                defaultValue={t(faixa, "texto_forte")}
-              />
-            </Campo>
-            <Campo rotulo="Resto do texto">
-              <Entrada name="texto" defaultValue={t(faixa, "texto")} />
-            </Campo>
-            <Campo rotulo="Texto do link">
+          <Campo
+            rotulo="Mensagem"
+            apoio="Selecione um trecho e use negrito, itálico, sublinhado ou Destaque. Na faixa, o destaque sai em dourado. Trocar a mensagem faz a faixa voltar para quem já tinha fechado."
+          >
+            <EditorTitulo
+              nome="mensagem"
+              valor={lerMensagemDaFaixa(faixa)}
+              rotulo="Mensagem da faixa de campanha"
+              placeholder="Black Friday CS: condições especiais até dia 30"
+              tamanho="texto"
+            />
+          </Campo>
+          <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+            <Campo
+              rotulo="Texto do botão"
+              apoio="Em branco, a faixa fica sem botão."
+            >
               <Entrada
                 name="link_texto"
                 defaultValue={t(faixa, "link_texto")}
               />
             </Campo>
-            <Campo rotulo="Para onde o link leva">
+            <Campo
+              rotulo="Para onde ele leva"
+              apoio="Escolha uma página em “Escolher página” ou cole um link completo, de dentro ou de fora do site."
+            >
               <EntradaLink
                 name="link_url"
                 defaultValue={t(faixa, "link_url")}
@@ -314,6 +324,11 @@ export default async function PaginaConteudo() {
               />
             </Campo>
           </div>
+          <PreviaFaixa
+            mensagem={lerMensagemDaFaixa(faixa)}
+            linkTexto={t(faixa, "link_texto")}
+            linkUrl={t(faixa, "link_url")}
+          />
         </BlocoConteudo>
 
         {/* ============================================== o construtor */}

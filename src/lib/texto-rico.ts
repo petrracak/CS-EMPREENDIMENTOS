@@ -53,7 +53,8 @@ const MARCAS: Record<string, keyof Omit<Peca, "texto">> = {
 };
 
 /** HTML do painel → peças de texto com a formatação de cada uma. */
-export function lerPecas(html: string): Peca[] {
+export function lerPecas(entrada: string | null | undefined): Peca[] {
+  const html = entrada ?? "";
   const pecas: Peca[] = [];
   const abertas: Record<string, number> = {};
   const marca = /<\s*(\/?)\s*([a-z0-9]+)[^>]*>/gi;
@@ -87,7 +88,7 @@ export function lerPecas(html: string): Peca[] {
 }
 
 /** Peças → palavras. Espaço separa palavra; formatação, não. */
-export function lerPalavras(html: string): Palavra[] {
+export function lerPalavras(html: string | null | undefined): Palavra[] {
   const palavras: Palavra[] = [];
   let atual: Palavra = [];
 
@@ -149,6 +150,33 @@ export function lerTitulo(
     escapar(antes),
     destaque ? `<mark>${escapar(destaque)}</mark>` : "",
     escapar(depois),
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/**
+ * A mensagem da faixa de campanha.
+ *
+ * Antes eram dois campos: um começo em negrito dourado e o resto do
+ * texto. Até o bloco ser salvo de novo, o começo vira negrito com
+ * destaque, que é como ele já aparecia.
+ */
+export function lerMensagemDaFaixa(
+  bloco: Record<string, unknown> | undefined,
+): string {
+  const valor = bloco?.mensagem;
+  if (typeof valor === "string" && valor.trim()) return valor;
+
+  const parte = (nome: string) => {
+    const v = bloco?.[nome];
+    return typeof v === "string" ? v.trim() : "";
+  };
+  const forte = parte("texto_forte");
+  const texto = parte("texto");
+  return [
+    forte ? `<mark><strong>${escapar(forte)}</strong></mark>` : "",
+    escapar(texto),
   ]
     .filter(Boolean)
     .join(" ");

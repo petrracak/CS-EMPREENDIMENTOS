@@ -74,6 +74,12 @@ function limpar(editor: Editor) {
     .trim();
 }
 
+const LETRA = {
+  grande: "font-display text-[1.1875rem] font-medium tracking-[-0.01em]",
+  medio: "font-display text-[1.0625rem] font-medium tracking-[-0.01em]",
+  texto: "text-[0.9375rem] font-normal",
+} as const;
+
 export function EditorTitulo({
   nome,
   valor,
@@ -89,7 +95,8 @@ export function EditorTitulo({
   /** Nome que o leitor de tela anuncia. */
   rotulo?: string;
   placeholder?: string;
-  tamanho?: "grande" | "medio";
+  /** "texto" é para frases que não são título, como a faixa de campanha. */
+  tamanho?: "grande" | "medio" | "texto";
 }) {
   const idDaCaixa = useIdDoCampo(id);
   const [html, setHtml] = useState(valor);
@@ -130,8 +137,8 @@ export function EditorTitulo({
         "aria-multiline": "false",
         ...(rotulo ? { "aria-label": rotulo } : {}),
         class: cn(
-          "editor-titulo min-h-[3.25rem] px-4 py-3 font-display leading-snug font-medium tracking-[-0.01em] text-[var(--fg)] outline-none",
-          tamanho === "grande" ? "text-[1.1875rem]" : "text-[1.0625rem]",
+          "editor-titulo min-h-[3.25rem] px-4 py-3 leading-snug text-[var(--fg)] outline-none",
+          LETRA[tamanho],
         ),
       },
     },
@@ -178,8 +185,8 @@ export function EditorTitulo({
           // Enquanto o editor monta, o mesmo tamanho, para nada pular.
           <div
             className={cn(
-              "min-h-[3.25rem] px-4 py-3 font-display leading-snug font-medium text-[var(--fg-tenue)]",
-              tamanho === "grande" ? "text-[1.1875rem]" : "text-[1.0625rem]",
+              "min-h-[3.25rem] px-4 py-3 leading-snug text-[var(--fg-tenue)]",
+              LETRA[tamanho],
             )}
           >
             …
@@ -189,8 +196,8 @@ export function EditorTitulo({
           <span
             aria-hidden
             className={cn(
-              "pointer-events-none absolute top-3 left-4 font-display leading-snug font-medium text-[var(--fg-tenue)]/60",
-              tamanho === "grande" ? "text-[1.1875rem]" : "text-[1.0625rem]",
+              "pointer-events-none absolute top-3 left-4 leading-snug text-[var(--fg-tenue)]/60",
+              LETRA[tamanho],
             )}
           >
             {placeholder}
@@ -202,7 +209,7 @@ export function EditorTitulo({
           preventDefault: clicar no botão não pode tirar a seleção. */}
       <div
         role="toolbar"
-        aria-label="Formatação do título"
+        aria-label="Formatação do texto"
         className="flex flex-wrap items-center gap-1 border-t border-[var(--borda)] px-2 py-1.5"
       >
         <BotaoFormato

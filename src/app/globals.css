@@ -1100,3 +1100,96 @@
   text-decoration-color: var(--fg);
   text-underline-offset: 0.16em;
 }
+
+/* ------------------------------------------------ faixa de campanha */
+/* Três movimentos lentos, um sobre o outro, para a faixa chamar o olho
+   sem piscar: o verde da marca fluindo de um lado para o outro, um brilho
+   quente (o laranja da logo) passeando atrás do texto e, de tempos em
+   tempos, um reflexo que atravessa a faixa inteira. */
+.faixa-campanha {
+  background-color: var(--color-verde-900);
+  background-image: linear-gradient(
+    100deg,
+    var(--color-verde-950) 0%,
+    var(--color-verde-800) 22%,
+    var(--color-verde-600) 42%,
+    var(--color-verde-800) 62%,
+    var(--color-verde-950) 82%,
+    var(--color-verde-800) 100%
+  );
+  background-size: 300% 100%;
+  animation: faixa-fluir 16s ease-in-out infinite alternate;
+}
+
+.faixa-campanha::before {
+  content: "";
+  position: absolute;
+  inset: -60% auto -60% 0;
+  width: 45%;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 178 117 / 0.38),
+    rgb(243 214 148 / 0.12) 55%,
+    transparent
+  );
+  filter: blur(6px);
+  animation: faixa-luz 11s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.faixa-campanha::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 22%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgb(255 255 255 / 0.16) 50%,
+    transparent
+  );
+  transform: translateX(-120%) skewX(-18deg);
+  animation: faixa-reflexo 7s var(--ease-lento, ease-in-out) infinite;
+  pointer-events: none;
+}
+
+@keyframes faixa-fluir {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 100% 0;
+  }
+}
+
+@keyframes faixa-luz {
+  from {
+    transform: translateX(-10%);
+  }
+  to {
+    transform: translateX(150%);
+  }
+}
+
+/* O reflexo passa em 1/3 do ciclo e descansa no resto: um brilho a cada
+   7 s chama atenção; um brilho sem parar vira ruído. */
+@keyframes faixa-reflexo {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  35%,
+  100% {
+    transform: translateX(560%) skewX(-18deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faixa-campanha,
+  .faixa-campanha::before,
+  .faixa-campanha::after {
+    animation: none;
+  }
+  .faixa-campanha::after {
+    display: none;
+  }
+}
