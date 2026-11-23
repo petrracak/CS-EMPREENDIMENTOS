@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ExternalLink, Plus } from "lucide-react";
+import { ArrowUpRight, FileText, Plus } from "lucide-react";
 
-import { Cartao, Etiqueta } from "@/components/admin/ui";
+import { classeBotao } from "@/components/admin/estilos";
+import { Cabecalho, Cartao, Etiqueta, Vazio } from "@/components/admin/ui";
 import { exigirPerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatarData } from "@/lib/utils";
@@ -15,28 +16,22 @@ export default async function ListaBlog() {
     .order("updated_at", { ascending: false });
 
   return (
-    <>
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-medium">Blog</h1>
-          <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--fg-tenue)]">
-            As publicações aparecem na página do blog e nos três cards da
-            página inicial, das mais recentes para as mais antigas.
-          </p>
-        </div>
-        <Link
-          href="/admin/blog/novo"
-          className="inline-flex items-center gap-2 rounded-lg bg-[var(--acento)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--acento-hover)]"
-        >
-          <Plus className="h-4 w-4" />
-          Nova publicação
-        </Link>
-      </header>
+    <div className="space-y-8">
+      <Cabecalho
+        titulo="Blog"
+        descricao="As publicações aparecem na página do blog e nos três cards da página inicial, das mais recentes para as mais antigas."
+        acoes={
+          <Link href="/admin/blog/novo" className={classeBotao("principal", "hidden sm:inline-flex")}>
+            <Plus className="h-4 w-4" strokeWidth={2.2} />
+            Nova publicação
+          </Link>
+        }
+      />
 
-      <div className="mt-8 space-y-3">
+      <div className="space-y-3">
         {posts?.length ? (
           posts.map((post) => (
-            <Cartao key={post.id} className="p-4">
+            <Cartao key={post.id} className="p-4 pl-5 transition-[border-color] duration-300 hover:border-[var(--borda-forte)]">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
                   <Link
@@ -69,20 +64,28 @@ export default async function ListaBlog() {
                     href={`/blog/${post.slug}`}
                     target="_blank"
                     aria-label="Ver no site"
-                    className="rounded-lg border border-[var(--borda)] p-2 text-[var(--fg-tenue)] transition-colors hover:border-[var(--acento)] hover:text-[var(--acento)]"
+                    className="grid h-10 w-10 place-items-center rounded-full text-[var(--fg-tenue)] transition-colors hover:bg-[var(--bg-fundo)] hover:text-[var(--fg)]"
                   >
-                    <ExternalLink className="h-3.5 w-3.5" />
+                    <ArrowUpRight className="h-4 w-4" strokeWidth={1.8} />
                   </Link>
                 ) : null}
               </div>
             </Cartao>
           ))
         ) : (
-          <p className="text-sm text-[var(--fg-tenue)]">
-            Nenhuma publicação ainda.
-          </p>
+          <Vazio
+            icone={<FileText className="h-6 w-6" strokeWidth={1.5} />}
+            titulo="Nenhuma publicação ainda"
+            texto="Escreva a primeira para ela aparecer no blog e na página inicial."
+            acao={
+              <Link href="/admin/blog/novo" className={classeBotao()}>
+                <Plus className="h-4 w-4" strokeWidth={2.2} />
+                Nova publicação
+              </Link>
+            }
+          />
         )}
       </div>
-    </>
+    </div>
   );
 }

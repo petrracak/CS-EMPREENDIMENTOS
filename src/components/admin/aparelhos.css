@@ -1,0 +1,22 @@
+/*
+ * Molduras de aparelho da biblioteca devices.css (MIT,
+ * github.com/picturepan2/devices.css).
+ *
+ * Importadas dentro da camada "base" do Tailwind de propósito. A
+ * biblioteca traz `.device * { display: block }`; solta, fora de camada,
+ * ela venceria qualquer classe utilitária (flex, inline-flex) e
+ * desmontaria o topo do site desenhado dentro da tela.
+ */
+@import "devices.css/dist/devices.min.css" layer(base);
+
+/*
+ * Dentro da tela, cada elemento volta ao display que o navegador daria
+ * (span em linha, div em bloco). Sem isto, o que não tem classe de
+ * display própria herdaria o "block" da moldura: a palavra dourada do
+ * título caía sozinha numa linha.
+ */
+@layer base {
+  .device .device-screen * {
+    display: revert;
+  }
+}

@@ -107,6 +107,10 @@ const nextConfig: NextConfig = {
     // O Phosphor exporta mais de 1500 ícones num índice só. Sem isto o
     // modo de desenvolvimento carrega todos para usar meia dúzia.
     optimizePackageImports: ["@phosphor-icons/react"],
+    // As fotos sobem por Server Action, já convertidas em WebP no
+    // navegador. O limite padrão (1 MB) barrava a foto de fundo do topo,
+    // que vai até 2400 px. A Vercel aceita até 4,5 MB por requisição.
+    serverActions: { bodySizeLimit: "4mb" },
   },
   async headers() {
     return [

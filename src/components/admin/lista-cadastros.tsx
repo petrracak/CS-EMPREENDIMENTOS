@@ -3,6 +3,7 @@
 import { ChevronDown } from "lucide-react";
 import { useState, useTransition } from "react";
 
+import { classeBotao } from "@/components/admin/estilos";
 import { Whatsapp } from "@/components/icones-sociais";
 import { anotarLead, mudarSituacaoLead } from "@/app/actions/cadastros";
 import { Area, Botao, Cartao, Etiqueta, Selecao } from "@/components/admin/ui";
@@ -45,7 +46,7 @@ export function ListaCadastros({ leads }: { leads: Lead[] }) {
 
   return (
     <>
-      <div className="mt-8 flex flex-wrap gap-2">
+      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden">
         {[{ valor: "todos", rotulo: "Todos" }, ...SITUACOES].map((o) => {
           const total =
             o.valor === "todos"
@@ -57,10 +58,10 @@ export function ListaCadastros({ leads }: { leads: Lead[] }) {
               type="button"
               onClick={() => setFiltro(o.valor)}
               className={
-                "rounded-lg px-3.5 py-2 text-sm transition-colors " +
+                "inline-flex min-h-10 shrink-0 items-center rounded-full border px-4 text-sm whitespace-nowrap transition-colors duration-200 " +
                 (filtro === o.valor
-                  ? "bg-[var(--color-verde-800)] text-white"
-                  : "border border-[var(--borda)] text-[var(--fg-suave)] hover:border-[var(--borda-forte)]")
+                  ? "border-[var(--color-verde-950)] bg-[var(--color-verde-950)] text-white"
+                  : "border-[var(--borda)] bg-[var(--bg-elevado)] text-[var(--fg-suave)] hover:border-[var(--borda-forte)]")
               }
             >
               {o.rotulo}
@@ -70,11 +71,11 @@ export function ListaCadastros({ leads }: { leads: Lead[] }) {
         })}
       </div>
 
-      <div className="mt-5 space-y-3">
+      <div className="mt-5 space-y-2.5">
         {visiveis.length ? (
           visiveis.map((lead) => <Linha key={lead.id} lead={lead} />)
         ) : (
-          <p className="text-sm text-[var(--fg-tenue)]">
+          <p className="rounded-[1.25rem] border border-dashed border-[var(--borda-forte)] px-6 py-10 text-center text-sm text-[var(--fg-tenue)]">
             Nenhum cadastro nesta situação.
           </p>
         )}
@@ -96,7 +97,7 @@ function Linha({ lead }: { lead: Lead }) {
       <button
         type="button"
         onClick={() => setAberto((v) => !v)}
-        className="flex w-full flex-wrap items-center justify-between gap-3 p-4 text-left"
+        className="flex min-h-16 w-full flex-wrap items-center justify-between gap-3 p-4 pl-5 text-left"
       >
         <div className="min-w-0">
           <p className="truncate font-medium">{lead.nome}</p>
@@ -107,7 +108,7 @@ function Linha({ lead }: { lead: Lead }) {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {lead.situacao === "novo" ? <Etiqueta tom="verde">Novo</Etiqueta> : null}
+          {lead.situacao === "novo" ? <Etiqueta tom="ouro">Novo</Etiqueta> : null}
           <span className="text-xs text-[var(--fg-tenue)]">
             {formatarData(lead.created_at)}
           </span>
@@ -141,7 +142,7 @@ function Linha({ lead }: { lead: Lead }) {
           </dl>
 
           {lead.mensagem ? (
-            <p className="mt-4 rounded-lg bg-[var(--bg-fundo)] p-4 text-sm leading-relaxed">
+            <p className="mt-4 rounded-xl bg-[var(--bg-fundo)] p-4 text-sm leading-relaxed">
               {lead.mensagem}
             </p>
           ) : null}
@@ -192,7 +193,7 @@ function Linha({ lead }: { lead: Lead }) {
               href={`https://wa.me/55${zap}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--acento)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--acento-hover)]"
+              className={classeBotao("principal", "mt-4")}
             >
               <Whatsapp className="h-4 w-4" />
               Chamar no WhatsApp

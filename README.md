@@ -104,8 +104,26 @@ escolhe qual servir, sem passar pelo otimizador da Vercel — que no plano free
 responde 402 quando a cota acaba e faz as imagens sumirem.
 
 **O redimensionamento é no navegador.** `src/lib/preparar-imagem.ts` reduz e
-converte antes de subir, o que evita a dependência nativa (sharp) no deploy e
+converte para WebP antes de subir, qualquer que seja o formato escolhido (JPG,
+PNG, HEIC), o que evita a dependência nativa (sharp) no deploy e
 não sobe 8 MB de foto de celular para reduzir do outro lado.
+
+**Topo com foto de computador e de celular.** O bloco `hero` guarda
+`imagem_desktop` e `imagem_mobile`. O site monta um `<picture>` com corte em
+768px (`src/components/site/foto-do-topo.tsx`), então o navegador baixa só
+uma. Sem a de celular, o celular usa a do computador cortada no centro.
+
+**Painel: explicação no "?", nunca solta.** Rótulo numa linha só; o texto de
+apoio vai para `<Dica>` (balão no hover, toque no celular). Texto aberto
+embaixo do rótulo deixava um campo mais alto que o vizinho e a linha torta.
+
+**Molduras de aparelho na camada base.** A prévia do topo usa devices.css
+(MIT), importado em `src/components/admin/aparelhos.css` com `layer(base)`.
+Solto, o `.device * { display: block }` da biblioteca venceria as classes do
+Tailwind e desmontaria a tela desenhada dentro do aparelho.
+
+**`cn()` e `text-display-*`.** O tailwind-merge lê `text-display-xl` como cor
+e descarta um `text-white` no mesmo `cn()`. Nesses casos, string comum.
 
 **Conteúdo editável em `site_settings`.** Uma linha por bloco do site, em
 jsonb. O formulário do painel manda campos achatados (`numeros.0.valor`) e a

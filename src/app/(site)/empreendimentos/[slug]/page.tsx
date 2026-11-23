@@ -145,9 +145,8 @@ export default async function PaginaEmpreendimento({
           <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-verde-950)]/80 via-[var(--color-verde-950)]/25 via-45% to-transparent" />
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[var(--color-verde-950)]/50 to-transparent" />
 
-          {/* As mesmas camadas da página inicial, para o topo das duas
-              ter o mesmo gesto: a grade fina e o brilho da marca. */}
-          <div aria-hidden className="linhas absolute inset-0" />
+          {/* O mesmo brilho da página inicial, para o topo das duas ter
+              o mesmo gesto. A foto fica limpa, sem grade por cima. */}
           <div
             aria-hidden
             className="brilho pointer-events-none absolute -bottom-[25vh] -left-[18vw] h-[75vh] w-[75vh] rounded-full"

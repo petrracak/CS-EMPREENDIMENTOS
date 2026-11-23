@@ -8,6 +8,7 @@ import { EnviarImagem } from "@/components/admin/enviar-imagem";
 import {
   Area,
   Aviso,
+  BarraSalvar,
   Botao,
   Campo,
   Cartao,
@@ -32,7 +33,7 @@ export function FormPost({ post }: { post: Post }) {
       <input type="hidden" name="id" value={t("id")} />
       <input type="hidden" name="publicado_em" value={t("publicado_em")} />
 
-      <Cartao className="space-y-5 p-6">
+      <Cartao className="space-y-5 p-5 sm:p-7">
         <Campo rotulo="Título">
           <Entrada name="titulo" defaultValue={t("titulo")} required />
         </Campo>
@@ -76,7 +77,7 @@ export function FormPost({ post }: { post: Post }) {
         />
       </Cartao>
 
-      <Cartao className="space-y-5 p-6">
+      <Cartao className="space-y-5 p-5 sm:p-7">
         <Campo
           rotulo="Conteúdo"
           apoio={
@@ -92,7 +93,7 @@ export function FormPost({ post }: { post: Post }) {
         </Campo>
       </Cartao>
 
-      <Cartao className="space-y-5 p-6">
+      <Cartao className="space-y-5 p-5 sm:p-7">
         <Campo rotulo="Título no Google" apoio="Até 60 caracteres.">
           <Entrada name="seo_titulo" defaultValue={t("seo_titulo")} />
         </Campo>
@@ -105,7 +106,7 @@ export function FormPost({ post }: { post: Post }) {
         </Campo>
       </Cartao>
 
-      <div className="sticky bottom-0 flex flex-wrap items-center gap-3 border-t border-[var(--borda)] bg-[var(--bg)] py-4">
+      <BarraSalvar>
         <Salvar>Salvar publicação</Salvar>
         {post.id ? (
           <Botao
@@ -135,7 +136,7 @@ export function FormPost({ post }: { post: Post }) {
           </span>
         ) : null}
         {estado.erro ? <Aviso tipo="erro">{estado.erro}</Aviso> : null}
-      </div>
+      </BarraSalvar>
     </form>
   );
 }

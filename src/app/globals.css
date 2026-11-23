@@ -121,6 +121,11 @@
   --sombra-card: 0 1px 2px rgb(1 38 22 / 0.04), 0 10px 30px rgb(1 38 22 / 0.07);
   --sombra-alta: 0 2px 4px rgb(1 38 22 / 0.05), 0 24px 60px rgb(1 38 22 / 0.12);
   --veu: rgb(1 38 22 / 0.55);
+
+  /* Painel: a folha branca quase não descola do fundo. Sombra alta em
+     cada cartão é o que deixa um painel com cara de modelo pronto. */
+  --painel-fundo: #f3f0e8;
+  --sombra-painel: 0 1px 0 rgb(1 38 22 / 0.03), 0 1px 3px rgb(1 38 22 / 0.04);
 }
 
 @layer base {
@@ -1019,5 +1024,55 @@
     .brilho {
       opacity: 0.4;
     }
+  }
+}
+
+/* ============================================================ painel */
+/* O balão de ajuda do painel aparece num gesto curto, a partir do ícone. */
+@layer components {
+  .dica-balao {
+    animation: dica-entra 0.22s var(--ease-saida) both;
+  }
+  .dica-balao:not([data-abaixo]) {
+    transform-origin: bottom center;
+  }
+  @keyframes dica-entra {
+    from {
+      opacity: 0;
+      scale: 0.96;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dica-balao {
+      animation: none;
+    }
+  }
+
+  /* Fundo de prévia de imagem: um xadrez bem claro, para a logo branca
+     com fundo transparente continuar visível. */
+  .xadrez {
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(45deg, var(--bg-fundo) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--bg-fundo) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--bg-fundo) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--bg-fundo) 75%);
+    background-size: 18px 18px;
+    background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+  }
+}
+
+/* O palco dos aparelhos na tela do fundo do topo: papel com uma luz
+   dourada vinda de cima, como mesa de fotografia de produto. */
+@layer components {
+  .palco-aparelhos {
+    background:
+      radial-gradient(60% 70% at 70% 0%, rgb(243 214 148 / 0.35), transparent 70%),
+      radial-gradient(50% 60% at 10% 100%, rgb(0 69 39 / 0.08), transparent 70%),
+      linear-gradient(180deg, #f6f3ec, #ece7dc);
+    border: 1px solid var(--borda);
+  }
+  .palco-aparelhos .device {
+    filter: drop-shadow(0 30px 40px rgb(1 38 22 / 0.22));
   }
 }

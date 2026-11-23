@@ -28,7 +28,7 @@ export function FormConta({ nome }: { nome: string }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Cartao className="p-6">
+      <Cartao className="p-5 sm:p-7">
         <form action={acaoNome}>
           <TituloBloco apoio="É o nome que aparece no canto do painel.">
             Seu nome
@@ -46,7 +46,7 @@ export function FormConta({ nome }: { nome: string }) {
         </form>
       </Cartao>
 
-      <Cartao className="p-6">
+      <Cartao className="p-5 sm:p-7">
         <form action={acaoSenha}>
           <TituloBloco apoio="Pelo menos 10 caracteres. Use uma frase que só você saiba.">
             Trocar a senha

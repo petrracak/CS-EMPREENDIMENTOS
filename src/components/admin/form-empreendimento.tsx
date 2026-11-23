@@ -9,13 +9,18 @@ import {
 } from "@/app/actions/empreendimentos";
 import { EnviarImagem } from "@/components/admin/enviar-imagem";
 import {
+  Abas,
   Area,
   Aviso,
+  BarraSalvar,
   Campo,
   Cartao,
   Entrada,
+  EntradaComPrefixo,
+  Escolha,
   Salvar,
   Selecao,
+  TituloBloco,
 } from "@/components/admin/ui";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +41,15 @@ const ABAS = [
   { id: "busca", rotulo: "Google" },
 ] as const;
 
+type Aba = (typeof ABAS)[number]["id"];
+
+/**
+ * Cadastro e edição de um empreendimento.
+ *
+ * Regra de desenho: rótulo numa linha só, explicação no "?" ao lado. Um
+ * campo com texto de apoio aberto ficava mais alto que o vizinho e a
+ * linha inteira saía torta.
+ */
 export function FormEmpreendimento({
   dados,
   tipos,
@@ -47,7 +61,7 @@ export function FormEmpreendimento({
     salvarEmpreendimento,
     {},
   );
-  const [aba, setAba] = useState<string>("basico");
+  const [aba, setAba] = useState<Aba>("basico");
 
   const t = (campo: string) => {
     const v = dados[campo];
@@ -55,6 +69,7 @@ export function FormEmpreendimento({
   };
   const linhas = (lista?: { texto: string }[]) =>
     (lista ?? []).map((i) => i.texto).join("\n");
+  const pasta = `empreendimentos/${t("slug") || "novo"}`;
 
   return (
     <form action={acao}>
@@ -62,45 +77,36 @@ export function FormEmpreendimento({
 
       {/* As abas só escondem visualmente: os campos continuam no
           formulário, então salvar de qualquer aba salva tudo. */}
-      <div className="flex flex-wrap gap-1 border-b border-[var(--borda)]">
-        {ABAS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setAba(item.id)}
-            className={cn(
-              "-mb-px border-b-2 px-4 py-2.5 text-sm transition-colors",
-              aba === item.id
-                ? "border-[var(--acento)] font-medium text-[var(--acento)]"
-                : "border-transparent text-[var(--fg-tenue)] hover:text-[var(--fg)]",
-            )}
-          >
-            {item.rotulo}
-          </button>
-        ))}
-      </div>
+      <Abas itens={ABAS} atual={aba} aoEscolher={setAba} />
 
-      <div className="mt-6 space-y-6">
+      <div className="mt-6">
         {/* =============================================== básico */}
         <Painel ativo={aba === "basico"}>
-          <Cartao className="space-y-5 p-6">
-            <div className="grid gap-4 sm:grid-cols-2">
+          <Cartao className="p-5 sm:p-7">
+            <TituloBloco numero={1}>Identificação</TituloBloco>
+            <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
               <Campo rotulo="Nome do empreendimento">
                 <Entrada name="nome" defaultValue={t("nome")} required />
               </Campo>
               <Campo
                 rotulo="Endereço da página"
-                apoio="Aparece na barra do navegador. Deixe em branco para gerar a partir do nome."
+                apoio="É o que aparece na barra do navegador, depois do domínio. Deixe em branco e ele é criado a partir do nome."
               >
-                <Entrada name="slug" defaultValue={t("slug")} />
+                <EntradaComPrefixo
+                  prefixo="/empreendimentos/"
+                  name="slug"
+                  defaultValue={t("slug")}
+                  placeholder="gerado-pelo-nome"
+                />
               </Campo>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Campo rotulo="Publicação">
-                <Selecao name="status" defaultValue={t("status") || "rascunho"}>
-                  <option value="rascunho">Rascunho (fora do site)</option>
-                  <option value="publicado">Publicado (no site)</option>
+              <Campo rotulo="Tipo">
+                <Selecao name="tipo_id" defaultValue={t("tipo_id")}>
+                  <option value="">Sem tipo</option>
+                  {tipos.map((tipo) => (
+                    <option key={tipo.id} value={tipo.id}>
+                      {tipo.nome}
+                    </option>
+                  ))}
                 </Selecao>
               </Campo>
               <Campo rotulo="Situação da obra">
@@ -113,303 +119,328 @@ export function FormEmpreendimento({
                   <option value="entregue">Entregue</option>
                 </Selecao>
               </Campo>
-              <Campo rotulo="Tipo">
-                <Selecao name="tipo_id" defaultValue={t("tipo_id")}>
-                  <option value="">Sem tipo</option>
-                  {tipos.map((tipo) => (
-                    <option key={tipo.id} value={tipo.id}>
-                      {tipo.nome}
-                    </option>
-                  ))}
-                </Selecao>
-              </Campo>
             </div>
+          </Cartao>
 
-            <div className="grid gap-4 sm:grid-cols-[1fr_140px]">
+          <Cartao className="p-5 sm:p-7">
+            <TituloBloco numero={2}>No site</TituloBloco>
+            <div className="grid gap-x-5 gap-y-5 sm:grid-cols-[1fr_1fr_8rem]">
+              <Campo
+                rotulo="Publicação"
+                apoio="Em rascunho, a página existe só aqui no painel. Quem visita o site não a vê."
+              >
+                <Escolha
+                  nome="status"
+                  valor={t("status") || "rascunho"}
+                  opcoes={[
+                    { valor: "rascunho", rotulo: "Rascunho" },
+                    { valor: "publicado", rotulo: "No site" },
+                  ]}
+                />
+              </Campo>
               <Campo
                 rotulo="Destaque na página inicial"
-                apoio="Os marcados aparecem nos três cards da home, na ordem abaixo."
+                apoio="Os marcados aparecem nos cards de destaque da página inicial, na ordem do campo ao lado."
               >
-                <Selecao
-                  name="destaque"
-                  defaultValue={dados.destaque ? "true" : "false"}
-                >
-                  <option value="false">Não</option>
-                  <option value="true">Sim, mostrar em destaque</option>
-                </Selecao>
+                <Escolha
+                  nome="destaque"
+                  valor={dados.destaque ? "true" : "false"}
+                  opcoes={[
+                    { valor: "false", rotulo: "Não" },
+                    { valor: "true", rotulo: "Em destaque" },
+                  ]}
+                />
               </Campo>
-              <Campo rotulo="Ordem">
+              <Campo
+                rotulo="Ordem"
+                apoio="Menor aparece primeiro, aqui e no site."
+              >
                 <Entrada
                   name="ordem"
                   type="number"
+                  inputMode="numeric"
                   defaultValue={t("ordem") || "0"}
                 />
               </Campo>
             </div>
           </Cartao>
 
-          <Cartao className="space-y-5 p-6">
-            <EnviarImagem
-              nome="imagem_principal"
-              valor={t("imagem_principal") || null}
-              pasta={`empreendimentos/${t("slug") || "novo"}`}
-              rotulo="Foto principal"
-              apoio="É a capa do card e a foto do topo da página. Escolha uma imagem larga, sem texto."
-              larguraIdeal={2000}
-              alturaIdeal={1200}
-              tituloSobreposto={t("frase_impacto")}
-            />
-            <EnviarImagem
-              nome="logo_url"
-              valor={t("logo_url") || null}
-              pasta={`empreendimentos/${t("slug") || "novo"}`}
-              rotulo="Logo do empreendimento"
-              apoio="Se houver, entra no lugar do nome escrito no topo da página. Use a versão branca, com fundo transparente."
-              larguraIdeal={900}
-              alturaIdeal={600}
-            />
+          <Cartao className="p-5 sm:p-7">
+            <TituloBloco numero={3}>Imagens</TituloBloco>
+            <div className="grid gap-8 lg:grid-cols-2">
+              <EnviarImagem
+                nome="imagem_principal"
+                valor={t("imagem_principal") || null}
+                pasta={pasta}
+                rotulo="Foto principal"
+                apoio="É a capa do card e a foto do topo da página. Escolha uma imagem larga e sem texto."
+                larguraIdeal={2000}
+                alturaIdeal={1200}
+                tituloSobreposto={t("frase_impacto") || t("nome")}
+              />
+              <EnviarImagem
+                nome="logo_url"
+                valor={t("logo_url") || null}
+                pasta={pasta}
+                rotulo="Logo do empreendimento"
+                apoio="Se houver, entra no lugar do nome escrito no topo da página. Use a versão branca, em PNG com fundo transparente."
+                larguraIdeal={900}
+                alturaIdeal={600}
+                fundoEscuro
+                encaixe="conter"
+              />
+            </div>
           </Cartao>
         </Painel>
 
         {/* =============================================== textos */}
         <Painel ativo={aba === "textos"}>
-          <Cartao className="space-y-5 p-6">
-            <Campo
-              rotulo="Frase de impacto"
-              apoio="A frase grande no topo da página."
-            >
-              <Entrada
-                name="frase_impacto"
-                defaultValue={t("frase_impacto")}
-              />
-            </Campo>
-            <Campo rotulo="Subtítulo">
-              <Entrada name="subtitulo" defaultValue={t("subtitulo")} />
-            </Campo>
-            <Campo
-              rotulo="Linha do card"
-              apoio="O resumo de uma linha que aparece na listagem."
-            >
-              <Entrada name="linha_card" defaultValue={t("linha_card")} />
-            </Campo>
-            <Campo
-              rotulo="Sobre o empreendimento"
-              apoio="Deixe uma linha em branco entre os parágrafos."
-            >
-              <Area name="sobre" rows={6} defaultValue={t("sobre")} />
-            </Campo>
-            <Campo rotulo="O conceito">
-              <Area name="conceito" rows={3} defaultValue={t("conceito")} />
-            </Campo>
-            <Campo rotulo="A história do projeto">
-              <Area name="historia" rows={3} defaultValue={t("historia")} />
-            </Campo>
+          <Cartao className="p-5 sm:p-7">
+            <TituloBloco numero={1}>Topo da página</TituloBloco>
+            <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+              <Campo
+                rotulo="Frase de impacto"
+                apoio="A frase grande no topo da página do empreendimento."
+              >
+                <Entrada name="frase_impacto" defaultValue={t("frase_impacto")} />
+              </Campo>
+              <Campo rotulo="Subtítulo" apoio="A linha menor, logo abaixo da frase de impacto.">
+                <Entrada name="subtitulo" defaultValue={t("subtitulo")} />
+              </Campo>
+              <Campo
+                rotulo="Linha do card"
+                apoio="O resumo de uma linha que aparece no card, na listagem de empreendimentos."
+                className="sm:col-span-2"
+              >
+                <Entrada name="linha_card" defaultValue={t("linha_card")} />
+              </Campo>
+            </div>
           </Cartao>
 
-          <Cartao className="space-y-5 p-6">
-            <Campo
-              rotulo="Características do imóvel"
-              apoio="Uma por linha."
-            >
-              <Area
-                name="caracteristicas"
-                rows={5}
-                defaultValue={linhas(dados.caracteristicas)}
-              />
-            </Campo>
-            <Campo rotulo="Diferenciais" apoio="Um por linha.">
-              <Area
-                name="diferenciais"
-                rows={6}
-                defaultValue={linhas(dados.diferenciais)}
-              />
-            </Campo>
+          <Cartao className="p-5 sm:p-7">
+            <TituloBloco numero={2}>Apresentação</TituloBloco>
+            <div className="space-y-5">
+              <Campo
+                rotulo="Sobre o empreendimento"
+                apoio="Deixe uma linha em branco entre os parágrafos."
+              >
+                <Area name="sobre" rows={6} defaultValue={t("sobre")} />
+              </Campo>
+              <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+                <Campo rotulo="O conceito">
+                  <Area name="conceito" rows={4} defaultValue={t("conceito")} />
+                </Campo>
+                <Campo rotulo="A história do projeto">
+                  <Area name="historia" rows={4} defaultValue={t("historia")} />
+                </Campo>
+              </div>
+            </div>
           </Cartao>
 
-          <Cartao className="space-y-5 p-6">
-            <Campo rotulo="Chamada do atendimento">
-              <Area
-                name="atendimento_chamada"
-                rows={2}
-                defaultValue={t("atendimento_chamada")}
-              />
-            </Campo>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Campo rotulo="Botão principal">
-                <Entrada
-                  name="botao_primario"
-                  defaultValue={t("botao_primario")}
+          <Cartao className="p-5 sm:p-7">
+            <TituloBloco numero={3}>Listas</TituloBloco>
+            <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+              <Campo
+                rotulo="Características do imóvel"
+                apoio="Uma por linha. Cada linha vira um item com marcador no site."
+              >
+                <Area
+                  name="caracteristicas"
+                  rows={7}
+                  defaultValue={linhas(dados.caracteristicas)}
                 />
               </Campo>
-              <Campo rotulo="Botão do WhatsApp">
-                <Entrada
-                  name="botao_secundario"
-                  defaultValue={t("botao_secundario")}
+              <Campo
+                rotulo="Diferenciais"
+                apoio="Um por linha. Cada linha vira um item com marcador no site."
+              >
+                <Area
+                  name="diferenciais"
+                  rows={7}
+                  defaultValue={linhas(dados.diferenciais)}
                 />
               </Campo>
             </div>
-            <Campo rotulo="Legenda da galeria">
-              <Entrada
-                name="legenda_galeria"
-                defaultValue={t("legenda_galeria")}
-              />
-            </Campo>
+          </Cartao>
+
+          <Cartao className="p-5 sm:p-7">
+            <TituloBloco numero={4}>Atendimento</TituloBloco>
+            <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+              <Campo
+                rotulo="Chamada do atendimento"
+                apoio="O convite do bloco de contato, no fim da página."
+                className="sm:col-span-2"
+              >
+                <Area
+                  name="atendimento_chamada"
+                  rows={2}
+                  defaultValue={t("atendimento_chamada")}
+                />
+              </Campo>
+              <Campo rotulo="Botão principal">
+                <Entrada name="botao_primario" defaultValue={t("botao_primario")} />
+              </Campo>
+              <Campo rotulo="Botão do WhatsApp">
+                <Entrada name="botao_secundario" defaultValue={t("botao_secundario")} />
+              </Campo>
+              <Campo
+                rotulo="Legenda da galeria"
+                apoio="A frase curta acima das fotos do projeto."
+                className="sm:col-span-2"
+              >
+                <Entrada name="legenda_galeria" defaultValue={t("legenda_galeria")} />
+              </Campo>
+            </div>
           </Cartao>
         </Painel>
 
         {/* ========================================= ficha técnica */}
         <Painel ativo={aba === "ficha"}>
-          <Cartao className="space-y-5 p-6">
-            <p className="text-sm leading-relaxed text-[var(--fg-tenue)]">
-              Campo deixado em branco não aparece no site — nem o rótulo
-              dele. É assim que valores ainda não confirmados ficam
-              escondidos até a CS preencher.
-            </p>
+          <Cartao className="p-5 sm:p-7">
+            <TituloBloco
+              apoio="Campo deixado em branco não aparece no site, nem o rótulo dele. É assim que um valor ainda não confirmado fica escondido até a CS preencher."
+            >
+              Ficha técnica
+            </TituloBloco>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Campo rotulo="Unidades" apoio="Ex.: 100 casas">
-                <Entrada
-                  name="unidades_total"
-                  defaultValue={t("unidades_total")}
-                />
+            <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+              <Campo rotulo="Unidades">
+                <Entrada name="unidades_total" defaultValue={t("unidades_total")} placeholder="100 casas" />
               </Campo>
-              <Campo rotulo="Área construída" apoio="Ex.: 56 m²">
-                <Entrada
-                  name="area_construida"
-                  defaultValue={t("area_construida")}
-                />
+              <Campo rotulo="Área construída">
+                <Entrada name="area_construida" defaultValue={t("area_construida")} placeholder="56 m²" />
               </Campo>
-              <Campo
-                rotulo="Terreno, dimensões"
-                apoio="Ex.: 10 x 25 m"
-              >
-                <Entrada
-                  name="terreno_dimensoes"
-                  defaultValue={t("terreno_dimensoes")}
-                />
+              <Campo rotulo="Terreno, dimensões">
+                <Entrada name="terreno_dimensoes" defaultValue={t("terreno_dimensoes")} placeholder="10 x 25 m" />
               </Campo>
-              <Campo rotulo="Terreno, área total" apoio="Ex.: 250 m²">
-                <Entrada
-                  name="terreno_area"
-                  defaultValue={t("terreno_area")}
-                />
+              <Campo rotulo="Terreno, área total">
+                <Entrada name="terreno_area" defaultValue={t("terreno_area")} placeholder="250 m²" />
               </Campo>
               <Campo rotulo="Vagas">
-                <Entrada name="vagas" defaultValue={t("vagas")} />
+                <Entrada name="vagas" defaultValue={t("vagas")} placeholder="2 vagas" />
               </Campo>
               <Campo rotulo="Previsão de entrega">
-                <Entrada
-                  name="previsao_entrega"
-                  defaultValue={t("previsao_entrega")}
-                />
+                <Entrada name="previsao_entrega" defaultValue={t("previsao_entrega")} placeholder="Dezembro de 2027" />
               </Campo>
               <Campo
                 rotulo="Valor a partir de"
-                apoio="Só números. Em branco ou zero, o campo some do site."
+                apoio="Só números, sem R$ nem pontos. Em branco ou zero, o valor some do site."
               >
                 <Entrada
                   name="valor_a_partir_de"
+                  inputMode="numeric"
                   defaultValue={t("valor_a_partir_de")}
                   placeholder="250000"
                 />
               </Campo>
               <Campo rotulo="Registro de incorporação">
-                <Entrada
-                  name="registro_incorporacao"
-                  defaultValue={t("registro_incorporacao")}
-                />
+                <Entrada name="registro_incorporacao" defaultValue={t("registro_incorporacao")} />
               </Campo>
             </div>
 
-            <Campo rotulo="Distribuição">
-              <Area
-                name="distribuicao"
-                rows={3}
-                defaultValue={t("distribuicao")}
-              />
+            <Campo
+              rotulo="Distribuição"
+              apoio="Como os cômodos se organizam. Ex.: 2 quartos, sendo 1 suíte, sala, cozinha e área de serviço."
+              className="mt-5"
+            >
+              <Area name="distribuicao" rows={3} defaultValue={t("distribuicao")} />
             </Campo>
           </Cartao>
         </Painel>
 
         {/* ============================================ localização */}
         <Painel ativo={aba === "local"}>
-          <Cartao className="space-y-5 p-6">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Campo rotulo="Endereço">
+          <Cartao className="p-5 sm:p-7">
+            <TituloBloco numero={1}>Endereço</TituloBloco>
+            <div className="grid gap-x-5 gap-y-5 sm:grid-cols-[2fr_1fr_1fr]">
+              <Campo rotulo="Rua e número">
                 <Entrada name="endereco" defaultValue={t("endereco")} />
               </Campo>
               <Campo rotulo="Bairro">
                 <Entrada name="bairro" defaultValue={t("bairro")} />
               </Campo>
               <Campo rotulo="Cidade">
+                <Entrada name="cidade" defaultValue={t("cidade") || "Santarém"} />
+              </Campo>
+              <Campo
+                rotulo="Link do Google Maps"
+                apoio="No Google Maps, abra o local, toque em Compartilhar e copie o link."
+                className="sm:col-span-3"
+              >
                 <Entrada
-                  name="cidade"
-                  defaultValue={t("cidade") || "Santarém"}
+                  name="mapa_link"
+                  defaultValue={t("mapa_link")}
+                  placeholder="https://maps.app.goo.gl/…"
                 />
               </Campo>
             </div>
-            <Campo rotulo="Texto da localização">
-              <Area
-                name="localizacao_texto"
-                rows={2}
-                defaultValue={t("localizacao_texto")}
+          </Cartao>
+
+          <Cartao className="p-5 sm:p-7">
+            <TituloBloco numero={2}>Arredores</TituloBloco>
+            <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+              <Campo
+                rotulo="Texto da localização"
+                apoio="Um parágrafo curto sobre a região."
+              >
+                <Area name="localizacao_texto" rows={5} defaultValue={t("localizacao_texto")} />
+              </Campo>
+              <Campo
+                rotulo="Pontos de referência"
+                apoio="Um por linha. Ex.: A 10 minutos do shopping."
+              >
+                <Area name="referencias" rows={5} defaultValue={linhas(dados.referencias)} />
+              </Campo>
+            </div>
+            <div className="mt-7">
+              <EnviarImagem
+                nome="mapa_imagem"
+                valor={t("mapa_imagem") || null}
+                pasta={pasta}
+                rotulo="Imagem do mapa"
+                apoio="A imagem personalizada da localização, com a identidade do empreendimento."
+                larguraIdeal={1600}
+                alturaIdeal={1200}
               />
-            </Campo>
-            <Campo
-              rotulo="Pontos de referência"
-              apoio="Um por linha. Ex.: A 10 minutos do shopping"
-            >
-              <Area
-                name="referencias"
-                rows={4}
-                defaultValue={linhas(dados.referencias)}
-              />
-            </Campo>
-            <Campo rotulo="Link do Google Maps">
-              <Entrada name="mapa_link" defaultValue={t("mapa_link")} />
-            </Campo>
-            <EnviarImagem
-              nome="mapa_imagem"
-              valor={t("mapa_imagem") || null}
-              pasta={`empreendimentos/${t("slug") || "novo"}`}
-              rotulo="Imagem do mapa"
-              apoio="A imagem personalizada da localização, com a identidade do empreendimento."
-              larguraIdeal={1600}
-              alturaIdeal={1200}
-            />
+            </div>
           </Cartao>
         </Painel>
 
         {/* ================================================= Google */}
         <Painel ativo={aba === "busca"}>
-          <Cartao className="space-y-5 p-6">
-            <Campo
-              rotulo="Título no Google"
-              apoio="Até 60 caracteres. Em branco, usa o nome do empreendimento."
-            >
-              <Entrada name="seo_titulo" defaultValue={t("seo_titulo")} />
-            </Campo>
-            <Campo rotulo="Descrição no Google" apoio="Até 155 caracteres.">
-              <Area
-                name="seo_descricao"
-                rows={3}
-                defaultValue={t("seo_descricao")}
-              />
-            </Campo>
+          <Cartao className="p-5 sm:p-7">
+            <TituloBloco apoio="Título e descrição desta página nos resultados de busca do Google.">
+              Como aparece no Google
+            </TituloBloco>
+            <div className="space-y-5">
+              <Campo
+                rotulo="Título no Google"
+                apoio="Até 60 caracteres. Em branco, usa o nome do empreendimento."
+              >
+                <Entrada name="seo_titulo" maxLength={70} defaultValue={t("seo_titulo")} />
+              </Campo>
+              <Campo rotulo="Descrição no Google" apoio="Até 155 caracteres.">
+                <Area name="seo_descricao" rows={3} maxLength={170} defaultValue={t("seo_descricao")} />
+              </Campo>
+            </div>
           </Cartao>
         </Painel>
       </div>
 
-      <div className="sticky bottom-0 mt-6 flex flex-wrap items-center gap-3 border-t border-[var(--borda)] bg-[var(--bg)] py-4">
+      <BarraSalvar>
         <Salvar>Salvar empreendimento</Salvar>
         {estado.ok ? (
-          <span className="inline-flex items-center gap-1.5 text-sm text-[var(--color-verde-600)]">
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-verde-600)]">
             <Check className="h-4 w-4" />
             Salvo
           </span>
-        ) : null}
+        ) : (
+          <span className="hidden text-sm text-[var(--fg-tenue)] sm:inline">
+            Salva todas as abas de uma vez.
+          </span>
+        )}
         {estado.erro ? <Aviso tipo="erro">{estado.erro}</Aviso> : null}
-      </div>
+      </BarraSalvar>
     </form>
   );
 }
@@ -423,7 +454,7 @@ function Painel({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn("space-y-6", !ativo && "hidden")} aria-hidden={!ativo}>
+    <div className={cn("space-y-5", !ativo && "hidden")} aria-hidden={!ativo}>
       {children}
     </div>
   );

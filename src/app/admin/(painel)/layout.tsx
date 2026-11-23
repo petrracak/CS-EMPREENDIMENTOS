@@ -1,19 +1,27 @@
-import { Navegacao } from "@/components/admin/navegacao";
+import { CascaPainel } from "@/components/admin/navegacao";
 import { exigirPerfil } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function LayoutDoPainel({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const perfil = await exigirPerfil();
+  // Os cadastros ainda não atendidos viram o selo do menu: quem abre o
+  // painel já vê se tem alguém esperando resposta. Em paralelo com o
+  // perfil, que não depende disto.
+  const supabase = await createClient();
+  const [perfil, { count }] = await Promise.all([
+    exigirPerfil(),
+    supabase
+      .from("leads")
+      .select("id", { count: "exact", head: true })
+      .eq("situacao", "novo"),
+  ]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--bg)] lg:flex-row">
-      <Navegacao nome={perfil.nome} email={perfil.email} />
-      <main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:py-10">
-        <div className="mx-auto w-full max-w-5xl">{children}</div>
-      </main>
-    </div>
+    <CascaPainel nome={perfil.nome} email={perfil.email} novos={count ?? 0}>
+      {children}
+    </CascaPainel>
   );
 }

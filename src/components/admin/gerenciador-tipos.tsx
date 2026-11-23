@@ -27,7 +27,7 @@ export function GerenciadorTipos({
   const [pendente, iniciar] = useTransition();
 
   return (
-    <Cartao className="p-6">
+    <Cartao className="p-5 sm:p-7">
       <TituloBloco apoio={apoio}>{titulo}</TituloBloco>
 
       <ul className="flex flex-wrap gap-2">

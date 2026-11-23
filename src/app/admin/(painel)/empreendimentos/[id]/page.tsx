@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, Home } from "lucide-react";
+import { ArrowUpRight, DoorOpen } from "lucide-react";
 
 import { FormEmpreendimento } from "@/components/admin/form-empreendimento";
 import { GerenciadorImagens } from "@/components/admin/gerenciador-imagens";
-import { Etiqueta } from "@/components/admin/ui";
+import { classeBotao } from "@/components/admin/estilos";
+import { Cabecalho, Etiqueta } from "@/components/admin/ui";
 import { exigirPerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
@@ -44,55 +45,41 @@ export default async function EditarEmpreendimento({
     referencias: ordenar(item.referencias),
   };
 
+  const noAr = item.status === "publicado";
+
   return (
-    <>
-      <Link
-        href="/admin/empreendimentos"
-        className="inline-flex items-center gap-1.5 text-sm text-[var(--fg-tenue)] transition-colors hover:text-[var(--acento)]"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Empreendimentos
-      </Link>
-
-      <header className="mt-4 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-2xl font-medium">{item.nome}</h1>
-            <Etiqueta tom={item.status === "publicado" ? "verde" : "neutro"}>
-              {item.status === "publicado" ? "No site" : "Rascunho"}
-            </Etiqueta>
-          </div>
-          <p className="mt-1 text-sm text-[var(--fg-tenue)]">
-            /empreendimentos/{item.slug}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href={`/admin/empreendimentos/${item.id}/unidades`}
-            className="inline-flex items-center gap-2 rounded-lg border border-[var(--borda-forte)] px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--acento)] hover:text-[var(--acento)]"
-          >
-            <Home className="h-4 w-4" />
-            Unidades
-          </Link>
-          {item.status === "publicado" ? (
+    <div className="space-y-8">
+      <Cabecalho
+        voltar={{ href: "/admin/empreendimentos", rotulo: "Empreendimentos" }}
+        titulo={item.nome}
+        selo={<Etiqueta tom={noAr ? "verde" : "neutro"}>{noAr ? "No site" : "Rascunho"}</Etiqueta>}
+        descricao={`/empreendimentos/${item.slug}`}
+        acoes={
+          <>
             <Link
-              href={`/empreendimentos/${item.slug}`}
-              target="_blank"
-              className="inline-flex items-center gap-2 rounded-lg border border-[var(--borda-forte)] px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--acento)] hover:text-[var(--acento)]"
+              href={`/admin/empreendimentos/${item.id}/unidades`}
+              className={classeBotao("neutro")}
             >
-              Ver no site
-              <ExternalLink className="h-3.5 w-3.5" />
+              <DoorOpen className="h-4 w-4" strokeWidth={1.8} />
+              Unidades
             </Link>
-          ) : null}
-        </div>
-      </header>
+            {noAr ? (
+              <Link
+                href={`/empreendimentos/${item.slug}`}
+                target="_blank"
+                className={classeBotao("neutro")}
+              >
+                Ver no site
+                <ArrowUpRight className="h-4 w-4" strokeWidth={1.8} />
+              </Link>
+            ) : null}
+          </>
+        }
+      />
 
-      <div className="mt-8">
-        <FormEmpreendimento dados={dados} tipos={tipos ?? []} />
-      </div>
+      <FormEmpreendimento dados={dados} tipos={tipos ?? []} />
 
-      <div className="mt-6 space-y-6">
+      <div className="space-y-5">
         <GerenciadorImagens
           empreendimentoId={item.id}
           slug={item.slug}
@@ -110,6 +97,6 @@ export default async function EditarEmpreendimento({
           apoio="As plantas baixas, mostradas inteiras e sem corte."
         />
       </div>
-    </>
+    </div>
   );
 }

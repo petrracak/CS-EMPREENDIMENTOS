@@ -1,26 +1,97 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
-import type { ComponentProps, ReactNode } from "react";
+import { ArrowLeft, ChevronDown, Loader2 } from "lucide-react";
+import Link from "next/link";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  useId,
+  type ComponentProps,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import { useFormStatus } from "react-dom";
 
+import { Dica } from "@/components/admin/dica";
+import {
+  BASE_BOTAO,
+  TOM_BOTAO,
+  type TomBotao,
+} from "@/components/admin/estilos";
 import { cn } from "@/lib/utils";
 
 /**
  * Peças do painel.
  *
- * O painel é mais denso e mais quadrado que o site: cantos menores,
- * espaçamento menor, nada de animação de entrada. Quem trabalha aqui
- * repete a mesma tarefa dezenas de vezes e não quer esperar transição.
+ * O painel não repete o site: lá é vitrine, aqui é bancada. Fundo creme,
+ * folhas brancas com sombra baixa, verde só onde há ação, dourado só para
+ * marcar onde a pessoa está. Nada de animação de entrada — quem trabalha
+ * aqui repete a mesma tarefa dezenas de vezes e não quer esperar.
+ *
+ * Duas regras valem para tudo:
+ *  - campo com 16 px no celular. Abaixo disso o Safari do iPhone dá zoom
+ *    ao tocar, e a Carolina edita o site pelo telefone;
+ *  - alvo de toque com pelo menos 44 px de altura.
  */
 
-/* -------------------------------------------------------- superfícies */
+/* ---------------------------------------------------------- estrutura */
+
+/** Título da tela, com volta opcional e ações à direita. */
+export function Cabecalho({
+  titulo,
+  descricao,
+  acoes,
+  voltar,
+  selo,
+}: {
+  titulo: ReactNode;
+  descricao?: ReactNode;
+  acoes?: ReactNode;
+  voltar?: { href: string; rotulo: string };
+  selo?: ReactNode;
+}) {
+  return (
+    <header className="min-w-0">
+      {voltar ? (
+        <Link
+          href={voltar.href}
+          className="group -ml-1 mb-3 inline-flex min-h-9 items-center gap-1.5 rounded-full pr-3 pl-1 text-sm text-[var(--fg-tenue)] transition-colors hover:text-[var(--fg)]"
+        >
+          <span className="grid h-7 w-7 place-items-center rounded-full border border-[var(--borda)] bg-[var(--bg-elevado)] transition-transform duration-300 group-hover:-translate-x-0.5">
+            <ArrowLeft className="h-3.5 w-3.5" />
+          </span>
+          {voltar.rotulo}
+        </Link>
+      ) : null}
+
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div className="min-w-0 flex-1 basis-72">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <h1 className="font-display text-[1.75rem] leading-[1.1] font-medium tracking-[-0.02em] text-balance text-[var(--color-verde-950)] sm:text-[2rem]">
+              {titulo}
+            </h1>
+            {selo}
+          </div>
+          {descricao ? (
+            <p className="mt-2 max-w-2xl text-[0.9375rem] leading-relaxed text-pretty text-[var(--fg-tenue)]">
+              {descricao}
+            </p>
+          ) : null}
+        </div>
+        {acoes ? (
+          <div className="flex flex-wrap items-center gap-2">{acoes}</div>
+        ) : null}
+      </div>
+    </header>
+  );
+}
 
 export function Cartao({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-[var(--borda)] bg-[var(--bg-elevado)]",
+        "min-w-0 rounded-[1.25rem] border border-[var(--borda)] bg-[var(--bg-elevado)] shadow-[var(--sombra-painel)]",
         className,
       )}
       {...props}
@@ -28,27 +99,50 @@ export function Cartao({ className, ...props }: ComponentProps<"div">) {
   );
 }
 
+/**
+ * Título de um bloco dentro de uma folha. A explicação, quando existe,
+ * fica no ícone de ajuda ao lado — o texto aberto empurrava os campos e
+ * desalinhava as colunas.
+ */
 export function TituloBloco({
   children,
   apoio,
+  numero,
+  acao,
 }: {
   children: ReactNode;
   apoio?: string;
+  /** Marca a ordem dos blocos numa tela longa: 01, 02… */
+  numero?: number;
+  acao?: ReactNode;
 }) {
   return (
-    <div className="mb-5">
-      <h2 className="font-display text-lg font-medium">{children}</h2>
-      {apoio ? (
-        <p className="mt-1 text-sm leading-relaxed text-[var(--fg-tenue)]">
-          {apoio}
-        </p>
-      ) : null}
+    <div className="mb-6 flex items-start justify-between gap-4">
+      <div className="flex min-w-0 items-center gap-2.5">
+        {numero !== undefined ? (
+          <span className="tabular grid h-7 min-w-7 place-items-center rounded-full bg-[var(--color-verde-950)] px-2 text-[0.6875rem] font-semibold text-[var(--color-ouro-300)]">
+            {String(numero).padStart(2, "0")}
+          </span>
+        ) : null}
+        <h2 className="font-display text-lg leading-tight font-medium tracking-[-0.01em]">
+          {children}
+        </h2>
+        {apoio ? <Dica>{apoio}</Dica> : null}
+      </div>
+      {acao}
     </div>
   );
 }
 
-/* ------------------------------------------------------------ campos */
+/* -------------------------------------------------------------- campos */
 
+/**
+ * Rótulo, ajuda e campo.
+ *
+ * O rótulo aponta para o campo por id (e não envolvendo tudo num <label>)
+ * porque o ícone de ajuda é um botão: dentro de um <label>, o primeiro
+ * elemento rotulável seria o botão, e o clique no rótulo iria para ele.
+ */
 export function Campo({
   rotulo,
   apoio,
@@ -60,25 +154,38 @@ export function Campo({
   className?: string;
   children: ReactNode;
 }) {
+  const gerado = useId();
+  const unico = Children.count(children) === 1 && isValidElement(children);
+  const filho = unico
+    ? (children as ReactElement<{ id?: string }>)
+    : null;
+  const id = filho?.props.id ?? gerado;
+
   return (
-    <label className={cn("block", className)}>
-      <span className="text-sm font-medium text-[var(--fg)]">{rotulo}</span>
-      {apoio ? (
-        <span className="mt-0.5 block text-xs leading-relaxed text-[var(--fg-tenue)]">
-          {apoio}
-        </span>
-      ) : null}
-      <div className="mt-1.5">{children}</div>
-    </label>
+    <div className={cn("min-w-0", className)}>
+      <div className="flex min-h-6 items-center gap-1.5">
+        <label
+          htmlFor={filho ? id : undefined}
+          className="text-[0.8125rem] font-medium text-[var(--fg)]"
+        >
+          {rotulo}
+        </label>
+        {apoio ? <Dica>{apoio}</Dica> : null}
+      </div>
+      <div className="mt-1.5">
+        {filho ? cloneElement(filho, { id }) : children}
+      </div>
+    </div>
   );
 }
 
 const ENTRADA =
-  "w-full rounded-lg border border-[var(--borda)] bg-[var(--bg)] px-3.5 py-2.5 " +
-  // 16 px no celular: abaixo disso o Safari do iPhone dá zoom na página
-  // ao tocar no campo, e a Carolina pode editar o site pelo telefone.
-  "text-base sm:text-sm transition-colors duration-200 placeholder:text-[var(--fg-tenue)] " +
-  "focus:border-[var(--acento)] focus:outline-none";
+  "block min-h-11 w-full min-w-0 rounded-xl border border-[var(--borda)] bg-[var(--bg-elevado)] px-3.5 py-2.5 " +
+  "text-base text-[var(--fg)] shadow-[0_1px_0_rgb(1_38_22/0.03)] sm:text-[0.9375rem] " +
+  "transition-[border-color,box-shadow] duration-200 placeholder:text-[var(--fg-tenue)]/70 " +
+  "hover:border-[var(--borda-forte)] " +
+  "focus:border-[var(--color-verde-700)] focus:shadow-[0_0_0_4px_rgb(0_69_39/0.1)] focus:outline-none " +
+  "disabled:opacity-60";
 
 export function Entrada({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(ENTRADA, className)} {...props} />;
@@ -95,26 +202,25 @@ export function Area({ className, ...props }: ComponentProps<"textarea">) {
 }
 
 export function Selecao({ className, ...props }: ComponentProps<"select">) {
-  return <select className={cn(ENTRADA, className)} {...props} />;
+  return (
+    <div className="relative">
+      <select
+        className={cn(ENTRADA, "cursor-pointer appearance-none pr-10", className)}
+        {...props}
+      />
+      <ChevronDown
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 right-3.5 h-4 w-4 -translate-y-1/2 text-[var(--fg-tenue)]"
+      />
+    </div>
+  );
 }
 
-/* ------------------------------------------------------------ botões */
+/* -------------------------------------------------------------- botões */
 
-type Tom = "principal" | "neutro" | "perigo";
-
-const TOM: Record<Tom, string> = {
-  principal:
-    "bg-[var(--acento)] text-white hover:bg-[var(--acento-hover)]",
-  neutro:
-    "border border-[var(--borda-forte)] text-[var(--fg)] hover:border-[var(--acento)] hover:text-[var(--acento)]",
-  perigo:
-    "border border-[var(--color-acento-forte)]/50 text-[var(--color-acento-forte)] hover:bg-[var(--color-acento)]/10",
-};
-
-const BASE =
-  "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 " +
-  "text-sm font-medium transition-colors duration-200 " +
-  "disabled:pointer-events-none disabled:opacity-50";
+type Tom = TomBotao;
+const TOM = TOM_BOTAO;
+const BASE = BASE_BOTAO;
 
 export function Botao({
   tom = "principal",
@@ -147,7 +253,67 @@ export function Salvar({
   );
 }
 
-/* ------------------------------------------------------------- avisos */
+/**
+ * Barra de salvar que acompanha a rolagem. No celular fica acima da barra
+ * de abas; num formulário longo o botão nunca sai do alcance do dedo.
+ */
+export function BarraSalvar({ children }: { children: ReactNode }) {
+  return (
+    <div className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-20 mt-6 lg:bottom-5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)]/90 p-2.5 pl-3 shadow-[var(--sombra-alta)] backdrop-blur-xl">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* --------------------------------------------------------------- abas */
+
+/**
+ * Abas em trilho. No celular o trilho rola de lado dentro dele mesmo,
+ * sem empurrar a página.
+ */
+export function Abas<T extends string>({
+  itens,
+  atual,
+  aoEscolher,
+}: {
+  itens: readonly { id: T; rotulo: string }[];
+  atual: T;
+  aoEscolher: (id: T) => void;
+}) {
+  return (
+    <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+      <div
+        role="tablist"
+        className="inline-flex gap-1 rounded-full border border-[var(--borda)] bg-[var(--bg-elevado)] p-1 shadow-[0_1px_0_rgb(1_38_22/0.04)]"
+      >
+        {itens.map((item) => {
+          const ativo = item.id === atual;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={ativo}
+              onClick={() => aoEscolher(item.id)}
+              className={cn(
+                "min-h-10 rounded-full px-4 text-sm whitespace-nowrap transition-colors duration-200",
+                ativo
+                  ? "bg-[var(--color-verde-950)] font-medium text-white"
+                  : "text-[var(--fg-tenue)] hover:bg-[var(--bg-fundo)] hover:text-[var(--fg)]",
+              )}
+            >
+              {item.rotulo}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------- avisos */
 
 export function Aviso({
   tipo = "info",
@@ -157,12 +323,12 @@ export function Aviso({
   children: ReactNode;
 }) {
   const cores = {
-    info: "border-[var(--borda)] bg-[var(--bg-fundo)] text-[var(--fg-suave)]",
+    info: "border-[var(--borda)] bg-[var(--bg)] text-[var(--fg-suave)]",
     erro: "border-[var(--color-acento-forte)]/40 bg-[var(--color-acento)]/10 text-[var(--fg)]",
     ok: "border-[var(--color-verde-200)] bg-[var(--color-verde-50)] text-[var(--color-verde-900)]",
   };
   return (
-    <p className={cn("rounded-lg border px-4 py-3 text-sm", cores[tipo])}>
+    <p className={cn("rounded-xl border px-4 py-3 text-sm leading-relaxed", cores[tipo])}>
       {children}
     </p>
   );
@@ -171,24 +337,122 @@ export function Aviso({
 export function Etiqueta({
   tom = "neutro",
   children,
+  className,
 }: {
-  tom?: "neutro" | "verde" | "ouro";
+  tom?: "neutro" | "verde" | "ouro" | "vidro";
   children: ReactNode;
+  className?: string;
 }) {
   const cores = {
-    neutro:
-      "bg-[var(--bg-fundo)] text-[var(--fg-suave)] border border-[var(--borda)]",
-    verde: "bg-[var(--color-verde-800)] text-white",
-    ouro: "bg-[var(--color-ouro-600)] text-white",
+    neutro: "bg-[var(--bg-fundo)] text-[var(--fg-suave)]",
+    verde: "bg-[var(--color-verde-50)] text-[var(--color-verde-800)]",
+    ouro: "bg-[var(--color-ouro-100)] text-[var(--color-ouro-800)]",
+    vidro: "bg-white/85 text-[var(--color-verde-950)] backdrop-blur-md",
+  };
+  const ponto = {
+    neutro: "bg-[var(--fg-tenue)]",
+    verde: "bg-[var(--color-verde-600)]",
+    ouro: "bg-[var(--color-ouro-600)]",
+    vidro: "bg-[var(--color-verde-600)]",
   };
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-[0.6875rem] font-semibold tracking-wide uppercase",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
         cores[tom],
+        className,
       )}
     >
+      <span aria-hidden className={cn("h-1.5 w-1.5 rounded-full", ponto[tom])} />
       {children}
     </span>
+  );
+}
+
+/** Estado vazio de uma lista, com o que fazer em seguida. */
+export function Vazio({
+  icone,
+  titulo,
+  texto,
+  acao,
+}: {
+  icone: ReactNode;
+  titulo: string;
+  texto: string;
+  acao?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center rounded-[1.25rem] border border-dashed border-[var(--borda-forte)] px-6 py-14 text-center">
+      <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[var(--bg-elevado)] text-[var(--color-verde-800)] shadow-[var(--sombra-painel)]">
+        {icone}
+      </span>
+      <p className="font-display mt-5 text-lg font-medium">{titulo}</p>
+      <p className="mt-1.5 max-w-[42ch] text-sm leading-relaxed text-pretty text-[var(--fg-tenue)]">
+        {texto}
+      </p>
+      {acao ? <div className="mt-6">{acao}</div> : null}
+    </div>
+  );
+}
+
+/**
+ * Escolha entre poucas opções, em botões lado a lado. No celular é
+ * melhor que um <select>: tudo à vista, um toque só. São rádios nativos,
+ * então entram no envio do formulário sem JavaScript.
+ */
+export function Escolha({
+  nome,
+  opcoes,
+  valor,
+  id,
+}: {
+  nome: string;
+  opcoes: readonly { valor: string; rotulo: string }[];
+  valor: string;
+  id?: string;
+}) {
+  return (
+    <div
+      id={id}
+      role="radiogroup"
+      className="grid min-h-11 auto-cols-fr grid-flow-col gap-1 rounded-xl border border-[var(--borda)] bg-[var(--bg-fundo)] p-1"
+    >
+      {opcoes.map((o) => (
+        <label key={o.valor} className="min-w-0 cursor-pointer">
+          <input
+            type="radio"
+            name={nome}
+            value={o.valor}
+            defaultChecked={o.valor === valor}
+            className="peer sr-only"
+          />
+          <span className="flex h-full min-h-9 items-center justify-center rounded-lg px-2 text-center text-sm text-[var(--fg-tenue)] transition-[background-color,color,box-shadow] duration-200 peer-checked:bg-[var(--bg-elevado)] peer-checked:font-medium peer-checked:text-[var(--color-verde-950)] peer-checked:shadow-[0_1px_3px_rgb(1_38_22/0.12)] peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--color-verde-600)]/40">
+            {o.rotulo}
+          </span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
+/** Campo com um pedaço fixo à esquerda, como o começo de um endereço. */
+export function EntradaComPrefixo({
+  prefixo,
+  className,
+  ...props
+}: ComponentProps<"input"> & { prefixo: string }) {
+  return (
+    <div className="flex min-h-11 w-full min-w-0 items-stretch overflow-hidden rounded-xl border border-[var(--borda)] bg-[var(--bg-elevado)] transition-[border-color,box-shadow] duration-200 focus-within:border-[var(--color-verde-700)] focus-within:shadow-[0_0_0_4px_rgb(0_69_39/0.1)] hover:border-[var(--borda-forte)]">
+      <span className="flex shrink-0 items-center border-r border-[var(--borda)] bg-[var(--bg)] px-3 text-sm text-[var(--fg-tenue)]">
+        {prefixo}
+      </span>
+      <input
+        className={cn(
+          "min-w-0 flex-1 bg-transparent px-3 py-2.5 text-base text-[var(--fg)] placeholder:text-[var(--fg-tenue)]/70 focus:outline-none sm:text-[0.9375rem]",
+          className,
+        )}
+        {...props}
+      />
+    </div>
   );
 }

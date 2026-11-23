@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { Whatsapp } from "@/components/icones-sociais";
+import { FotoDoTopo } from "@/components/site/foto-do-topo";
 import { CardEmpreendimento } from "@/components/site/card-empreendimento";
 import { CardPost } from "@/components/site/card-post";
 import { Empilhada } from "@/components/site/empilhada";
@@ -50,7 +51,12 @@ export default async function PaginaInicial() {
     icone?: string | null;
     imagem?: string | null;
   }>(hero, "numeros");
-  const imagemHero = txt(hero, "imagem_desktop");
+  // A foto do celular é opcional. Sem ela, o celular recebe a do
+  // computador cortada no centro; sem a do computador, a do celular
+  // serve para os dois.
+  const imagemHero =
+    txt(hero, "imagem_desktop") || txt(hero, "imagem_mobile");
+  const imagemHeroCelular = txt(hero, "imagem_mobile");
 
   return (
     <>
@@ -69,20 +75,14 @@ export default async function PaginaInicial() {
       <section className="sticky top-0 -mt-20 flex min-h-[100svh] items-end overflow-hidden">
         <div className="palco-fundo absolute inset-0">
           {imagemHero ? (
-            <Image
-              src={imagemHero}
-              alt=""
-              fill
-              priority
-              /* Esta é a maior imagem da primeira tela, a que define o
-                 LCP. O `priority` já adianta o download; o fetchPriority
-                 diz ao navegador para colocá-la à frente do resto da
-                 fila, que em conexão de celular é onde se ganha tempo. */
-              fetchPriority="high"
-              sizes="100vw"
-              /* A foto cresce 7% em 34 s. É lento o bastante para a
-                 pessoa não ver o movimento, só sentir que a imagem não
-                 está parada. */
+            /* Esta é a maior imagem da primeira tela, a que define o LCP.
+               O fetchPriority a põe à frente do resto da fila, que em
+               conexão de celular é onde se ganha tempo. A foto cresce 7%
+               em 34 s: lento o bastante para a pessoa não ver o
+               movimento, só sentir que a imagem não está parada. */
+            <FotoDoTopo
+              computador={imagemHero}
+              celular={imagemHeroCelular}
               className="respirar object-cover object-center"
             />
           ) : (
@@ -94,10 +94,6 @@ export default async function PaginaInicial() {
               deixaria o render esverdeado e sem profundidade. */}
           <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-verde-950)]/92 via-[var(--color-verde-950)]/35 via-55% to-transparent" />
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[var(--color-verde-950)]/55 to-transparent" />
-
-          {/* Grade fina por cima do véu: dá medida à foto, como a marcação
-              de uma planta. A máscara apaga as linhas no céu e no pé. */}
-          <div aria-hidden className="linhas absolute inset-0" />
 
           {/* O brilho da marca, atrás do título e por cima do véu. É o
               laranja da logo com o dourado do favicon, muito desfocado e

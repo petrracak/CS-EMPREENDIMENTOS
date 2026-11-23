@@ -1,3 +1,4 @@
+import { Cabecalho } from "@/components/admin/ui";
 import { GerenciadorTipos } from "@/components/admin/gerenciador-tipos";
 import { exigirPerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -12,17 +13,13 @@ export default async function PaginaTipos() {
   ]);
 
   return (
-    <>
-      <header>
-        <h1 className="font-display text-2xl font-medium">Tipos</h1>
-        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--fg-tenue)]">
-          Os tipos de empreendimento viram os filtros da página de
-          listagem. Os de unidade aparecem no catálogo de cada projeto.
-          Você pode criar novos quando precisar.
-        </p>
-      </header>
+    <div className="space-y-8">
+      <Cabecalho
+        titulo="Tipos"
+        descricao="Os tipos de empreendimento viram os filtros da página de listagem; os de unidade aparecem no catálogo de cada projeto."
+      />
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <GerenciadorTipos
           grupo="empreendimento"
           titulo="Tipos de empreendimento"
@@ -36,6 +33,6 @@ export default async function PaginaTipos() {
           tipos={deUnidade ?? []}
         />
       </div>
-    </>
+    </div>
   );
 }

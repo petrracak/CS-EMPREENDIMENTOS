@@ -81,7 +81,7 @@ export function GerenciadorUnidades({
 
   return (
     <div className="space-y-6">
-      <Cartao className="p-6">
+      <Cartao className="p-5 sm:p-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <TituloBloco apoio="Clique em uma unidade para editar. A cor mostra a situação.">
@@ -139,7 +139,7 @@ export function GerenciadorUnidades({
                   setEditando(u);
                 }}
                 className={cn(
-                  "rounded-lg border p-3 text-left transition-transform duration-150 hover:-translate-y-0.5",
+                  "rounded-xl border p-3 text-left transition-transform duration-150 hover:-translate-y-0.5",
                   CORES[u.situacao] ?? CORES.vendida,
                   editando?.id === u.id && "ring-2 ring-[var(--anel)]",
                 )}
@@ -224,7 +224,7 @@ function FormUnidade({
   );
 
   return (
-    <Cartao className="p-6">
+    <Cartao className="p-5 sm:p-7">
       <form action={acao}>
         <input type="hidden" name="id" value={unidade?.id ?? ""} />
         <input
@@ -241,7 +241,7 @@ function FormUnidade({
             type="button"
             onClick={aoFechar}
             aria-label="Fechar"
-            className="rounded-lg p-1.5 text-[var(--fg-tenue)] hover:bg-[var(--bg-fundo)]"
+            className="grid h-9 w-9 place-items-center rounded-full text-[var(--fg-tenue)] hover:bg-[var(--bg-fundo)]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -365,7 +365,7 @@ function ImportarLote({
   );
 
   return (
-    <Cartao className="p-6">
+    <Cartao className="p-5 sm:p-7">
       <form action={acao}>
         <input
           type="hidden"
@@ -381,13 +381,13 @@ function ImportarLote({
             type="button"
             onClick={aoFechar}
             aria-label="Fechar"
-            className="rounded-lg p-1.5 text-[var(--fg-tenue)] hover:bg-[var(--bg-fundo)]"
+            className="grid h-9 w-9 place-items-center rounded-full text-[var(--fg-tenue)] hover:bg-[var(--bg-fundo)]"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <p className="mb-4 rounded-lg bg-[var(--bg-fundo)] px-4 py-3 font-mono text-xs leading-relaxed text-[var(--fg-suave)]">
+        <p className="mb-4 rounded-xl bg-[var(--bg-fundo)] px-4 py-3 font-mono text-xs leading-relaxed text-[var(--fg-suave)]">
           identificação; área construída; terreno; valor; situação
           <br />
           Casa 06; 133,81 m²; 10 x 25 m; 250000; disponivel

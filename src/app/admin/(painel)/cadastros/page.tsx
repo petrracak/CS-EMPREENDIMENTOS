@@ -1,3 +1,4 @@
+import { Cabecalho } from "@/components/admin/ui";
 import { ListaCadastros } from "@/components/admin/lista-cadastros";
 import { exigirPerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -17,16 +18,13 @@ export default async function PaginaCadastros() {
     .order("created_at", { ascending: false });
 
   return (
-    <>
-      <header>
-        <h1 className="font-display text-2xl font-medium">Cadastros</h1>
-        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--fg-tenue)]">
-          Quem preencheu o formulário do site. O perfil (profissão, renda e
-          entrada) ajuda a preparar o atendimento antes de ligar.
-        </p>
-      </header>
+    <div className="space-y-8">
+      <Cabecalho
+        titulo="Cadastros"
+        descricao="Quem preencheu o formulário do site. O perfil (profissão, renda e entrada) ajuda a preparar o atendimento antes de ligar."
+      />
 
       <ListaCadastros leads={(leads ?? []) as never} />
-    </>
+    </div>
   );
 }
