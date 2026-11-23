@@ -4,11 +4,10 @@ import { ArrowLeft, ChevronDown, Loader2 } from "lucide-react";
 import Link from "next/link";
 import {
   Children,
-  cloneElement,
-  isValidElement,
+  createContext,
+  useContext,
   useId,
   type ComponentProps,
-  type ReactElement,
   type ReactNode,
 } from "react";
 import { useFormStatus } from "react-dom";
@@ -154,18 +153,16 @@ export function Campo({
   className?: string;
   children: ReactNode;
 }) {
-  const gerado = useId();
-  const unico = Children.count(children) === 1 && isValidElement(children);
-  const filho = unico
-    ? (children as ReactElement<{ id?: string }>)
-    : null;
-  const id = filho?.props.id ?? gerado;
+  const id = useId();
+  // Com um campo só dentro, o rótulo aponta para ele. Com vários, nenhum
+  // recebe o id, senão haveria dois elementos com o mesmo.
+  const unico = Children.count(children) === 1;
 
   return (
     <div className={cn("min-w-0", className)}>
       <div className="flex min-h-6 items-center gap-1.5">
         <label
-          htmlFor={filho ? id : undefined}
+          htmlFor={unico ? id : undefined}
           className="text-[0.8125rem] font-medium text-[var(--fg)]"
         >
           {rotulo}
@@ -173,13 +170,28 @@ export function Campo({
         {apoio ? <Dica>{apoio}</Dica> : null}
       </div>
       <div className="mt-1.5">
-        {filho ? cloneElement(filho, { id }) : children}
+        <IdDoCampo value={unico ? id : undefined}>{children}</IdDoCampo>
       </div>
     </div>
   );
 }
 
-const ENTRADA =
+/**
+ * O id que o Campo dá à caixa de dentro, para o rótulo apontar para ela.
+ *
+ * Vai por contexto, e não por cloneElement: quando a página é grande, o
+ * servidor manda alguns filhos depois, ainda "a resolver", e o clone não
+ * os enxerga — o id saía só no navegador e a hidratação reclamava.
+ */
+const IdDoCampo = createContext<string | undefined>(undefined);
+
+/** O id da caixa: o que veio por prop ou, na falta, o do Campo em volta. */
+export function useIdDoCampo(id?: string) {
+  const doCampo = useContext(IdDoCampo);
+  return id ?? doCampo;
+}
+
+export const ENTRADA =
   "block min-h-11 w-full min-w-0 rounded-xl border border-[var(--borda)] bg-[var(--bg-elevado)] px-3.5 py-2.5 " +
   "text-base text-[var(--fg)] shadow-[0_1px_0_rgb(1_38_22/0.03)] sm:text-[0.9375rem] " +
   "transition-[border-color,box-shadow] duration-200 placeholder:text-[var(--fg-tenue)]/70 " +
@@ -187,13 +199,20 @@ const ENTRADA =
   "focus:border-[var(--color-verde-700)] focus:shadow-[0_0_0_4px_rgb(0_69_39/0.1)] focus:outline-none " +
   "disabled:opacity-60";
 
-export function Entrada({ className, ...props }: ComponentProps<"input">) {
-  return <input className={cn(ENTRADA, className)} {...props} />;
+export function Entrada({ className, id, ...props }: ComponentProps<"input">) {
+  return (
+    <input
+      id={useIdDoCampo(id)}
+      className={cn(ENTRADA, className)}
+      {...props}
+    />
+  );
 }
 
-export function Area({ className, ...props }: ComponentProps<"textarea">) {
+export function Area({ className, id, ...props }: ComponentProps<"textarea">) {
   return (
     <textarea
+      id={useIdDoCampo(id)}
       rows={4}
       className={cn(ENTRADA, "resize-y leading-relaxed", className)}
       {...props}
@@ -201,10 +220,11 @@ export function Area({ className, ...props }: ComponentProps<"textarea">) {
   );
 }
 
-export function Selecao({ className, ...props }: ComponentProps<"select">) {
+export function Selecao({ className, id, ...props }: ComponentProps<"select">) {
   return (
     <div className="relative">
       <select
+        id={useIdDoCampo(id)}
         className={cn(ENTRADA, "cursor-pointer appearance-none pr-10", className)}
         {...props}
       />
@@ -413,7 +433,7 @@ export function Escolha({
 }) {
   return (
     <div
-      id={id}
+      id={useIdDoCampo(id)}
       role="radiogroup"
       className="grid min-h-11 auto-cols-fr grid-flow-col gap-1 rounded-xl border border-[var(--borda)] bg-[var(--bg-fundo)] p-1"
     >
@@ -439,14 +459,17 @@ export function Escolha({
 export function EntradaComPrefixo({
   prefixo,
   className,
+  id,
   ...props
 }: ComponentProps<"input"> & { prefixo: string }) {
+  const idFinal = useIdDoCampo(id);
   return (
     <div className="flex min-h-11 w-full min-w-0 items-stretch overflow-hidden rounded-xl border border-[var(--borda)] bg-[var(--bg-elevado)] transition-[border-color,box-shadow] duration-200 focus-within:border-[var(--color-verde-700)] focus-within:shadow-[0_0_0_4px_rgb(0_69_39/0.1)] hover:border-[var(--borda-forte)]">
       <span className="flex shrink-0 items-center border-r border-[var(--borda)] bg-[var(--bg)] px-3 text-sm text-[var(--fg-tenue)]">
         {prefixo}
       </span>
       <input
+        id={idFinal}
         className={cn(
           "min-w-0 flex-1 bg-transparent px-3 py-2.5 text-base text-[var(--fg)] placeholder:text-[var(--fg-tenue)]/70 focus:outline-none sm:text-[0.9375rem]",
           className,

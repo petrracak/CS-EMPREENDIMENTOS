@@ -25,6 +25,8 @@ import {
 } from "@/components/admin/enviar-imagem";
 import { Whatsapp } from "@/components/icones-sociais";
 import { Logo } from "@/components/site/logo";
+import { classesDaPeca } from "@/components/site/palavras";
+import { lerPalavras } from "@/lib/texto-rico";
 import { cn } from "@/lib/utils";
 
 /**
@@ -42,9 +44,8 @@ import { cn } from "@/lib/utils";
 
 type Textos = {
   chamada: string;
-  titulo_antes: string;
-  titulo_destaque: string;
-  titulo_depois: string;
+  /** HTML mínimo do editor de título (ver lib/texto-rico.ts). */
+  titulo: string;
   subtitulo: string;
   botao_primario: string;
   botao_secundario: string;
@@ -52,9 +53,7 @@ type Textos = {
 
 const CAMPOS: (keyof Textos)[] = [
   "chamada",
-  "titulo_antes",
-  "titulo_destaque",
-  "titulo_depois",
+  "titulo",
   "subtitulo",
   "botao_primario",
   "botao_secundario",
@@ -347,19 +346,18 @@ function TelaDoTopo({
               pc ? "text-display-xl mt-6" : "text-display-md mt-5"
             }`}
           >
-            {textos.titulo_antes}{" "}
             {/* Palavra por palavra, como no site: o dourado é um
                 gradiente recortado no texto, e numa quebra de linha ele
                 se partiria entre as duas linhas. */}
-            {textos.titulo_destaque
-              .split(/\s+/)
-              .filter(Boolean)
-              .map((palavra, i) => (
-                <span key={i}>
-                  <span className="destaque-ouro">{palavra}</span>{" "}
-                </span>
-              ))}
-            {textos.titulo_depois}
+            {lerPalavras(textos.titulo).map((palavra, i) => (
+              <span key={i}>
+                {palavra.map((peca, j) => (
+                  <span key={j} className={classesDaPeca(peca, "ouro")}>
+                    {peca.texto}
+                  </span>
+                ))}{" "}
+              </span>
+            ))}
           </p>
           {textos.subtitulo ? (
             <p

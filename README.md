@@ -117,6 +117,18 @@ uma. Sem a de celular, o celular usa a do computador cortada no centro.
 apoio vai para `<Dica>` (balão no hover, toque no celular). Texto aberto
 embaixo do rótulo deixava um campo mais alto que o vizinho e a linha torta.
 
+**Títulos: uma caixa só, com destaque onde a pessoa marcar.** O editor
+(`src/components/admin/editor-titulo.tsx`, Tiptap) grava um HTML mínimo no
+campo `titulo`: `<strong>`, `<em>`, `<u>` e `<mark>` (o gradiente).
+O site nunca injeta esse HTML: `src/lib/texto-rico.ts` lê peça por peça e o
+`<Palavras>` monta os spans, então outra marcação é descartada. Blocos
+antigos com `titulo_antes`/`titulo_destaque`/`titulo_depois` continuam
+funcionando por `lerTitulo()` até serem salvos de novo.
+
+**Id do rótulo vai por contexto.** O `Campo` passa o id à caixa por
+`useIdDoCampo()`, não por `cloneElement`: em página grande o servidor manda
+alguns filhos depois, e o clone não os via — o id só aparecia no navegador.
+
 **Molduras de aparelho na camada base.** A prévia do topo usa devices.css
 (MIT), importado em `src/components/admin/aparelhos.css` com `layer(base)`.
 Solto, o `.device * { display: block }` da biblioteca venceria as classes do

@@ -58,9 +58,14 @@ export function BotaoLink({
   className,
   ...props
 }: ComponentProps<typeof Link> & { aparencia?: Aparencia }) {
+  // Os links vêm do painel, e a CS pode apontar um botão para fora do
+  // site. Esses abrem em outra aba, para o visitante não perder a página.
+  const externo =
+    typeof props.href === "string" && /^(https?:|mailto:|tel:)/.test(props.href);
   return (
     <Link
       className={cn(BASE_BOTAO, APARENCIA[aparencia], className)}
+      {...(externo ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       {...props}
     />
   );
@@ -111,6 +116,7 @@ export function Titulo({
   antes,
   destaque,
   depois,
+  html,
   nivel = "h2",
   modo = "rolagem",
   atraso = 0,
@@ -119,6 +125,8 @@ export function Titulo({
   antes?: string;
   destaque?: string;
   depois?: string;
+  /** Título gravado pelo painel, com o destaque marcado onde a CS quis. */
+  html?: string;
   nivel?: "h1" | "h2" | "h3";
   /** "entrada" para a primeira dobra, que não espera o observador. */
   modo?: "entrada" | "rolagem";
@@ -130,11 +138,16 @@ export function Titulo({
       como={nivel}
       modo={modo}
       atraso={atraso}
-      segmentos={[
-        { texto: antes ?? "" },
-        { texto: destaque ?? "", destaque: "verde" },
-        { texto: depois ?? "" },
-      ]}
+      html={html}
+      segmentos={
+        html === undefined
+          ? [
+              { texto: antes ?? "" },
+              { texto: destaque ?? "", destaque: "verde" },
+              { texto: depois ?? "" },
+            ]
+          : undefined
+      }
       className={cn(
         "font-display text-display-sm sm:text-display-md",
         "text-balance font-medium",

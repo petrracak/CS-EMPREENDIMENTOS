@@ -1076,3 +1076,27 @@
     filter: drop-shadow(0 30px 40px rgb(1 38 22 / 0.22));
   }
 }
+
+/* -------------------------------------------- editor de título (painel) */
+/* O trecho marcado aparece com o gradiente do site já dentro da caixa,
+   para a pessoa ver o destaque enquanto escreve. */
+.editor-titulo {
+  caret-color: var(--fg);
+  white-space: pre-wrap;
+}
+.editor-titulo mark {
+  background-color: transparent;
+  background-image: linear-gradient(
+    100deg,
+    var(--grad-claro-de),
+    var(--grad-claro-ate)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+/* Dentro do gradiente o texto é transparente, e o traço herdaria isso. */
+.editor-titulo u {
+  text-decoration-color: var(--fg);
+  text-underline-offset: 0.16em;
+}

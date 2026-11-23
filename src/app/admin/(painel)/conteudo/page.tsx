@@ -6,6 +6,8 @@ import {
   Interruptor,
   Trecho,
 } from "@/components/admin/bloco-conteudo";
+import { EditorTitulo } from "@/components/admin/editor-titulo";
+import { EntradaLink } from "@/components/admin/entrada-link";
 import { EnviarImagem } from "@/components/admin/enviar-imagem";
 import { classeBotao } from "@/components/admin/estilos";
 import { FundoTopo } from "@/components/admin/fundo-topo";
@@ -19,6 +21,7 @@ import {
 import { ICONES_NUMERO } from "@/components/site/numeros-bento";
 import { exigirPerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { lerTitulo } from "@/lib/texto-rico";
 
 type Config = Record<string, unknown>;
 
@@ -31,7 +34,13 @@ const b = (c: Config, campo: string) => c?.[campo] === true;
 export default async function PaginaConteudo() {
   await exigirPerfil();
   const supabase = await createClient();
-  const { data } = await supabase.from("site_settings").select("chave, valor");
+  const [{ data }, { data: obras }] = await Promise.all([
+    supabase.from("site_settings").select("chave, valor"),
+    supabase
+      .from("empreendimentos")
+      .select("slug, nome")
+      .order("ordem", { ascending: true }),
+  ]);
 
   const mapa: Record<string, Config> = {};
   for (const linha of data ?? [])
@@ -49,11 +58,28 @@ export default async function PaginaConteudo() {
       }[])
     : [];
 
+  // Destinos prontos para os botões: as páginas de cada empreendimento e
+  // o WhatsApp da empresa.
+  const paginasObras = (obras ?? []).map((o) => ({
+    rotulo: o.nome,
+    caminho: `/empreendimentos/${o.slug}`,
+  }));
+  const whatsapp = t(mapa.empresa ?? {}, "whatsapp_link");
+  const destinosFora = whatsapp
+    ? [{ rotulo: "WhatsApp da CS", caminho: whatsapp }]
+    : [];
+  const link = { empreendimentos: paginasObras, extras: destinosFora };
+
+  const AJUDA_TITULO =
+    "Escreva a frase inteira. Para destacar, selecione as palavras e toque em Destaque. Dá para destacar mais de um trecho, em qualquer ponto da frase.";
+
   const INDICE = [
     { id: "topo", rotulo: "Topo" },
     { id: "campanha", rotulo: "Faixa de campanha" },
     { id: "fundador", rotulo: "Fundador" },
     { id: "destaques", rotulo: "Destaques" },
+    { id: "todos", rotulo: "Todos os empreendimentos" },
+    { id: "blog", rotulo: "Blog" },
     { id: "contato", rotulo: "Faixa de contato" },
     { id: "empresa", rotulo: "Empresa" },
     { id: "rodape", rotulo: "Rodapé" },
@@ -108,9 +134,7 @@ export default async function PaginaConteudo() {
               celular={t(hero, "imagem_mobile") || null}
               textos={{
                 chamada: t(hero, "chamada"),
-                titulo_antes: t(hero, "titulo_antes"),
-                titulo_destaque: t(hero, "titulo_destaque"),
-                titulo_depois: t(hero, "titulo_depois"),
+                titulo: lerTitulo(hero),
                 subtitulo: t(hero, "subtitulo"),
                 botao_primario: t(hero, "botao_primario"),
                 botao_secundario: t(hero, "botao_secundario"),
@@ -128,29 +152,16 @@ export default async function PaginaConteudo() {
             >
               <Entrada name="chamada" defaultValue={t(hero, "chamada")} />
             </Campo>
-            <div className="grid gap-x-5 gap-y-5 sm:grid-cols-3">
-              <Campo rotulo="Título, começo">
-                <Entrada
-                  name="titulo_antes"
-                  defaultValue={t(hero, "titulo_antes")}
-                />
-              </Campo>
-              <Campo
-                rotulo="Palavra em destaque"
-                apoio="Sai em dourado, com um brilho que passa por dentro dela."
-              >
-                <Entrada
-                  name="titulo_destaque"
-                  defaultValue={t(hero, "titulo_destaque")}
-                />
-              </Campo>
-              <Campo rotulo="Título, fim">
-                <Entrada
-                  name="titulo_depois"
-                  defaultValue={t(hero, "titulo_depois")}
-                />
-              </Campo>
-            </div>
+            <Campo
+              rotulo="Título"
+              apoio={`${AJUDA_TITULO} Aqui o destaque sai em dourado, com um brilho que passa por dentro.`}
+            >
+              <EditorTitulo
+                nome="titulo"
+                valor={lerTitulo(hero)}
+                rotulo="Título do topo"
+              />
+            </Campo>
             <Campo
               rotulo="Texto de apoio"
               apoio="O parágrafo abaixo do título. Duas ou três linhas no máximo."
@@ -173,11 +184,12 @@ export default async function PaginaConteudo() {
               </Campo>
               <Campo
                 rotulo="Para onde ele leva"
-                apoio="Um caminho do site, como /empreendimentos, ou um link completo."
+                apoio="Escolha uma página em “Escolher página” ou cole um link completo, de dentro ou de fora do site."
               >
-                <Entrada
+                <EntradaLink
                   name="botao_primario_url"
                   defaultValue={t(hero, "botao_primario_url")}
+                  {...link}
                 />
               </Campo>
               <Campo rotulo="Botão secundário" apoio="O botão só com contorno.">
@@ -188,11 +200,12 @@ export default async function PaginaConteudo() {
               </Campo>
               <Campo
                 rotulo="Para onde ele leva"
-                apoio="Um caminho do site, como /cadastro, ou um link completo."
+                apoio="Escolha uma página em “Escolher página” ou cole um link completo, de dentro ou de fora do site."
               >
-                <Entrada
+                <EntradaLink
                   name="botao_secundario_url"
                   defaultValue={t(hero, "botao_secundario_url")}
+                  {...link}
                 />
               </Campo>
             </div>
@@ -294,7 +307,11 @@ export default async function PaginaConteudo() {
               />
             </Campo>
             <Campo rotulo="Para onde o link leva">
-              <Entrada name="link_url" defaultValue={t(faixa, "link_url")} />
+              <EntradaLink
+                name="link_url"
+                defaultValue={t(faixa, "link_url")}
+                {...link}
+              />
             </Campo>
           </div>
         </BlocoConteudo>
@@ -327,25 +344,17 @@ export default async function PaginaConteudo() {
                   placeholder="A CS"
                 />
               </Campo>
-              <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
-                <Campo rotulo="Título, começo">
-                  <Entrada
-                    name="titulo_antes"
-                    defaultValue={t(construtor, "titulo_antes")}
-                    placeholder="Conheça o"
-                  />
-                </Campo>
-                <Campo
-                  rotulo="Nome em destaque"
-                  apoio="Sai em verde degradê no site."
-                >
-                  <Entrada
-                    name="titulo_destaque"
-                    defaultValue={t(construtor, "titulo_destaque")}
-                    placeholder="Girlan Carneiro"
-                  />
-                </Campo>
-              </div>
+              <Campo
+                rotulo="Título"
+                apoio={`${AJUDA_TITULO} Aqui o destaque sai no verde da marca, em degradê.`}
+              >
+                <EditorTitulo
+                  nome="titulo"
+                  valor={lerTitulo(construtor)}
+                  rotulo="Título do bloco do fundador"
+                  placeholder="Conheça o Girlan Carneiro"
+                />
+              </Campo>
               <Campo rotulo="Legenda da foto">
                 <Entrada
                   name="legenda"
@@ -367,9 +376,10 @@ export default async function PaginaConteudo() {
                   <Entrada name="botao" defaultValue={t(construtor, "botao")} />
                 </Campo>
                 <Campo rotulo="Para onde ele leva">
-                  <Entrada
+                  <EntradaLink
                     name="botao_url"
                     defaultValue={t(construtor, "botao_url")}
+                    {...link}
                   />
                 </Campo>
               </div>
@@ -384,10 +394,16 @@ export default async function PaginaConteudo() {
           titulo="Seção: empreendimentos em destaque"
           apoio="Quais projetos entram aqui você escolhe na tela de Empreendimentos, marcando “destaque”."
         >
-          <Campo rotulo="Título">
-            <Entrada
-              name="titulo"
-              defaultValue={t(mapa.destaques ?? {}, "titulo")}
+          <Campo rotulo="Título" apoio={AJUDA_TITULO}>
+            <EditorTitulo
+              nome="titulo"
+              valor={lerTitulo(
+                mapa.destaques,
+                "titulo",
+                "Empreendimentos em <mark>destaque</mark>",
+              )}
+              rotulo="Título da seção de destaques"
+              tamanho="medio"
             />
           </Campo>
           <Campo rotulo="Subtítulo">
@@ -399,15 +415,99 @@ export default async function PaginaConteudo() {
         </BlocoConteudo>
 
         <BlocoConteudo
+          chave="todos_empreendimentos"
+          id="todos"
+          titulo="Seção: todos os empreendimentos"
+          apoio="O cartão que convida a ver a lista completa de projetos."
+        >
+          <Campo rotulo="Título" apoio={AJUDA_TITULO}>
+            <EditorTitulo
+              nome="titulo"
+              valor={lerTitulo(
+                mapa.todos_empreendimentos,
+                "titulo",
+                "Todos os <mark>empreendimentos</mark>",
+              )}
+              rotulo="Título da seção de todos os empreendimentos"
+              tamanho="medio"
+            />
+          </Campo>
+          <Campo rotulo="Texto">
+            <Area
+              name="texto"
+              rows={2}
+              defaultValue={t(mapa.todos_empreendimentos ?? {}, "texto")}
+            />
+          </Campo>
+          <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+            <Campo rotulo="Botão">
+              <Entrada
+                name="botao"
+                defaultValue={t(mapa.todos_empreendimentos ?? {}, "botao")}
+              />
+            </Campo>
+            <Campo rotulo="Para onde ele leva">
+              <EntradaLink
+                name="botao_url"
+                defaultValue={t(mapa.todos_empreendimentos ?? {}, "botao_url")}
+                {...link}
+              />
+            </Campo>
+          </div>
+        </BlocoConteudo>
+
+        <BlocoConteudo
+          chave="blog_home"
+          id="blog"
+          titulo="Seção: blog"
+          apoio="Aparece na página inicial quando houver ao menos uma publicação."
+        >
+          <Campo rotulo="Título" apoio={AJUDA_TITULO}>
+            <EditorTitulo
+              nome="titulo"
+              valor={lerTitulo(mapa.blog_home, "titulo", "Blog da <mark>CS</mark>")}
+              rotulo="Título da seção do blog"
+              tamanho="medio"
+            />
+          </Campo>
+          <Campo rotulo="Subtítulo">
+            <Entrada
+              name="subtitulo"
+              defaultValue={t(mapa.blog_home ?? {}, "subtitulo")}
+            />
+          </Campo>
+          <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+            <Campo rotulo="Link do topo da seção">
+              <Entrada
+                name="botao"
+                defaultValue={t(mapa.blog_home ?? {}, "botao")}
+              />
+            </Campo>
+            <Campo rotulo="Para onde ele leva">
+              <EntradaLink
+                name="botao_url"
+                defaultValue={t(mapa.blog_home ?? {}, "botao_url")}
+                {...link}
+              />
+            </Campo>
+          </div>
+        </BlocoConteudo>
+
+        <BlocoConteudo
           chave="faixa_contato"
           id="contato"
           titulo="Faixa de contato"
           apoio="O convite escuro que fecha a página inicial."
         >
-          <Campo rotulo="Título">
-            <Entrada
-              name="titulo"
-              defaultValue={t(mapa.faixa_contato ?? {}, "titulo")}
+          <Campo
+            rotulo="Título"
+            apoio={`${AJUDA_TITULO} Aqui o destaque sai em dourado.`}
+          >
+            <EditorTitulo
+              nome="titulo"
+              valor={lerTitulo(mapa.faixa_contato)}
+              rotulo="Título da faixa de contato"
+              tamanho="medio"
             />
           </Campo>
           <Campo rotulo="Texto">
@@ -425,15 +525,27 @@ export default async function PaginaConteudo() {
               />
             </Campo>
             <Campo rotulo="Para onde ele leva">
-              <Entrada
+              <EntradaLink
                 name="botao_primario_url"
                 defaultValue={t(mapa.faixa_contato ?? {}, "botao_primario_url")}
+                {...link}
               />
             </Campo>
             <Campo rotulo="Botão do WhatsApp">
               <Entrada
                 name="botao_secundario"
                 defaultValue={t(mapa.faixa_contato ?? {}, "botao_secundario")}
+              />
+            </Campo>
+            <Campo
+              rotulo="Para onde ele leva"
+              apoio="Em branco, leva ao WhatsApp cadastrado em Dados da empresa."
+            >
+              <EntradaLink
+                name="botao_secundario_url"
+                defaultValue={t(mapa.faixa_contato ?? {}, "botao_secundario_url")}
+                placeholder="WhatsApp da empresa"
+                {...link}
               />
             </Campo>
           </div>

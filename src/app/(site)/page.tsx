@@ -21,6 +21,7 @@ import {
 } from "@/components/site/ui";
 import { listarDestaques, listarMarcos, listarPosts } from "@/lib/queries";
 import { lerConfigs, lerEmpresa, lista, txt } from "@/lib/settings";
+import { lerTitulo } from "@/lib/texto-rico";
 import { partirNumero } from "@/lib/utils";
 
 // As páginas públicas são geradas e revalidadas de hora em hora. O painel
@@ -129,11 +130,8 @@ export default async function PaginaInicial() {
               modo="entrada"
               atraso={120}
               passo={60}
-              segmentos={[
-                { texto: txt(hero, "titulo_antes") },
-                { texto: txt(hero, "titulo_destaque"), destaque: "ouro" },
-                { texto: txt(hero, "titulo_depois") },
-              ]}
+              html={lerTitulo(hero)}
+              tom="ouro"
               className="font-display text-display-md sm:text-display-lg lg:text-display-xl mt-6 font-medium text-balance text-white"
             />
 
@@ -235,8 +233,7 @@ export default async function PaginaInicial() {
                     <Olho>{txt(construtor, "olho", "A CS")}</Olho>
                   </div>
                   <Titulo
-                    antes={txt(construtor, "titulo_antes")}
-                    destaque={txt(construtor, "titulo_destaque")}
+                    html={lerTitulo(construtor)}
                     atraso={120}
                     className="mt-5"
                   />
@@ -335,8 +332,11 @@ export default async function PaginaInicial() {
                   Em obra agora
                 </span>
                 <Titulo
-                  antes="Empreendimentos em"
-                  destaque="destaque"
+                  html={lerTitulo(
+                    configs.destaques,
+                    "titulo",
+                    "Empreendimentos em <mark>destaque</mark>",
+                  )}
                   atraso={120}
                   className="mt-5"
                 />
@@ -369,8 +369,11 @@ export default async function PaginaInicial() {
             <div className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] p-8 transition-shadow duration-[1100ms] [transition-timing-function:var(--ease-lento)] hover:shadow-[var(--sombra-card)] sm:p-12 lg:flex-row lg:items-center">
               <div className="max-w-xl">
                 <Titulo
-                  antes="Todos os"
-                  destaque="empreendimentos"
+                  html={lerTitulo(
+                    configs.todos_empreendimentos,
+                    "titulo",
+                    "Todos os <mark>empreendimentos</mark>",
+                  )}
                   atraso={140}
                   className="text-display-sm"
                 />
@@ -403,8 +406,11 @@ export default async function PaginaInicial() {
               <div className="max-w-xl">
                 <Olho>Conteúdo</Olho>
                 <Titulo
-                  antes="Blog da"
-                  destaque="CS"
+                  html={lerTitulo(
+                    configs.blog_home,
+                    "titulo",
+                    "Blog da <mark>CS</mark>",
+                  )}
                   atraso={120}
                   className="mt-5"
                 />
@@ -413,7 +419,7 @@ export default async function PaginaInicial() {
                 </p>
               </div>
               <Link
-                href="/blog"
+                href={txt(configs.blog_home, "botao_url", "/blog")}
                 className="group -my-2.5 inline-flex items-center gap-1.5 py-2.5 text-sm font-medium text-[var(--acento)]"
               >
                 {txt(configs.blog_home, "botao")}
@@ -452,7 +458,8 @@ export default async function PaginaInicial() {
                 <Palavras
                   como="h2"
                   passo={50}
-                  segmentos={[{ texto: txt(configs.faixa_contato, "titulo") }]}
+                  html={lerTitulo(configs.faixa_contato)}
+                  tom="ouro"
                   className="font-display text-display-sm sm:text-display-md font-medium text-balance text-white"
                 />
                 <p className="mt-5 leading-relaxed text-white/70">
@@ -472,7 +479,10 @@ export default async function PaginaInicial() {
                     <ArrowRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1" />
                   </BotaoLink>
                   <BotaoExterno
-                    href={empresa.whatsapp_link}
+                    href={
+                      txt(configs.faixa_contato, "botao_secundario_url") ||
+                      empresa.whatsapp_link
+                    }
                     aparencia="contorno"
                     className="border-white/25 text-white hover:border-white hover:bg-white/10 hover:text-white"
                   >
