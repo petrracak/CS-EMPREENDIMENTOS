@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { FormPost } from "@/components/admin/form-post";
 import { Cabecalho } from "@/components/admin/ui";
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function EditarPublicacao({
@@ -11,7 +11,7 @@ export default async function EditarPublicacao({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  await exigirPerfil();
+  await exigirArea("blog");
   const supabase = await createClient();
   const { data: post } = await supabase
     .from("posts")

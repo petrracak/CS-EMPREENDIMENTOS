@@ -3,12 +3,12 @@ import { ArrowUpRight, FileText, Plus } from "lucide-react";
 
 import { classeBotao } from "@/components/admin/estilos";
 import { Cabecalho, Cartao, Etiqueta, Vazio } from "@/components/admin/ui";
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatarData } from "@/lib/utils";
 
 export default async function ListaBlog() {
-  await exigirPerfil();
+  await exigirArea("blog");
   const supabase = await createClient();
   const { data: posts } = await supabase
     .from("posts")

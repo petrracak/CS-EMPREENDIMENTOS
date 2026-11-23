@@ -430,8 +430,10 @@ export type Database = {
           email: string | null
           id: string
           nome: string
+          principal: boolean
           role: string
           updated_at: string
+          usuario: string | null
         }
         Insert: {
           ativo?: boolean
@@ -440,8 +442,10 @@ export type Database = {
           email?: string | null
           id: string
           nome: string
+          principal?: boolean
           role?: string
           updated_at?: string
+          usuario?: string | null
         }
         Update: {
           ativo?: boolean
@@ -450,8 +454,10 @@ export type Database = {
           email?: string | null
           id?: string
           nome?: string
+          principal?: boolean
           role?: string
           updated_at?: string
+          usuario?: string | null
         }
         Relationships: []
       }
@@ -608,6 +614,7 @@ export type Database = {
     Functions: {
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      pode: { Args: { area: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

@@ -1,15 +1,19 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 
+import { pode, type Area, type Nivel } from "@/lib/permissoes";
 import { createClient } from "@/lib/supabase/server";
 
 export type Perfil = {
   id: string;
   nome: string;
   email: string | null;
-  role: "admin" | "editor";
+  role: Nivel;
   ativo: boolean;
   avatar_url: string | null;
+  usuario: string | null;
+  /** A conta dona do painel: ninguém rebaixa, suspende ou apaga. */
+  principal: boolean;
 };
 
 /**
@@ -32,7 +36,7 @@ export const exigirPerfil = cache(async (): Promise<Perfil> => {
 
   const { data: perfil } = await supabase
     .from("profiles")
-    .select("id, nome, email, role, ativo, avatar_url")
+    .select("id, nome, email, role, ativo, avatar_url, usuario, principal")
     .eq("id", sub)
     .maybeSingle();
 
@@ -41,8 +45,19 @@ export const exigirPerfil = cache(async (): Promise<Perfil> => {
   return perfil as Perfil;
 });
 
-export async function exigirAdmin(): Promise<Perfil> {
+/**
+ * Perfil de quem está logado, se o nível dele abre esta área. Quem não
+ * pode volta para o início do painel, onde só vê o que é seu.
+ *
+ * O banco barra a escrita de novo (public.pode, nas políticas), então
+ * isto é a primeira porta, não a única.
+ */
+export async function exigirArea(area: Area): Promise<Perfil> {
   const perfil = await exigirPerfil();
-  if (perfil.role !== "admin") redirect("/admin");
+  if (!pode(perfil.role, area)) redirect("/admin?sem-permissao=1");
   return perfil;
+}
+
+export async function exigirAdmin(): Promise<Perfil> {
+  return exigirArea("usuarios");
 }

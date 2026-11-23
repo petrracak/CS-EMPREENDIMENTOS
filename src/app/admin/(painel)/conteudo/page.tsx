@@ -21,7 +21,7 @@ import {
   Selecao,
 } from "@/components/admin/ui";
 import { ICONES_NUMERO } from "@/components/site/numeros-bento";
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { temaDaFaixa } from "@/lib/temas-faixa";
 import { lerMensagemDaFaixa, lerTitulo } from "@/lib/texto-rico";
@@ -35,7 +35,7 @@ const t = (c: Config, campo: string) => {
 const b = (c: Config, campo: string) => c?.[campo] === true;
 
 export default async function PaginaConteudo() {
-  await exigirPerfil();
+  await exigirArea("conteudo");
   const supabase = await createClient();
   const [{ data }, { data: obras }] = await Promise.all([
     supabase.from("site_settings").select("chave, valor"),

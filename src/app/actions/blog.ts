@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { slugificar } from "@/lib/utils";
 
@@ -18,7 +18,7 @@ export async function salvarPost(
   _anterior: EstadoPost,
   dados: FormData,
 ): Promise<EstadoPost> {
-  const perfil = await exigirPerfil();
+  const perfil = await exigirArea("blog");
   const supabase = await createClient();
 
   const id = String(dados.get("id") ?? "");
@@ -83,7 +83,7 @@ export async function salvarPost(
 }
 
 export async function apagarPost(id: string) {
-  await exigirPerfil();
+  await exigirArea("blog");
   const supabase = await createClient();
   await supabase.from("posts").delete().eq("id", id);
   revalidatePath("/blog");

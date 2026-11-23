@@ -1,10 +1,10 @@
 import { Cabecalho } from "@/components/admin/ui";
 import { GerenciadorTipos } from "@/components/admin/gerenciador-tipos";
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PaginaTipos() {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
 
   const [{ data: deEmpreendimento }, { data: deUnidade }] = await Promise.all([

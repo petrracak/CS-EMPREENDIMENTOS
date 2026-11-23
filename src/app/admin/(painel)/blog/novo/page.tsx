@@ -1,9 +1,9 @@
 import { FormPost } from "@/components/admin/form-post";
 import { Cabecalho } from "@/components/admin/ui";
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 
 export default async function NovaPublicacao() {
-  await exigirPerfil();
+  await exigirArea("blog");
 
   return (
     <div className="space-y-8">

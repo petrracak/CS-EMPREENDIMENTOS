@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export type EstadoSalvo = { ok?: boolean; erro?: string };
@@ -18,7 +18,7 @@ export async function salvarConteudo(
   _anterior: EstadoSalvo,
   dados: FormData,
 ): Promise<EstadoSalvo> {
-  const perfil = await exigirPerfil();
+  const perfil = await exigirArea("conteudo");
 
   const chave = String(dados.get("__chave") ?? "");
   if (!chave) return { erro: "Bloco não identificado." };

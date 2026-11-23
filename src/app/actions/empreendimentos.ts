@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { slugificar } from "@/lib/utils";
 
@@ -34,7 +34,7 @@ export async function salvarEmpreendimento(
   _anterior: EstadoEmpreendimento,
   dados: FormData,
 ): Promise<EstadoEmpreendimento> {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
 
   const id = String(dados.get("id") ?? "");
@@ -150,7 +150,7 @@ export async function salvarEmpreendimento(
 }
 
 export async function alternarPublicacao(id: string, publicar: boolean) {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
   const { data } = await supabase
     .from("empreendimentos")
@@ -162,7 +162,7 @@ export async function alternarPublicacao(id: string, publicar: boolean) {
 }
 
 export async function apagarEmpreendimento(id: string) {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
   const { data } = await supabase
     .from("empreendimentos")
@@ -182,7 +182,7 @@ export async function adicionarImagem(
   categoria: "galeria" | "planta",
   legenda: string | null,
 ) {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
 
   const { data: ultima } = await supabase
@@ -207,7 +207,7 @@ export async function adicionarImagem(
 }
 
 export async function removerImagem(id: string, empreendimentoId: string) {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
   await supabase.from("empreendimento_imagens").delete().eq("id", id);
   revalidatePath(`/admin/empreendimentos/${empreendimentoId}`);
@@ -222,7 +222,7 @@ export async function salvarUnidade(
   _anterior: EstadoUnidade,
   dados: FormData,
 ): Promise<EstadoUnidade> {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
 
   const id = String(dados.get("id") ?? "");
@@ -258,7 +258,7 @@ export async function salvarUnidade(
 }
 
 export async function removerUnidade(id: string, empreendimentoId: string) {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
   await supabase.from("unidades").delete().eq("id", id);
   revalidatePath(`/admin/empreendimentos/${empreendimentoId}/unidades`);
@@ -276,7 +276,7 @@ export async function importarUnidades(
   _anterior: EstadoUnidade,
   dados: FormData,
 ): Promise<EstadoUnidade> {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
 
   const empreendimentoId = String(dados.get("empreendimento_id") ?? "");

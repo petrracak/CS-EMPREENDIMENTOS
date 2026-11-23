@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { GerenciadorUnidades } from "@/components/admin/gerenciador-unidades";
 import { Cabecalho } from "@/components/admin/ui";
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PaginaUnidades({
@@ -11,7 +11,7 @@ export default async function PaginaUnidades({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
 
   const [{ data: item }, { data: unidades }, { data: tipos }] =

@@ -5,6 +5,7 @@ import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 
 import { enviarCadastro, type EstadoDoFormulario } from "@/app/actions/leads";
+import { registrarConversao } from "@/lib/conversao";
 import { cn } from "@/lib/utils";
 
 type Opcao = { id: string; nome: string };
@@ -17,6 +18,10 @@ const INICIAL: EstadoDoFormulario = { ok: false };
  */
 export const MARCA_CADASTRO = "cs:cadastrado";
 
+/**
+ * Depois de um cadastro: marca o navegador (o pop-up de saída não volta)
+ * e conta a conversão nos pixels ligados no painel.
+ */
 function useLembrarCadastro(ok: boolean) {
   useEffect(() => {
     if (!ok) return;
@@ -25,6 +30,7 @@ function useLembrarCadastro(ok: boolean) {
     } catch {
       // Sem armazenamento, o pop-up só pode aparecer de novo. Tudo bem.
     }
+    registrarConversao(window.location.pathname);
   }, [ok]);
 }
 

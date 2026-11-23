@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Building2,
   ChevronRight,
+  Code2,
   Ellipsis,
   ExternalLink,
   FileText,
@@ -13,6 +14,7 @@ import {
   LogOut,
   PenLine,
   Plus,
+  ShieldCheck,
   Tags,
   UserRound,
   Users,
@@ -23,6 +25,7 @@ import { createPortal } from "react-dom";
 
 import { sair } from "@/app/actions/auth";
 import { Logo } from "@/components/site/logo";
+import { pode, type Area, type Nivel } from "@/lib/permissoes";
 import { cn } from "@/lib/utils";
 
 /**
@@ -43,20 +46,64 @@ type Item = {
   Icone: LucideIcon;
   exato?: boolean;
   contagem?: boolean;
+  /** Sem área, todo mundo vê. */
+  area?: Area;
+  /** Rótulo da aba de baixo, no celular. */
+  curto?: string;
+  /** Linha de apoio na folha do celular. */
+  detalhe?: string;
 };
 
 const PRINCIPAIS: Item[] = [
   { href: "/admin", rotulo: "Início", Icone: House, exato: true },
-  { href: "/admin/empreendimentos", rotulo: "Empreendimentos", Icone: Building2 },
-  { href: "/admin/conteudo", rotulo: "Conteúdo do site", Icone: LayoutTemplate },
-  { href: "/admin/blog", rotulo: "Blog", Icone: FileText },
-  { href: "/admin/cadastros", rotulo: "Cadastros", Icone: Users, contagem: true },
+  {
+    href: "/admin/empreendimentos",
+    rotulo: "Empreendimentos",
+    curto: "Obras",
+    Icone: Building2,
+    area: "obras",
+  },
+  {
+    href: "/admin/conteudo",
+    rotulo: "Conteúdo do site",
+    curto: "Conteúdo",
+    Icone: LayoutTemplate,
+    area: "conteudo",
+  },
+  { href: "/admin/blog", rotulo: "Blog", Icone: FileText, area: "blog" },
+  {
+    href: "/admin/cadastros",
+    rotulo: "Cadastros",
+    Icone: Users,
+    contagem: true,
+    area: "cadastros",
+    detalhe: "Quem preencheu o formulário",
+  },
 ];
 
 const GESTAO: Item[] = [
-  { href: "/admin/tipos", rotulo: "Tipos", Icone: Tags },
+  { href: "/admin/tipos", rotulo: "Tipos", Icone: Tags, area: "obras" },
+  {
+    href: "/admin/usuarios",
+    rotulo: "Usuários",
+    Icone: ShieldCheck,
+    area: "usuarios",
+    detalhe: "Quem entra no painel e o que pode fazer",
+  },
+  {
+    href: "/admin/configuracoes",
+    rotulo: "Pixels e scripts",
+    Icone: Code2,
+    area: "tecnico",
+    detalhe: "Meta, Google, TikTok e outros",
+  },
   { href: "/admin/conta", rotulo: "Minha conta", Icone: UserRound },
 ];
+
+/** Só o que o nível da pessoa abre. */
+function visiveis(itens: Item[], nivel: Nivel) {
+  return itens.filter((item) => !item.area || pode(nivel, item.area));
+}
 
 function ativoEm(caminho: string, item: Pick<Item, "href" | "exato">) {
   return item.exato ? caminho === item.href : caminho.startsWith(item.href);
@@ -64,7 +111,9 @@ function ativoEm(caminho: string, item: Pick<Item, "href" | "exato">) {
 
 function iniciais(nome: string) {
   const partes = nome.trim().split(/\s+/);
-  return ((partes[0]?.[0] ?? "") + (partes[1]?.[0] ?? "")).toUpperCase() || "CS";
+  return (
+    ((partes[0]?.[0] ?? "") + (partes[1]?.[0] ?? "")).toUpperCase() || "CS"
+  );
 }
 
 function Avatar({ nome, grande }: { nome: string; grande?: boolean }) {
@@ -137,11 +186,13 @@ function LinkLateral({
 function Lateral({
   nome,
   email,
+  nivel,
   caminho,
   novos,
 }: {
   nome: string;
   email: string | null;
+  nivel: Nivel;
   caminho: string;
   novos: number;
 }) {
@@ -152,9 +203,12 @@ function Lateral({
       </Link>
       <p className="mt-3 px-2 text-xs text-[var(--fg-tenue)]">Painel do site</p>
 
-      <nav aria-label="Principal" className="mt-8 flex-1 space-y-7 overflow-y-auto">
+      <nav
+        aria-label="Principal"
+        className="mt-8 flex-1 space-y-7 overflow-y-auto"
+      >
         <div className="space-y-1">
-          {PRINCIPAIS.map((item) => (
+          {visiveis(PRINCIPAIS, nivel).map((item) => (
             <LinkLateral
               key={item.href}
               item={item}
@@ -168,7 +222,7 @@ function Lateral({
             Ajustes
           </p>
           <div className="space-y-1">
-            {GESTAO.map((item) => (
+            {visiveis(GESTAO, nivel).map((item) => (
               <LinkLateral
                 key={item.href}
                 item={item}
@@ -190,18 +244,25 @@ function Lateral({
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-medium">Ver o site</span>
-          <span className="block text-xs text-white/55">Abre numa aba nova</span>
+          <span className="block text-xs text-white/55">
+            Abre numa aba nova
+          </span>
         </span>
         <ChevronRight className="h-4 w-4 text-white/40 transition-transform duration-300 group-hover:translate-x-0.5" />
       </Link>
 
       <div className="flex items-center gap-3 rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)]/70 p-2.5">
-        <Link href="/admin/conta" className="flex min-w-0 flex-1 items-center gap-3">
+        <Link
+          href="/admin/conta"
+          className="flex min-w-0 flex-1 items-center gap-3"
+        >
           <Avatar nome={nome} />
           <span className="min-w-0">
             <span className="block truncate text-sm font-medium">{nome}</span>
             {email ? (
-              <span className="block truncate text-xs text-[var(--fg-tenue)]">{email}</span>
+              <span className="block truncate text-xs text-[var(--fg-tenue)]">
+                {email}
+              </span>
             ) : null}
           </span>
         </Link>
@@ -265,7 +326,10 @@ function Folha({
 
   return createPortal(
     <div
-      className={cn("fixed inset-0 z-50 lg:hidden", !aberta && "pointer-events-none")}
+      className={cn(
+        "fixed inset-0 z-50 lg:hidden",
+        !aberta && "pointer-events-none",
+      )}
       inert={!aberta}
     >
       <button
@@ -287,7 +351,10 @@ function Folha({
           aberta ? "translate-y-0" : "translate-y-full",
         )}
       >
-        <div aria-hidden className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-[var(--borda-forte)]" />
+        <div
+          aria-hidden
+          className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-[var(--borda-forte)]"
+        />
         <p className="font-display px-2 pb-3 text-lg font-medium">{titulo}</p>
         {children}
       </div>
@@ -335,11 +402,16 @@ function ItemFolha({
       <span className="min-w-0 flex-1">
         <span className="block text-base font-medium">{rotulo}</span>
         {detalhe ? (
-          <span className="block text-sm text-[var(--fg-tenue)]">{detalhe}</span>
+          <span className="block text-sm text-[var(--fg-tenue)]">
+            {detalhe}
+          </span>
         ) : null}
       </span>
       <Contagem n={contagem} />
-      <ChevronRight className="h-5 w-5 shrink-0 text-[var(--fg-tenue)]/60" strokeWidth={1.5} />
+      <ChevronRight
+        className="h-5 w-5 shrink-0 text-[var(--fg-tenue)]/60"
+        strokeWidth={1.5}
+      />
     </Link>
   );
 }
@@ -347,11 +419,13 @@ function ItemFolha({
 function AbaInferior({
   nome,
   email,
+  nivel,
   caminho,
   novos,
 }: {
   nome: string;
   email: string | null;
+  nivel: Nivel;
   caminho: string;
   novos: number;
 }) {
@@ -364,11 +438,40 @@ function AbaInferior({
   useEffect(() => setMontado(true), []);
   useEffect(() => setFolha(null), [caminho]);
 
-  const naFolhaMais = ["/admin/blog", "/admin/cadastros", "/admin/tipos", "/admin/conta"].some(
-    (h) => caminho.startsWith(h),
+  // Início e as duas primeiras áreas do nível viram abas; o resto vai
+  // para a folha "Mais". Administrador: Obras e Conteúdo. Editor:
+  // Conteúdo e Blog. Comercial: Obras e Cadastros.
+  const [inicio, ...areas] = visiveis(PRINCIPAIS, nivel);
+  const abas = areas.slice(0, 2);
+  const naFolha = [...areas.slice(2), ...visiveis(GESTAO, nivel)].filter(
+    (item) => item.href !== "/admin/conta",
   );
+  const naFolhaMais =
+    caminho.startsWith("/admin/conta") ||
+    naFolha.some((item) => ativoEm(caminho, item));
+  const cadastrosNaFolha = naFolha.some((item) => item.contagem);
 
-  const aba = (item: Item, rotulo: string) => {
+  const novosItens = [
+    pode(nivel, "obras")
+      ? {
+          href: "/admin/empreendimentos/novo",
+          Icone: Building2,
+          rotulo: "Novo empreendimento",
+          detalhe: "Página nova, com fotos e unidades",
+        }
+      : null,
+    pode(nivel, "blog")
+      ? {
+          href: "/admin/blog/novo",
+          Icone: PenLine,
+          rotulo: "Nova publicação",
+          detalhe: "Texto para o blog",
+        }
+      : null,
+  ].filter((item) => item !== null);
+
+  const aba = (item: Item | undefined, rotulo?: string) => {
+    if (!item) return <span />;
     const ativo = ativoEm(caminho, item);
     return (
       <Link
@@ -382,13 +485,22 @@ function AbaInferior({
       >
         <span
           className={cn(
-            "grid h-8 w-14 place-items-center rounded-full transition-colors duration-300",
+            "relative grid h-8 w-14 place-items-center rounded-full transition-colors duration-300",
             ativo && "bg-[var(--color-verde-900)] text-[var(--color-ouro-300)]",
           )}
         >
-          <item.Icone className="h-[1.3rem] w-[1.3rem]" strokeWidth={ativo ? 1.9 : 1.6} />
+          <item.Icone
+            className="h-[1.3rem] w-[1.3rem]"
+            strokeWidth={ativo ? 1.9 : 1.6}
+          />
+          {item.contagem ? (
+            <Contagem
+              n={novos}
+              className="absolute -top-1 right-1 h-4 min-w-4 text-[0.625rem]"
+            />
+          ) : null}
         </span>
-        {rotulo}
+        {rotulo ?? item.curto ?? item.rotulo}
       </Link>
     );
   };
@@ -400,22 +512,24 @@ function AbaInferior({
         className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--borda)] bg-[var(--bg)]/92 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
       >
         <div className="mx-auto grid h-[4.25rem] max-w-md grid-cols-5">
-          {aba(PRINCIPAIS[0], "Início")}
-          {aba(PRINCIPAIS[1], "Obras")}
+          {aba(inicio, "Início")}
+          {aba(abas[0])}
 
           <div className="grid place-items-center">
-            <button
-              type="button"
-              onClick={() => setFolha("novo")}
-              aria-label="Criar novo"
-              aria-haspopup="dialog"
-              className="-mt-7 grid h-14 w-14 place-items-center rounded-full bg-[var(--color-verde-900)] text-[var(--color-ouro-300)] shadow-[0_10px_24px_-8px_rgb(1_38_22/0.7)] ring-4 ring-[var(--bg)] transition-transform active:scale-95"
-            >
-              <Plus className="h-6 w-6" strokeWidth={2.2} />
-            </button>
+            {novosItens.length ? (
+              <button
+                type="button"
+                onClick={() => setFolha("novo")}
+                aria-label="Criar novo"
+                aria-haspopup="dialog"
+                className="-mt-7 grid h-14 w-14 place-items-center rounded-full bg-[var(--color-verde-900)] text-[var(--color-ouro-300)] shadow-[0_10px_24px_-8px_rgb(1_38_22/0.7)] ring-4 ring-[var(--bg)] transition-transform active:scale-95"
+              >
+                <Plus className="h-6 w-6" strokeWidth={2.2} />
+              </button>
+            ) : null}
           </div>
 
-          {aba(PRINCIPAIS[2], "Conteúdo")}
+          {aba(abas[1])}
 
           <button
             type="button"
@@ -423,17 +537,28 @@ function AbaInferior({
             aria-haspopup="dialog"
             className={cn(
               "flex flex-col items-center justify-center gap-1 text-[0.6875rem] font-medium transition-colors",
-              naFolhaMais ? "text-[var(--color-verde-900)]" : "text-[var(--fg-tenue)]",
+              naFolhaMais
+                ? "text-[var(--color-verde-900)]"
+                : "text-[var(--fg-tenue)]",
             )}
           >
             <span
               className={cn(
                 "relative grid h-8 w-14 place-items-center rounded-full transition-colors duration-300",
-                naFolhaMais && "bg-[var(--color-verde-900)] text-[var(--color-ouro-300)]",
+                naFolhaMais &&
+                  "bg-[var(--color-verde-900)] text-[var(--color-ouro-300)]",
               )}
             >
-              <Ellipsis className="h-[1.3rem] w-[1.3rem]" strokeWidth={naFolhaMais ? 1.9 : 1.6} />
-              <Contagem n={novos} className="absolute -top-1 right-1 h-4 min-w-4 text-[0.625rem]" />
+              <Ellipsis
+                className="h-[1.3rem] w-[1.3rem]"
+                strokeWidth={naFolhaMais ? 1.9 : 1.6}
+              />
+              {cadastrosNaFolha ? (
+                <Contagem
+                  n={novos}
+                  className="absolute -top-1 right-1 h-4 min-w-4 text-[0.625rem]"
+                />
+              ) : null}
             </span>
             Mais
           </button>
@@ -442,25 +567,26 @@ function AbaInferior({
 
       {montado ? (
         <>
-          <Folha aberta={folha === "novo"} aoFechar={fechar} titulo="O que você quer criar?">
-            <ItemFolha
-              href="/admin/empreendimentos/novo"
-              Icone={Building2}
-              rotulo="Novo empreendimento"
-              detalhe="Página nova, com fotos e unidades"
-              aoEscolher={fechar}
-              destaque
-            />
-            <ItemFolha
-              href="/admin/blog/novo"
-              Icone={PenLine}
-              rotulo="Nova publicação"
-              detalhe="Texto para o blog"
-              aoEscolher={fechar}
-            />
+          <Folha
+            aberta={folha === "novo"}
+            aoFechar={fechar}
+            titulo="O que você quer criar?"
+          >
+            {novosItens.map((item, i) => (
+              <ItemFolha
+                key={item.href}
+                {...item}
+                aoEscolher={fechar}
+                destaque={i === 0}
+              />
+            ))}
           </Folha>
 
-          <Folha aberta={folha === "mais"} aoFechar={fechar} titulo="Mais opções">
+          <Folha
+            aberta={folha === "mais"}
+            aoFechar={fechar}
+            titulo="Mais opções"
+          >
             <Link
               href="/admin/conta"
               onClick={fechar}
@@ -468,25 +594,39 @@ function AbaInferior({
             >
               <Avatar nome={nome} grande />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-base font-medium">{nome}</span>
+                <span className="block truncate text-base font-medium">
+                  {nome}
+                </span>
                 {email ? (
-                  <span className="block truncate text-sm text-[var(--fg-tenue)]">{email}</span>
+                  <span className="block truncate text-sm text-[var(--fg-tenue)]">
+                    {email}
+                  </span>
                 ) : null}
               </span>
-              <ChevronRight className="h-5 w-5 shrink-0 text-[var(--fg-tenue)]/60" strokeWidth={1.5} />
+              <ChevronRight
+                className="h-5 w-5 shrink-0 text-[var(--fg-tenue)]/60"
+                strokeWidth={1.5}
+              />
             </Link>
 
+            {naFolha.map((item) => (
+              <ItemFolha
+                key={item.href}
+                href={item.href}
+                Icone={item.Icone}
+                rotulo={item.rotulo}
+                detalhe={item.detalhe}
+                aoEscolher={fechar}
+                contagem={item.contagem ? novos : 0}
+              />
+            ))}
             <ItemFolha
-              href="/admin/cadastros"
-              Icone={Users}
-              rotulo="Cadastros"
-              detalhe="Quem preencheu o formulário"
+              href="/"
+              Icone={ExternalLink}
+              rotulo="Ver o site"
               aoEscolher={fechar}
-              contagem={novos}
+              externo
             />
-            <ItemFolha href="/admin/blog" Icone={FileText} rotulo="Blog" aoEscolher={fechar} />
-            <ItemFolha href="/admin/tipos" Icone={Tags} rotulo="Tipos" aoEscolher={fechar} />
-            <ItemFolha href="/" Icone={ExternalLink} rotulo="Ver o site" aoEscolher={fechar} externo />
 
             <form action={sair} className="mt-1">
               <button
@@ -511,11 +651,13 @@ function AbaInferior({
 export function CascaPainel({
   nome,
   email,
+  nivel,
   novos,
   children,
 }: {
   nome: string;
   email: string | null;
+  nivel: Nivel;
   novos: number;
   children: React.ReactNode;
 }) {
@@ -525,14 +667,26 @@ export function CascaPainel({
     // overflow-x: clip, e não hidden: hidden transformaria este bloco em
     // contêiner de rolagem e quebraria o position: sticky lá dentro.
     <div className="min-h-dvh overflow-x-clip bg-[var(--painel-fundo)] lg:flex">
-      <Lateral nome={nome} email={email} caminho={caminho} novos={novos} />
+      <Lateral
+        nome={nome}
+        email={email}
+        nivel={nivel}
+        caminho={caminho}
+        novos={novos}
+      />
       <BarraTopo nome={nome} />
 
       <main className="min-w-0 flex-1 px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-10 lg:pt-10 lg:pb-14">
         <div className="mx-auto w-full max-w-[68rem]">{children}</div>
       </main>
 
-      <AbaInferior nome={nome} email={email} caminho={caminho} novos={novos} />
+      <AbaInferior
+        nome={nome}
+        email={email}
+        nivel={nivel}
+        caminho={caminho}
+        novos={novos}
+      />
     </div>
   );
 }

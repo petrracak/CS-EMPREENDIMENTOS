@@ -1,5 +1,6 @@
 import { CascaPainel } from "@/components/admin/navegacao";
 import { exigirPerfil } from "@/lib/auth";
+import { pode } from "@/lib/permissoes";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function LayoutDoPainel({
@@ -20,7 +21,13 @@ export default async function LayoutDoPainel({
   ]);
 
   return (
-    <CascaPainel nome={perfil.nome} email={perfil.email} novos={count ?? 0}>
+    <CascaPainel
+      nome={perfil.nome}
+      // Quem entra por usuário tem um e-mail interno, que não diz nada.
+      email={perfil.email ?? (perfil.usuario ? `@${perfil.usuario}` : null)}
+      nivel={perfil.role}
+      novos={pode(perfil.role, "cadastros") ? (count ?? 0) : 0}
+    >
       {children}
     </CascaPainel>
   );

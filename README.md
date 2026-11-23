@@ -132,6 +132,25 @@ pouco), nunca prendendo o botão de voltar. Uma vez por visita
 (`sessionStorage`) e nunca para quem já se cadastrou em qualquer formulário
 (`localStorage` `cs:cadastrado`). Não aparece em `/cadastro`.
 
+**Usuários em três níveis, e uma conta principal.** Administrador (tudo),
+Editor do site (conteúdo e blog) e Comercial (obras, unidades e
+cadastros). O mapa existe duas vezes, de propósito: `src/lib/permissoes.ts`
+decide menu e telas, e a função `public.pode()` do banco barra a escrita
+nas políticas — mudou um, mude o outro. A conta principal (`principal`)
+não é rebaixada, suspensa nem apagada, nem por outro administrador: o
+gatilho `protege_perfis` recusa. O mesmo gatilho impede alguém de mudar
+o próprio nível. O login aceita usuário ou e-mail; quem não tem e-mail
+ganha um endereço interno (`@equipe.csstm.com.br`) que nunca recebe
+mensagem, então a senha dessas contas é trocada pelo administrador.
+
+**Pixels e scripts.** `site_settings.rastreamento`, que só administrador
+edita. Cada identificador é conferido pelo formato (`src/lib/rastreamento.ts`)
+e pode ser colado junto com o trecho inteiro do Meta ou do Google. Com o
+consentimento ligado, nada carrega antes do aceite no aviso de cookies.
+Todo cadastro do site vira conversão (`Lead` no Meta, `generate_lead` e a
+conversão do Ads no Google, `SubmitForm` no TikTok e o evento `cadastro`
+no dataLayer), em `src/lib/conversao.ts`.
+
 **Id do rótulo vai por contexto.** O `Campo` passa o id à caixa por
 `useIdDoCampo()`, não por `cloneElement`: em página grande o servidor manda
 alguns filhos depois, e o clone não os via — o id só aparecia no navegador.

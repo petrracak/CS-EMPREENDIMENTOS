@@ -1,10 +1,10 @@
 import { Cabecalho } from "@/components/admin/ui";
 import { ListaCadastros } from "@/components/admin/lista-cadastros";
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PaginaCadastros() {
-  await exigirPerfil();
+  await exigirArea("cadastros");
   const supabase = await createClient();
 
   const { data: leads } = await supabase

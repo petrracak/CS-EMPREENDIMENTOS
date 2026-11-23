@@ -1334,3 +1334,81 @@
     animation: none;
   }
 }
+
+/* Aviso de cookies: sobe do rodapé uma vez. */
+@keyframes aviso-sobe {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------ login */
+/* Formulário entra em degraus; a foto à vista faz um zoom lento; a
+   barrinha da foto enche no tempo da troca. */
+@keyframes login-entra {
+  from {
+    opacity: 0;
+    transform: translateY(0.875rem);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+@keyframes login-zoom {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
+@keyframes login-barra {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes login-legenda {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.login-entra {
+  animation: login-entra 0.9s var(--ease-saida) both;
+  animation-delay: var(--atraso, 0ms);
+}
+.login-zoom {
+  animation: login-zoom 9s linear both;
+}
+.login-barra {
+  animation: login-barra linear both;
+}
+.login-legenda {
+  animation: login-legenda 0.9s var(--ease-saida) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-entra,
+  .login-zoom,
+  .login-legenda {
+    animation: none;
+  }
+  .login-barra {
+    animation-name: none;
+    transform: scaleX(1);
+  }
+}

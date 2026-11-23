@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
+
 import { Cabecalho } from "@/components/site/cabecalho";
 import { FaixaCampanha } from "@/components/site/faixa-campanha";
 import { PopupSaida } from "@/components/site/popup-saida";
+import { Rastreamento } from "@/components/site/rastreamento";
 import { Revelar } from "@/components/site/revelar";
 import { Rodape } from "@/components/site/rodape";
 import { WhatsappFlutuante } from "@/components/site/whatsapp-flutuante";
@@ -8,6 +11,21 @@ import { bool, lerConfigs, lerEmpresa, txt } from "@/lib/settings";
 import { temaDaFaixa } from "@/lib/temas-faixa";
 import { lerMensagemDaFaixa, lerTitulo } from "@/lib/texto-rico";
 import { listarDestaques, listarParaSelecao } from "@/lib/queries";
+import { lerRastreamento, temRastreio } from "@/lib/rastreamento";
+
+/** As tags de verificação de domínio do Meta e do Google, do painel. */
+export async function generateMetadata(): Promise<Metadata> {
+  const { rastreamento } = await lerConfigs(["rastreamento"]);
+  const r = lerRastreamento(rastreamento);
+  const outras: Record<string, string> = {};
+  if (r.verificacao_meta) outras["facebook-domain-verification"] = r.verificacao_meta;
+  return {
+    verification: {
+      ...(r.verificacao_google ? { google: r.verificacao_google } : {}),
+      ...(Object.keys(outras).length ? { other: outras } : {}),
+    },
+  };
+}
 
 export default async function LayoutDoSite({
   children,
@@ -15,7 +33,7 @@ export default async function LayoutDoSite({
   children: React.ReactNode;
 }) {
   const [configs, empresa, destaques, empreendimentos] = await Promise.all([
-    lerConfigs(["faixa_campanha", "whatsapp_flutuante", "popup_saida"]),
+    lerConfigs(["faixa_campanha", "whatsapp_flutuante", "popup_saida", "rastreamento"]),
     lerEmpresa(),
     listarDestaques(3),
     listarParaSelecao(),
@@ -24,6 +42,7 @@ export default async function LayoutDoSite({
   const faixa = configs.faixa_campanha;
   const zap = configs.whatsapp_flutuante;
   const saida = configs.popup_saida;
+  const rastreio = lerRastreamento(configs.rastreamento);
 
   return (
     <>
@@ -64,6 +83,8 @@ export default async function LayoutDoSite({
           empreendimentos={empreendimentos}
         />
       ) : null}
+
+      {temRastreio(rastreio) ? <Rastreamento config={rastreio} /> : null}
 
       {/* Liga as animações de entrada depois que a página monta. */}
       <Revelar />

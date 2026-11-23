@@ -6,7 +6,7 @@ import { FormEmpreendimento } from "@/components/admin/form-empreendimento";
 import { GerenciadorImagens } from "@/components/admin/gerenciador-imagens";
 import { classeBotao } from "@/components/admin/estilos";
 import { Cabecalho, Etiqueta } from "@/components/admin/ui";
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function EditarEmpreendimento({
@@ -15,7 +15,7 @@ export default async function EditarEmpreendimento({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
 
   const [{ data: item }, { data: tipos }] = await Promise.all([

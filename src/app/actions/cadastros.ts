@@ -2,11 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export async function mudarSituacaoLead(id: string, situacao: string) {
-  await exigirPerfil();
+  await exigirArea("cadastros");
   const supabase = await createClient();
   await supabase.from("leads").update({ situacao }).eq("id", id);
   revalidatePath("/admin/cadastros");
@@ -14,7 +14,7 @@ export async function mudarSituacaoLead(id: string, situacao: string) {
 }
 
 export async function anotarLead(id: string, anotacoes: string) {
-  await exigirPerfil();
+  await exigirArea("cadastros");
   const supabase = await createClient();
   await supabase
     .from("leads")
@@ -36,7 +36,7 @@ export async function criarTipo(
   _anterior: EstadoTipo,
   dados: FormData,
 ): Promise<EstadoTipo> {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
 
   const nome = String(dados.get("nome") ?? "").trim();
@@ -73,7 +73,7 @@ export async function apagarTipo(
   grupo: keyof typeof TABELAS,
   id: string,
 ): Promise<void> {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
   // O vínculo é "on delete set null": o empreendimento continua lá, só
   // fica sem tipo. Nada é perdido por engano.

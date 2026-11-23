@@ -1,10 +1,10 @@
 import { FormEmpreendimento } from "@/components/admin/form-empreendimento";
 import { Cabecalho } from "@/components/admin/ui";
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function NovoEmpreendimento() {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
   const { data: tipos } = await supabase
     .from("tipos_empreendimento")

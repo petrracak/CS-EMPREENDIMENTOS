@@ -13,7 +13,7 @@ import {
 import { classeBotao } from "@/components/admin/estilos";
 import { Cabecalho, Etiqueta, Vazio } from "@/components/admin/ui";
 import { Simbolo } from "@/components/site/logo";
-import { exigirPerfil } from "@/lib/auth";
+import { exigirArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { SITUACOES } from "@/lib/utils";
 
@@ -24,7 +24,7 @@ import { SITUACOES } from "@/lib/utils";
  * ficam numa faixa à parte, para não disputarem o clique.
  */
 export default async function ListaEmpreendimentos() {
-  await exigirPerfil();
+  await exigirArea("obras");
   const supabase = await createClient();
 
   const { data: itens } = await supabase
