@@ -1103,19 +1103,115 @@
 
 /* ------------------------------------------------ faixa de campanha */
 /* Três movimentos lentos, um sobre o outro, para a faixa chamar o olho
-   sem piscar: o verde da marca fluindo de um lado para o outro, um brilho
-   quente (o laranja da logo) passeando atrás do texto e, de tempos em
-   tempos, um reflexo que atravessa a faixa inteira. */
+   sem piscar: o gradiente fluindo de um lado para o outro, um brilho
+   quente passeando atrás do texto e, de tempos em tempos, um reflexo que
+   atravessa a faixa inteira.
+
+   A cor vem do tema escolhido no painel (data-tema). Cada tema só troca
+   variáveis; os movimentos são os mesmos em todos. Os temas claros
+   (amarelo) invertem o texto e o botão para escuro. */
+[data-tema] {
+  --faixa-1: var(--color-verde-950);
+  --faixa-2: var(--color-verde-800);
+  --faixa-3: var(--color-verde-600);
+  --faixa-luz: rgb(255 178 117 / 0.38);
+  --faixa-texto: var(--fg-sobre-tinta);
+  --faixa-ponto: var(--color-acento);
+  --faixa-botao: var(--color-ouro-300);
+  --faixa-botao-texto: var(--color-verde-950);
+  --faixa-botao-hover: #ffffff;
+  --faixa-reflexo: rgb(255 255 255 / 0.16);
+}
+[data-tema="vermelho"] {
+  --faixa-1: #5c0a12;
+  --faixa-2: #b3121f;
+  --faixa-3: #ef3b46;
+  --faixa-luz: rgb(255 196 120 / 0.42);
+  --faixa-texto: #fff4f2;
+  --faixa-ponto: #ffd166;
+  --faixa-botao: #ffffff;
+  --faixa-botao-texto: #8f0f1a;
+  --faixa-botao-hover: #ffe5a3;
+}
+[data-tema="laranja"] {
+  --faixa-1: #8a2c03;
+  --faixa-2: #e2570c;
+  --faixa-3: #ff8c3a;
+  --faixa-luz: rgb(255 230 140 / 0.45);
+  --faixa-texto: #fff7ef;
+  --faixa-ponto: #fff1a8;
+  --faixa-botao: #ffffff;
+  --faixa-botao-texto: #8a2c03;
+  --faixa-botao-hover: #fff1a8;
+}
+[data-tema="amarelo"] {
+  --faixa-1: #e0a100;
+  --faixa-2: #ffc60a;
+  --faixa-3: #ffe270;
+  --faixa-luz: rgb(255 255 255 / 0.55);
+  --faixa-texto: #241c00;
+  --faixa-ponto: #c81d25;
+  --faixa-botao: #1d1700;
+  --faixa-botao-texto: #ffe270;
+  --faixa-botao-hover: var(--color-verde-950);
+  --faixa-reflexo: rgb(255 255 255 / 0.4);
+}
+[data-tema="azul"] {
+  --faixa-1: #061a42;
+  --faixa-2: #1447b0;
+  --faixa-3: #3b82f6;
+  --faixa-luz: rgb(120 220 255 / 0.4);
+  --faixa-texto: #f0f6ff;
+  --faixa-ponto: #7dd3fc;
+  --faixa-botao: #ffffff;
+  --faixa-botao-texto: #0b2a6b;
+  --faixa-botao-hover: #d7ecff;
+}
+[data-tema="roxo"] {
+  --faixa-1: #2a0a4a;
+  --faixa-2: #6d28d9;
+  --faixa-3: #a855f7;
+  --faixa-luz: rgb(255 150 220 / 0.4);
+  --faixa-texto: #faf5ff;
+  --faixa-ponto: #f9a8d4;
+  --faixa-botao: #ffffff;
+  --faixa-botao-texto: #4c1d95;
+  --faixa-botao-hover: #f3e8ff;
+}
+[data-tema="rosa"] {
+  --faixa-1: #6b0f3a;
+  --faixa-2: #db2777;
+  --faixa-3: #f472b6;
+  --faixa-luz: rgb(255 220 150 / 0.42);
+  --faixa-texto: #fff5fa;
+  --faixa-ponto: #fde68a;
+  --faixa-botao: #ffffff;
+  --faixa-botao-texto: #9d174d;
+  --faixa-botao-hover: #ffe4f1;
+}
+[data-tema="preto"] {
+  --faixa-1: #050505;
+  --faixa-2: #1c1c1c;
+  --faixa-3: #3d3d3d;
+  --faixa-luz: rgb(243 214 148 / 0.32);
+  --faixa-texto: #f5f5f5;
+  --faixa-ponto: var(--color-ouro-300);
+  --faixa-botao: var(--color-ouro-300);
+  --faixa-botao-texto: #111111;
+  --faixa-botao-hover: #ffffff;
+}
+
 .faixa-campanha {
-  background-color: var(--color-verde-900);
+  color: var(--faixa-texto);
+  background-color: var(--faixa-2);
   background-image: linear-gradient(
     100deg,
-    var(--color-verde-950) 0%,
-    var(--color-verde-800) 22%,
-    var(--color-verde-600) 42%,
-    var(--color-verde-800) 62%,
-    var(--color-verde-950) 82%,
-    var(--color-verde-800) 100%
+    var(--faixa-1) 0%,
+    var(--faixa-2) 22%,
+    var(--faixa-3) 42%,
+    var(--faixa-2) 62%,
+    var(--faixa-1) 82%,
+    var(--faixa-2) 100%
   );
   background-size: 300% 100%;
   animation: faixa-fluir 16s ease-in-out infinite alternate;
@@ -1128,8 +1224,7 @@
   width: 45%;
   background: radial-gradient(
     closest-side,
-    rgb(255 178 117 / 0.38),
-    rgb(243 214 148 / 0.12) 55%,
+    var(--faixa-luz),
     transparent
   );
   filter: blur(6px);
@@ -1145,12 +1240,33 @@
   background: linear-gradient(
     100deg,
     transparent,
-    rgb(255 255 255 / 0.16) 50%,
+    var(--faixa-reflexo) 50%,
     transparent
   );
   transform: translateX(-120%) skewX(-18deg);
   animation: faixa-reflexo 7s var(--ease-lento, ease-in-out) infinite;
   pointer-events: none;
+}
+
+/* No amarelo o dourado do destaque sumiria: vira um degradê escuro. */
+[data-tema="amarelo"] .destaque-ouro {
+  background-image: linear-gradient(
+    100deg,
+    #1d1700 0%,
+    #5c3d00 50%,
+    #1d1700 100%
+  );
+}
+
+/* A amostra de cor no painel: o mesmo gradiente, sem movimento. */
+.faixa-amostra {
+  background-image: linear-gradient(
+    100deg,
+    var(--faixa-1),
+    var(--faixa-2) 35%,
+    var(--faixa-3) 65%,
+    var(--faixa-2)
+  );
 }
 
 @keyframes faixa-fluir {

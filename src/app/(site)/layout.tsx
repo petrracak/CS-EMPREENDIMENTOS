@@ -4,6 +4,7 @@ import { Revelar } from "@/components/site/revelar";
 import { Rodape } from "@/components/site/rodape";
 import { WhatsappFlutuante } from "@/components/site/whatsapp-flutuante";
 import { bool, lerConfigs, lerEmpresa, txt } from "@/lib/settings";
+import { temaDaFaixa } from "@/lib/temas-faixa";
 import { lerMensagemDaFaixa } from "@/lib/texto-rico";
 
 export default async function LayoutDoSite({
@@ -26,6 +27,7 @@ export default async function LayoutDoSite({
           mensagem={lerMensagemDaFaixa(faixa)}
           linkTexto={txt(faixa, "link_texto")}
           linkUrl={txt(faixa, "link_url", "/cadastro")}
+          tema={temaDaFaixa(faixa?.tema)}
         />
       ) : null}
 

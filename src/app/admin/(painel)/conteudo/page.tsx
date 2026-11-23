@@ -7,6 +7,7 @@ import {
   Trecho,
 } from "@/components/admin/bloco-conteudo";
 import { EditorTitulo } from "@/components/admin/editor-titulo";
+import { EscolhaDeCor } from "@/components/admin/escolha-de-cor";
 import { EntradaLink } from "@/components/admin/entrada-link";
 import { EnviarImagem } from "@/components/admin/enviar-imagem";
 import { classeBotao } from "@/components/admin/estilos";
@@ -22,6 +23,7 @@ import {
 import { ICONES_NUMERO } from "@/components/site/numeros-bento";
 import { exigirPerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { temaDaFaixa } from "@/lib/temas-faixa";
 import { lerMensagemDaFaixa, lerTitulo } from "@/lib/texto-rico";
 
 type Config = Record<string, unknown>;
@@ -324,10 +326,17 @@ export default async function PaginaConteudo() {
               />
             </Campo>
           </div>
+          <Campo
+            rotulo="Cor da faixa"
+            apoio="Todas as cores têm o mesmo movimento. No amarelo, o texto e o botão ficam escuros para dar leitura."
+          >
+            <EscolhaDeCor nome="tema" valor={temaDaFaixa(faixa.tema)} />
+          </Campo>
           <PreviaFaixa
             mensagem={lerMensagemDaFaixa(faixa)}
             linkTexto={t(faixa, "link_texto")}
             linkUrl={t(faixa, "link_url")}
+            tema={temaDaFaixa(faixa.tema)}
           />
         </BlocoConteudo>
 

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { FaixaVisual } from "@/components/site/faixa-campanha";
+import { temaDaFaixa, type TemaFaixa } from "@/lib/temas-faixa";
 
 /**
  * A faixa de campanha como vai aparecer no site, atualizada enquanto a
@@ -12,13 +13,15 @@ export function PreviaFaixa({
   mensagem,
   linkTexto,
   linkUrl,
+  tema,
 }: {
   mensagem: string;
   linkTexto: string;
   linkUrl: string;
+  tema: TemaFaixa;
 }) {
   const raiz = useRef<HTMLDivElement>(null);
-  const [dados, setDados] = useState({ mensagem, linkTexto, linkUrl });
+  const [dados, setDados] = useState({ mensagem, linkTexto, linkUrl, tema });
 
   // Os textos moram em outros campos do mesmo formulário.
   useEffect(() => {
@@ -26,13 +29,18 @@ export function PreviaFaixa({
     if (!form) return;
     const valor = (nome: string) => {
       const el = form.elements.namedItem(nome);
-      return el instanceof HTMLInputElement ? el.value : "";
+      // As cores são rádios: o formulário devolve a lista, e o valor dela
+      // é o do marcado.
+      return el instanceof HTMLInputElement || el instanceof RadioNodeList
+        ? el.value
+        : "";
     };
     const ler = () =>
       setDados({
         mensagem: valor("mensagem"),
         linkTexto: valor("link_texto"),
         linkUrl: valor("link_url"),
+        tema: temaDaFaixa(valor("tema")),
       });
     form.addEventListener("input", ler);
     return () => form.removeEventListener("input", ler);

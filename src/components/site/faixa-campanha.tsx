@@ -5,6 +5,7 @@ import { ArrowRight, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { classesDaPeca } from "@/components/site/palavras";
+import type { TemaFaixa } from "@/lib/temas-faixa";
 import { lerPecas } from "@/lib/texto-rico";
 import { cn } from "@/lib/utils";
 
@@ -22,10 +23,12 @@ export function FaixaCampanha({
   mensagem,
   linkTexto,
   linkUrl,
+  tema,
 }: {
   mensagem: string;
   linkTexto: string;
   linkUrl: string;
+  tema: TemaFaixa;
 }) {
   const [aberta, setAberta] = useState(true);
 
@@ -54,6 +57,7 @@ export function FaixaCampanha({
       mensagem={mensagem}
       linkTexto={linkTexto}
       linkUrl={linkUrl}
+      tema={tema}
       aoFechar={fechar}
     />
   );
@@ -67,19 +71,21 @@ export function FaixaVisual({
   mensagem,
   linkTexto,
   linkUrl,
+  tema = "verde",
   aoFechar,
   previa,
 }: {
   mensagem: string;
   linkTexto: string;
   linkUrl: string;
+  tema?: TemaFaixa;
   aoFechar?: () => void;
   /** Na prévia do painel o link não navega. */
   previa?: boolean;
 }) {
   const externo = /^(https?:|mailto:|tel:)/.test(linkUrl);
   const classeLink =
-    "group inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-full bg-[var(--color-ouro-300)] px-3.5 text-[0.8125rem] font-semibold text-[var(--color-verde-950)] shadow-[0_0_0_1px_rgb(255_255_255/0.25),0_4px_14px_-4px_rgb(243_214_148/0.6)] transition-[background-color,transform] duration-300 hover:-translate-y-px hover:bg-white";
+    "group inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-full bg-[var(--faixa-botao)] px-3.5 text-[0.8125rem] font-semibold text-[var(--faixa-botao-texto)] shadow-[0_0_0_1px_rgb(255_255_255/0.25),0_4px_14px_-4px_rgb(0_0_0/0.35)] transition-[background-color,transform] duration-300 hover:-translate-y-px hover:bg-[var(--faixa-botao-hover)]";
 
   const conteudoLink = (
     <>
@@ -90,8 +96,9 @@ export function FaixaVisual({
 
   return (
     <div
+      data-tema={tema}
       className={cn(
-        "faixa-campanha relative isolate overflow-hidden text-[var(--fg-sobre-tinta)]",
+        "faixa-campanha relative isolate overflow-hidden",
         !previa && "z-50",
       )}
     >
@@ -106,8 +113,8 @@ export function FaixaVisual({
             aria-hidden
             className="relative mr-2.5 inline-flex h-2 w-2 -translate-y-px align-middle"
           >
-            <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--color-acento)] opacity-75 motion-safe:animate-ping" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-acento)]" />
+            <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--faixa-ponto)] opacity-75 motion-safe:animate-ping" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--faixa-ponto)]" />
           </span>
           <MensagemRica html={mensagem} />
         </p>
@@ -134,7 +141,7 @@ export function FaixaVisual({
           onClick={aoFechar}
           tabIndex={previa ? -1 : undefined}
           aria-label="Fechar aviso"
-          className="absolute top-1/2 right-1 z-10 -translate-y-1/2 rounded-full p-3 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+          className="absolute top-1/2 right-1 z-10 -translate-y-1/2 rounded-full p-3 opacity-60 transition-[opacity,background-color] hover:bg-black/10 hover:opacity-100"
         >
           <X className="h-3.5 w-3.5" />
         </button>
