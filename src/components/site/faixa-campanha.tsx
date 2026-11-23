@@ -4,9 +4,8 @@ import Link from "next/link";
 import { ArrowRight, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { classesDaPeca } from "@/components/site/palavras";
+import { TextoRico } from "@/components/site/palavras";
 import type { TemaFaixa } from "@/lib/temas-faixa";
-import { lerPecas } from "@/lib/texto-rico";
 import { cn } from "@/lib/utils";
 
 /**
@@ -116,7 +115,7 @@ export function FaixaVisual({
             <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--faixa-ponto)] opacity-75 motion-safe:animate-ping" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--faixa-ponto)]" />
           </span>
-          <MensagemRica html={mensagem} />
+          <TextoRico html={mensagem} tom="ouro" />
         </p>
         {linkTexto ? (
           previa ? (
@@ -147,17 +146,5 @@ export function FaixaVisual({
         </button>
       ) : null}
     </div>
-  );
-}
-
-function MensagemRica({ html }: { html: string }) {
-  return (
-    <>
-      {lerPecas(html).map((peca, i) => (
-        <span key={i} className={classesDaPeca(peca, "ouro")}>
-          {peca.texto}
-        </span>
-      ))}
-    </>
   );
 }

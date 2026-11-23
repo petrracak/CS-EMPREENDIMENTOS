@@ -1309,3 +1309,28 @@
     display: none;
   }
 }
+
+/* ------------------------------------------------- pop-up de saída */
+.popup-saida[open] {
+  animation: popup-entra 0.6s var(--ease-saida, ease-out) both;
+}
+.popup-saida[open]::backdrop {
+  animation: popup-fundo 0.45s ease-out both;
+}
+@keyframes popup-entra {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+}
+@keyframes popup-fundo {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .popup-saida[open],
+  .popup-saida[open]::backdrop {
+    animation: none;
+  }
+}

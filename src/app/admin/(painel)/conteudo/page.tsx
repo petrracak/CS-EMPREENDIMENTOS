@@ -52,6 +52,7 @@ export default async function PaginaConteudo() {
   const hero = mapa.hero ?? {};
   const faixa = mapa.faixa_campanha ?? {};
   const construtor = mapa.construtor ?? {};
+  const saida = mapa.popup_saida ?? {};
   const numeros = Array.isArray(hero.numeros)
     ? (hero.numeros as {
         valor: string;
@@ -79,6 +80,7 @@ export default async function PaginaConteudo() {
   const INDICE = [
     { id: "topo", rotulo: "Topo" },
     { id: "campanha", rotulo: "Faixa de campanha" },
+    { id: "popup", rotulo: "Pop-up de saída" },
     { id: "fundador", rotulo: "Fundador" },
     { id: "destaques", rotulo: "Destaques" },
     { id: "todos", rotulo: "Todos os empreendimentos" },
@@ -338,6 +340,61 @@ export default async function PaginaConteudo() {
             linkUrl={t(faixa, "link_url")}
             tema={temaDaFaixa(faixa.tema)}
           />
+        </BlocoConteudo>
+
+        {/* ========================================== pop-up de saída */}
+        <BlocoConteudo
+          chave="popup_saida"
+          id="popup"
+          titulo="Pop-up de saída"
+          apoio="Aparece quando a pessoa vai sair do site: no computador, quando o cursor sobe para fechar a aba; no celular, quando ela rola rápido para cima depois de ler um pouco. Mostra o cadastro curto e os empreendimentos marcados como destaque. Uma vez por visita, e nunca para quem já se cadastrou."
+        >
+          <Interruptor
+            nome="ativo"
+            rotulo="Mostrar o pop-up no site"
+            apoio="Desligado, ninguém vê. Os textos ficam guardados."
+            padrao={b(saida, "ativo")}
+          />
+          <Campo
+            rotulo="Chamada de cima"
+            apoio="A linha miúda em caixa alta, acima do título."
+          >
+            <Entrada
+              name="olho"
+              defaultValue={t(saida, "olho")}
+              placeholder="Antes de ir"
+            />
+          </Campo>
+          <Campo rotulo="Título" apoio={AJUDA_TITULO}>
+            <EditorTitulo
+              nome="titulo"
+              valor={lerTitulo(saida)}
+              rotulo="Título do pop-up de saída"
+              tamanho="medio"
+            />
+          </Campo>
+          <Campo rotulo="Texto" apoio="Uma ou duas frases, acima do formulário.">
+            <Area name="texto" rows={2} defaultValue={t(saida, "texto")} />
+          </Campo>
+          <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+            <Campo rotulo="Botão do formulário">
+              <Entrada
+                name="botao"
+                defaultValue={t(saida, "botao")}
+                placeholder="Quero ser atendido"
+              />
+            </Campo>
+            <Campo
+              rotulo="Chamada dos empreendimentos"
+              apoio="Acima da lista de empreendimentos em destaque, ao lado do formulário. Quais aparecem você escolhe na tela de Empreendimentos, marcando “destaque”."
+            >
+              <Entrada
+                name="titulo_destaques"
+                defaultValue={t(saida, "titulo_destaques")}
+                placeholder="Ou conheça o que está em obra"
+              />
+            </Campo>
+          </div>
         </BlocoConteudo>
 
         {/* ============================================== o construtor */}

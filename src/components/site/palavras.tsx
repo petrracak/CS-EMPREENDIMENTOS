@@ -1,7 +1,12 @@
 import { Fragment } from "react";
 import type { CSSProperties } from "react";
 
-import { lerPalavras, type Palavra, type Peca } from "@/lib/texto-rico";
+import {
+  lerPalavras,
+  lerPecas,
+  type Palavra,
+  type Peca,
+} from "@/lib/texto-rico";
 import { cn } from "@/lib/utils";
 
 /**
@@ -138,5 +143,21 @@ export function Palavras({
         );
       })}
     </Tag>
+  );
+}
+
+/**
+ * Texto do painel sem a animação de palavra por palavra: para frases
+ * curtas fora da rolagem, como a faixa de campanha e o pop-up de saída.
+ */
+export function TextoRico({ html, tom }: { html: string; tom: Tom }) {
+  return (
+    <>
+      {lerPecas(html).map((peca, i) => (
+        <span key={i} className={classesDaPeca(peca, tom)}>
+          {peca.texto}
+        </span>
+      ))}
+    </>
   );
 }

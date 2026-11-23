@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, Loader2 } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 
 import { enviarCadastro, type EstadoDoFormulario } from "@/app/actions/leads";
@@ -10,6 +10,23 @@ import { cn } from "@/lib/utils";
 type Opcao = { id: string; nome: string };
 
 const INICIAL: EstadoDoFormulario = { ok: false };
+
+/**
+ * Quem já se cadastrou não vê mais o pop-up de saída naquele navegador.
+ * Vale para qualquer formulário do site.
+ */
+export const MARCA_CADASTRO = "cs:cadastrado";
+
+function useLembrarCadastro(ok: boolean) {
+  useEffect(() => {
+    if (!ok) return;
+    try {
+      localStorage.setItem(MARCA_CADASTRO, "1");
+    } catch {
+      // Sem armazenamento, o pop-up só pode aparecer de novo. Tudo bem.
+    }
+  }, [ok]);
+}
 
 /* ------------------------------------------------------------ campos */
 
@@ -113,6 +130,7 @@ export function FormularioCompleto({
   sucessoTexto: string;
 }) {
   const [estado, acao] = useActionState(enviarCadastro, INICIAL);
+  useLembrarCadastro(estado.ok);
 
   if (estado.ok) {
     return <Sucesso titulo={sucessoTitulo} texto={sucessoTexto} />;
@@ -194,6 +212,7 @@ export function FormularioCurto({
   origem: string;
 }) {
   const [estado, acao] = useActionState(enviarCadastro, INICIAL);
+  useLembrarCadastro(estado.ok);
 
   if (estado.ok) {
     return (
@@ -245,6 +264,75 @@ export function FormularioCurto({
       <Consentimento texto="Concordo em receber contato da CS Empreendimentos pelos dados informados. Meus dados serão usados apenas para o atendimento comercial." />
       {estado.erro ? <Erro texto={estado.erro} /> : null}
       <Enviar rotulo="Quero ser atendido" />
+    </form>
+  );
+}
+
+/* ------------------------------------------- versão do pop-up de saída */
+
+/**
+ * O mínimo para a CS ligar de volta: nome, WhatsApp e, se a pessoa
+ * quiser, o empreendimento. Quem está saindo não preenche renda.
+ */
+export function FormularioSaida({
+  empreendimentos,
+  origem,
+  botao,
+}: {
+  empreendimentos: Opcao[];
+  origem: string;
+  botao: string;
+}) {
+  const [estado, acao] = useActionState(enviarCadastro, INICIAL);
+  useLembrarCadastro(estado.ok);
+
+  if (estado.ok) {
+    return (
+      <Sucesso
+        titulo="Recebemos o seu cadastro."
+        texto="Em breve, um consultor da CS vai falar com você pelo WhatsApp."
+      />
+    );
+  }
+
+  return (
+    <form action={acao} className="mt-6 space-y-4">
+      <input type="hidden" name="origem" value={origem} />
+      <Armadilha />
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Campo nome="nome" rotulo="Nome" obrigatorio />
+        <Campo
+          nome="contato"
+          rotulo="WhatsApp"
+          tipo="tel"
+          obrigatorio
+        />
+      </div>
+
+      {empreendimentos.length ? (
+        <label className="block">
+          <span className="text-sm font-medium text-[var(--fg)]">
+            Empreendimento de interesse
+          </span>
+          <select
+            name="empreendimento_id"
+            defaultValue=""
+            className="mt-2 w-full rounded-xl border border-[var(--borda)] bg-[var(--bg)] px-4 py-3 text-base sm:text-sm focus:border-[var(--acento)] focus:outline-none"
+          >
+            <option value="">Ainda não sei</option>
+            {empreendimentos.map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.nome}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+
+      <Consentimento texto="Concordo em receber contato da CS Empreendimentos pelos dados informados. Meus dados serão usados apenas para o atendimento comercial." />
+      {estado.erro ? <Erro texto={estado.erro} /> : null}
+      <Enviar rotulo={botao} />
     </form>
   );
 }

@@ -125,6 +125,13 @@ O site nunca injeta esse HTML: `src/lib/texto-rico.ts` lê peça por peça e o
 antigos com `titulo_antes`/`titulo_destaque`/`titulo_depois` continuam
 funcionando por `lerTitulo()` até serem salvos de novo.
 
+**Pop-up de saída.** `src/components/site/popup-saida.tsx`, ligado em
+`site_settings.popup_saida`. Saída é adivinhada pelo gesto (cursor saindo
+pela borda de cima; no celular, rolagem rápida para cima depois de ler um
+pouco), nunca prendendo o botão de voltar. Uma vez por visita
+(`sessionStorage`) e nunca para quem já se cadastrou em qualquer formulário
+(`localStorage` `cs:cadastrado`). Não aparece em `/cadastro`.
+
 **Id do rótulo vai por contexto.** O `Campo` passa o id à caixa por
 `useIdDoCampo()`, não por `cloneElement`: em página grande o servidor manda
 alguns filhos depois, e o clone não os via — o id só aparecia no navegador.
