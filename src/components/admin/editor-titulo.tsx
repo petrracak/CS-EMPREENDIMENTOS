@@ -77,7 +77,8 @@ function limpar(editor: Editor) {
 const LETRA = {
   grande: "font-display text-[1.1875rem] font-medium tracking-[-0.01em]",
   medio: "font-display text-[1.0625rem] font-medium tracking-[-0.01em]",
-  texto: "text-[0.9375rem] font-normal",
+  // 16 px no celular: abaixo disso o iPhone dá zoom ao tocar no campo.
+  texto: "text-base font-normal sm:text-[0.9375rem]",
 } as const;
 
 export function EditorTitulo({

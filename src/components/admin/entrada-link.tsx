@@ -97,14 +97,15 @@ export function EntradaLink({
         </p>
         {/* Um <select> invisível por cima do botão: no celular abre a
             roda nativa de opções, que é o que a pessoa já sabe usar. */}
-        <label className="relative inline-flex min-h-8 shrink-0 cursor-pointer items-center gap-1 rounded-full px-2.5 text-xs font-medium text-[var(--color-verde-800)] transition-colors hover:bg-[var(--bg-fundo)] focus-within:ring-2 focus-within:ring-[var(--color-verde-600)]/40">
+        <label className="relative inline-flex min-h-10 shrink-0 sm:min-h-8 cursor-pointer items-center gap-1 rounded-full px-2.5 text-xs font-medium text-[var(--color-verde-800)] transition-colors hover:bg-[var(--bg-fundo)] focus-within:ring-2 focus-within:ring-[var(--color-verde-600)]/40">
           Escolher página
           <ChevronDown className="h-3.5 w-3.5" strokeWidth={2} />
           <select
             aria-label="Escolher uma página do site"
             value=""
             onChange={(e) => escolher(e.target.value)}
-            className="absolute inset-0 cursor-pointer opacity-0"
+            // text-base: invisível, mas abaixo de 16 px o iPhone dá zoom ao tocar.
+            className="absolute inset-0 cursor-pointer text-base opacity-0"
           >
             <option value="" disabled>
               Escolher uma página

@@ -22,7 +22,7 @@ export async function Rodape() {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* ---------------------------------------------- institucional */}
           <div className="lg:pr-6">
-            <Logo variante="branca" className="h-11 w-auto" />
+            <Logo variante="branca" className="h-12 w-auto" />
             <p className="mt-5 text-sm leading-relaxed text-white/60">
               {txt(
                 config,
@@ -100,7 +100,7 @@ export async function Rodape() {
                 href={empresa.maps}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-medium text-white transition-colors hover:border-white/40 hover:bg-white/5"
+                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-medium text-white transition-colors hover:border-white/40 hover:bg-white/5"
               >
                 <MapPin className="h-3.5 w-3.5" />
                 Ver no Google Maps

@@ -148,7 +148,7 @@ function Lateral({
   return (
     <aside className="sticky top-0 hidden h-dvh w-[17rem] shrink-0 flex-col px-4 py-6 lg:flex">
       <Link href="/admin" className="block px-2">
-        <Logo className="h-11 w-auto" />
+        <Logo className="h-12 w-auto" />
       </Link>
       <p className="mt-3 px-2 text-xs text-[var(--fg-tenue)]">Painel do site</p>
 
@@ -227,7 +227,7 @@ function BarraTopo({ nome }: { nome: string }) {
     <header className="sticky top-0 z-30 border-b border-[var(--borda)]/70 bg-[var(--painel-fundo)]/85 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
       <div className="flex h-16 items-center justify-between px-4">
         <Link href="/admin" aria-label="Início do painel">
-          <Logo className="h-9 w-auto" />
+          <Logo className="h-10 w-auto" />
         </Link>
         <Link
           href="/admin/conta"

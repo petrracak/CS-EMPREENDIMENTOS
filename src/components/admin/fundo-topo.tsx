@@ -307,7 +307,7 @@ function TelaDoTopo({
           pc ? "h-24 px-12" : "h-[4.5rem] px-5 pt-8",
         )}
       >
-        <Logo variante="branca" className={pc ? "h-12" : "h-9"} />
+        <Logo variante="branca" className={pc ? "h-12" : "h-10"} />
         {pc ? (
           <div className="flex items-center gap-8 text-sm font-medium text-white/85">
             <span>Início</span>

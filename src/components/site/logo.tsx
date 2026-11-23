@@ -7,7 +7,9 @@ import { cn } from "@/lib/utils";
  *
  * Dois arquivos, não um com filtro: a versão colorida tem o verde e o
  * acento laranja da marca, e a branca é chapada para viver sobre tinta.
- * A proporção vem do viewBox do SVG (1339 x 602).
+ * A proporção vem do viewBox do SVG (2426 x 518). O viewBox é recortado
+ * rente ao desenho: a altura pedida na classe é a altura da marca, sem
+ * margem embutida no arquivo.
  */
 export function Logo({
   variante = "colorida",
@@ -22,8 +24,8 @@ export function Logo({
     <Image
       src={`/marca/logo-${variante}.svg`}
       alt="CS Empreendimentos"
-      width={1339}
-      height={602}
+      width={2426}
+      height={518}
       priority={prioridade}
       /* SVG não tem o que redimensionar, e o carregador do projeto escolhe
          entre dois tamanhos de WebP. Sem isto o Next avisa, com razão, que

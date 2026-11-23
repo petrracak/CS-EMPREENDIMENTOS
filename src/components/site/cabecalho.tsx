@@ -85,20 +85,20 @@ export function Cabecalho({ whatsapp }: { whatsapp: string }) {
           <Logo
             prioridade
             className={cn(
-              "h-10 w-auto transition-opacity duration-500 sm:h-12",
+              "h-12 w-auto transition-opacity duration-500 md:h-10 lg:h-12",
               solido ? "opacity-100" : "opacity-0",
             )}
           />
           <Logo
             variante="branca"
             className={cn(
-              "absolute inset-0 h-10 w-auto transition-opacity duration-500 sm:h-12",
+              "absolute inset-0 h-12 w-auto transition-opacity duration-500 md:h-10 lg:h-12",
               solido ? "opacity-0" : "opacity-100",
             )}
           />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-6 md:flex lg:gap-8">
           {ITENS.map((item) => {
             const ativo =
               item.href === "/"

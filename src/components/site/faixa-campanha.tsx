@@ -84,7 +84,7 @@ export function FaixaVisual({
 }) {
   const externo = /^(https?:|mailto:|tel:)/.test(linkUrl);
   const classeLink =
-    "group inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-full bg-[var(--faixa-botao)] px-3.5 text-[0.8125rem] font-semibold text-[var(--faixa-botao-texto)] shadow-[0_0_0_1px_rgb(255_255_255/0.25),0_4px_14px_-4px_rgb(0_0_0/0.35)] transition-[background-color,transform] duration-300 hover:-translate-y-px hover:bg-[var(--faixa-botao-hover)]";
+    "group inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-[var(--faixa-botao)] px-4 text-[0.8125rem] font-semibold text-[var(--faixa-botao-texto)] sm:min-h-8 sm:px-3.5 shadow-[0_0_0_1px_rgb(255_255_255/0.25),0_4px_14px_-4px_rgb(0_0_0/0.35)] transition-[background-color,transform] duration-300 hover:-translate-y-px hover:bg-[var(--faixa-botao-hover)]";
 
   const conteudoLink = (
     <>

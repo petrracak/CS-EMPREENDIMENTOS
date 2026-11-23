@@ -88,7 +88,7 @@ export function FormPost({ post }: { post: Post }) {
             name="conteudo"
             rows={20}
             defaultValue={t("conteudo")}
-            className="font-mono text-xs leading-relaxed"
+            className="font-mono text-base leading-relaxed sm:text-xs"
           />
         </Campo>
       </Cartao>

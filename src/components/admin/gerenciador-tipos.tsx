@@ -46,7 +46,7 @@ export function GerenciadorTipos({
                   void apagarTipo(grupo, tipo.id);
                 })
               }
-              className="rounded-full p-1 text-[var(--fg-tenue)] transition-colors hover:bg-[var(--bg-fundo)] hover:text-[var(--color-acento-forte)]"
+              className="relative rounded-full p-1 text-[var(--fg-tenue)] after:absolute after:-inset-3 after:content-[''] transition-colors hover:bg-[var(--bg-fundo)] hover:text-[var(--color-acento-forte)]"
             >
               <X className="h-3 w-3" />
             </button>

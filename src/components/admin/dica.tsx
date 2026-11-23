@@ -106,8 +106,9 @@ export function Dica({
         onFocus={abrir}
         onBlur={() => !fixa && setAberta(false)}
         className={cn(
-          // A área de toque é maior que o desenho: 28 px num ícone de 16.
-          "relative -m-1.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[var(--fg-tenue)] transition-colors duration-200 hover:text-[var(--color-verde-800)] focus-visible:outline-none",
+          // A área de toque é maior que o desenho: 28 px num ícone de 16,
+          // e o ::after estende o toque até 44 px sem empurrar o rótulo.
+          "relative -m-1.5 grid h-7 w-7 after:absolute after:-inset-2 after:content-[''] shrink-0 place-items-center rounded-full text-[var(--fg-tenue)] transition-colors duration-200 hover:text-[var(--color-verde-800)] focus-visible:outline-none",
           aberta && "text-[var(--color-verde-800)]",
           className,
         )}
