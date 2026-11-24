@@ -97,7 +97,10 @@ export default async function HomeNova() {
             style={{ "--duracao": "144s" } as React.CSSProperties}
           >
             {Array.from({ length: 6 }).map((_, volta) => (
-              <div key={volta} className="flex shrink-0 items-center gap-10 pr-10">
+              <div
+                key={volta}
+                className="flex shrink-0 items-center gap-10 pr-10"
+              >
                 {[
                   "Casas",
                   "Condomínio fechado",
@@ -119,264 +122,284 @@ export default async function HomeNova() {
           </div>
         </div>
 
-        {/* ================================ dobra 3: destaques */}
-        <Secao>
-          <div className="max-w-2xl">
-            <span data-revelar className="olho">
-              Em obra agora
-            </span>
-            <Titulo
-              html={lerTitulo(
-                configs.destaques,
-                "titulo",
-                "Empreendimentos em <mark>destaque</mark>",
-              )}
-              atraso={120}
-              className="mt-5"
-            />
-            <p
-              data-revelar
-              data-desfoque
-              style={{ "--atraso": "300ms" } as React.CSSProperties}
-              className="mt-4 leading-relaxed text-[var(--fg-suave)]"
-            >
-              {txt(configs.destaques, "subtitulo")}
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {destaques.map((item, i) => (
-              <CardEmpreendimento key={item.id} item={item} atraso={i * 90} />
-            ))}
-          </div>
-        </Secao>
-
-        {/* ============================= dobra 4: todos os empreendimentos */}
-        <Secao className="pt-0 md:pt-0">
-          <div data-revelar>
-            <div className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] p-8 transition-shadow duration-[1100ms] [transition-timing-function:var(--ease-lento)] hover:shadow-[var(--sombra-card)] sm:p-12 lg:flex-row lg:items-center">
-              <div className="max-w-xl">
-                <Titulo
-                  html={lerTitulo(
-                    configs.todos_empreendimentos,
-                    "titulo",
-                    "Todos os <mark>empreendimentos</mark>",
-                  )}
-                  atraso={140}
-                  className="text-display-sm"
-                />
-                <p className="mt-4 leading-relaxed text-[var(--fg-suave)]">
-                  {txt(configs.todos_empreendimentos, "texto")}
-                </p>
-              </div>
-              <BotaoNovo
-                href={txt(
-                  configs.todos_empreendimentos,
-                  "botao_url",
-                  "/empreendimentos",
+        {/* Do menta para o branco: o menta fica no topo e na faixa, e a
+            partir dos destaques o fundo clareia até o branco. */}
+        <div className="home-nova-claro">
+          {/* ================================ dobra 3: destaques */}
+          <Secao>
+            <div className="max-w-2xl">
+              <span data-revelar className="olho">
+                Em obra agora
+              </span>
+              <Titulo
+                html={lerTitulo(
+                  configs.destaques,
+                  "titulo",
+                  "Empreendimentos em <mark>destaque</mark>",
                 )}
-                className="shrink-0"
+                atraso={120}
+                className="mt-5"
+              />
+              <p
+                data-revelar
+                data-desfoque
+                style={{ "--atraso": "300ms" } as React.CSSProperties}
+                className="mt-4 leading-relaxed text-[var(--fg-suave)]"
               >
-                {txt(configs.todos_empreendimentos, "botao")}
-              </BotaoNovo>
-            </div>
-          </div>
-        </Secao>
-
-        {/* ============================================== dobra 5: o blog */}
-        {posts.length ? (
-          <Secao className="pt-0 md:pt-0">
-            <div
-              data-revelar
-              className="flex flex-wrap items-end justify-between gap-6"
-            >
-              <div className="max-w-xl">
-                <Olho>Conteúdo</Olho>
-                <Titulo
-                  html={lerTitulo(
-                    configs.blog_home,
-                    "titulo",
-                    "Blog da <mark>CS</mark>",
-                  )}
-                  atraso={120}
-                  className="mt-5"
-                />
-                <p className="mt-4 leading-relaxed text-[var(--fg-suave)]">
-                  {txt(configs.blog_home, "subtitulo")}
-                </p>
-              </div>
-              <Link
-                href={txt(configs.blog_home, "botao_url", "/blog")}
-                className="group -my-2.5 inline-flex items-center gap-1.5 py-2.5 text-sm font-medium text-[var(--acento)]"
-              >
-                {txt(configs.blog_home, "botao")}
-                <ArrowUpRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1 group-hover:-translate-y-1" />
-              </Link>
+                {txt(configs.destaques, "subtitulo")}
+              </p>
             </div>
 
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {posts.map((post, i) => (
-                <CardPost key={post.id} post={post} atraso={i * 90} />
+              {destaques.map((item, i) => (
+                <CardEmpreendimento key={item.id} item={item} atraso={i * 90} />
               ))}
             </div>
           </Secao>
-        ) : null}
 
-        {/* ================================= sobre o Girlan */}
-        <Secao>
-          <div className="grid items-start gap-12 lg:grid-cols-[0.85fr_1fr] lg:gap-16">
-            <div data-revelar className="lg:sticky lg:top-28">
-              {/* A foto do Girlan ainda será produzida. Enquanto não chega,
-                o espaço vira um bloco da marca em vez de um vazio. */}
-              <div
-                className={
-                  txt(construtor, "foto")
-                    ? "relative aspect-[4/5] overflow-hidden rounded-2xl bg-[var(--color-verde-900)]"
-                    : // Sem a foto do Girlan, o espaço reservado não pode
-                      // ocupar uma tela inteira de verde vazio no
-                      // celular. Lá ele vira uma faixa; ao lado do texto,
-                      // no computador, mantém o formato do retrato.
-                      "relative aspect-[16/9] overflow-hidden rounded-2xl bg-[var(--color-verde-900)] lg:aspect-[4/5]"
-                }
-              >
-                {txt(construtor, "foto") ? (
-                  <Image
-                    src={txt(construtor, "foto")}
-                    alt={txt(construtor, "legenda")}
-                    fill
-                    data-quadro
-                    sizes="(max-width: 1024px) 100vw, 40vw"
-                    className="object-cover"
+          {/* ============================= dobra 4: todos os empreendimentos */}
+          <Secao className="pt-0 md:pt-0">
+            <div data-revelar>
+              <div className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] p-8 transition-shadow duration-[1100ms] [transition-timing-function:var(--ease-lento)] hover:shadow-[var(--sombra-card)] sm:p-12 lg:flex-row lg:items-center">
+                <div className="max-w-xl">
+                  <Titulo
+                    html={lerTitulo(
+                      configs.todos_empreendimentos,
+                      "titulo",
+                      "Todos os <mark>empreendimentos</mark>",
+                    )}
+                    atraso={140}
+                    className="text-display-sm"
                   />
-                ) : (
-                  <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[var(--color-verde-800)] to-[var(--color-verde-950)]">
-                    <Simbolo className="h-24 w-auto text-white/10" />
-                  </div>
-                )}
+                  <p className="mt-4 leading-relaxed text-[var(--fg-suave)]">
+                    {txt(configs.todos_empreendimentos, "texto")}
+                  </p>
+                </div>
+                <BotaoNovo
+                  href={txt(
+                    configs.todos_empreendimentos,
+                    "botao_url",
+                    "/empreendimentos",
+                  )}
+                  className="shrink-0"
+                >
+                  {txt(configs.todos_empreendimentos, "botao")}
+                </BotaoNovo>
               </div>
-              {txt(construtor, "legenda") ? (
-                <p className="mt-4 text-sm text-[var(--fg-tenue)]">
-                  {txt(construtor, "legenda")}
-                </p>
-              ) : null}
             </div>
+          </Secao>
 
-            <div>
-              {/* O olho entra inteiro; o título entra palavra por palavra.
+          {/* ============================================== dobra 5: o blog */}
+          {/* No verde da marca, com o destaque em dourado. Os cards são os
+            mesmos da listagem, na versão escura: a capa esfuma no fundo
+            do card em vez de terminar num corte reto. */}
+          {posts.length ? (
+            <Secao className="home-nova-blog">
+              <div
+                data-revelar
+                className="flex flex-wrap items-end justify-between gap-6"
+              >
+                <div className="max-w-xl">
+                  <Olho>Conteúdo</Olho>
+                  <Palavras
+                    como="h2"
+                    html={lerTitulo(
+                      configs.blog_home,
+                      "titulo",
+                      "Blog da <mark>CS</mark>",
+                    )}
+                    tom="ouro"
+                    atraso={120}
+                    className="font-display text-display-sm sm:text-display-md mt-5 text-balance text-white"
+                  />
+                  <p className="mt-4 leading-relaxed text-white/70">
+                    {txt(configs.blog_home, "subtitulo")}
+                  </p>
+                </div>
+                <Link
+                  href={txt(configs.blog_home, "botao_url", "/blog")}
+                  className="group -my-2.5 inline-flex items-center gap-1.5 py-2.5 text-sm font-medium text-[var(--color-ouro-300)] transition-colors hover:text-[var(--color-ouro-100)]"
+                >
+                  {txt(configs.blog_home, "botao")}
+                  <ArrowUpRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1 group-hover:-translate-y-1" />
+                </Link>
+              </div>
+
+              <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {posts.map((post, i) => (
+                  <CardPost
+                    key={post.id}
+                    post={post}
+                    atraso={i * 90}
+                    tom="escuro"
+                  />
+                ))}
+              </div>
+            </Secao>
+          ) : null}
+
+          {/* ================================= sobre o Girlan */}
+          <Secao>
+            <div className="grid items-start gap-12 lg:grid-cols-[0.85fr_1fr] lg:gap-16">
+              <div data-revelar className="lg:sticky lg:top-28">
+                {/* A foto do Girlan ainda será produzida. Enquanto não chega,
+                o espaço vira um bloco da marca em vez de um vazio. */}
+                <div
+                  className={
+                    txt(construtor, "foto")
+                      ? "relative aspect-[4/5] overflow-hidden rounded-2xl bg-[var(--color-verde-900)]"
+                      : // Sem a foto do Girlan, o espaço reservado não pode
+                        // ocupar uma tela inteira de verde vazio no
+                        // celular. Lá ele vira uma faixa; ao lado do texto,
+                        // no computador, mantém o formato do retrato.
+                        "relative aspect-[16/9] overflow-hidden rounded-2xl bg-[var(--color-verde-900)] lg:aspect-[4/5]"
+                  }
+                >
+                  {txt(construtor, "foto") ? (
+                    <Image
+                      src={txt(construtor, "foto")}
+                      alt={txt(construtor, "legenda")}
+                      fill
+                      data-quadro
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[var(--color-verde-800)] to-[var(--color-verde-950)]">
+                      <Simbolo className="h-24 w-auto text-white/10" />
+                    </div>
+                  )}
+                </div>
+                {txt(construtor, "legenda") ? (
+                  <p className="mt-4 text-sm text-[var(--fg-tenue)]">
+                    {txt(construtor, "legenda")}
+                  </p>
+                ) : null}
+              </div>
+
+              <div>
+                {/* O olho entra inteiro; o título entra palavra por palavra.
                 Se os dois fossem data-revelar, o bloco subiria junto e o
                 escalonamento das palavras se perderia no caminho.
 
                 Nada aqui é fixo: olho, título e a palavra em destaque saem
                 de site_settings. Se a CS trocar de fundador, de nome ou de
                 discurso, muda no painel. */}
-              <div data-revelar>
-                <Olho>{txt(construtor, "olho", "A CS")}</Olho>
+                <div data-revelar>
+                  <Olho>{txt(construtor, "olho", "A CS")}</Olho>
+                </div>
+                <Titulo
+                  html={lerTitulo(construtor)}
+                  atraso={120}
+                  className="mt-5"
+                />
+
+                <div
+                  data-revelar
+                  data-desfoque
+                  style={{ "--atraso": "220ms" } as React.CSSProperties}
+                >
+                  <Paragrafos
+                    texto={txt(construtor, "texto")}
+                    className="mt-7"
+                  />
+                </div>
+
+                {/* ------------------------------------------ linha do tempo */}
+                {marcos.length ? (
+                  <ol className="mt-12 space-y-0">
+                    {marcos.map((marco, i) => (
+                      <li
+                        key={marco.id}
+                        data-revelar
+                        style={
+                          { "--atraso": `${i * 70}ms` } as React.CSSProperties
+                        }
+                        className="group relative grid grid-cols-[4.5rem_1fr] gap-5 border-t border-[var(--borda)] py-5"
+                      >
+                        <span className="font-display tabular text-sm font-semibold text-[var(--color-ouro-600)]">
+                          {marco.ano}
+                        </span>
+                        <span className="text-sm leading-relaxed text-[var(--fg-suave)]">
+                          {marco.texto}
+                        </span>
+                        {/* O traço do acento cresce da esquerda no hover. */}
+                        <span className="absolute top-0 left-0 h-px w-full origin-left scale-x-0 bg-gradient-to-r from-[var(--color-acento)] via-[var(--color-ouro-300)] to-transparent transition-transform duration-700 [transition-timing-function:var(--ease-suave)] group-hover:scale-x-100" />
+                      </li>
+                    ))}
+                  </ol>
+                ) : null}
+
+                <BotaoNovo
+                  href={txt(construtor, "botao_url", "/empreendimentos")}
+                  className="mt-10"
+                >
+                  {txt(construtor, "botao")}
+                </BotaoNovo>
               </div>
-              <Titulo
-                html={lerTitulo(construtor)}
-                atraso={120}
-                className="mt-5"
-              />
-
-              <div
-                data-revelar
-                data-desfoque
-                style={{ "--atraso": "220ms" } as React.CSSProperties}
-              >
-                <Paragrafos texto={txt(construtor, "texto")} className="mt-7" />
-              </div>
-
-              {/* ------------------------------------------ linha do tempo */}
-              {marcos.length ? (
-                <ol className="mt-12 space-y-0">
-                  {marcos.map((marco, i) => (
-                    <li
-                      key={marco.id}
-                      data-revelar
-                      style={
-                        { "--atraso": `${i * 70}ms` } as React.CSSProperties
-                      }
-                      className="group relative grid grid-cols-[4.5rem_1fr] gap-5 border-t border-[var(--borda)] py-5"
-                    >
-                      <span className="font-display tabular text-sm font-semibold text-[var(--color-ouro-600)]">
-                        {marco.ano}
-                      </span>
-                      <span className="text-sm leading-relaxed text-[var(--fg-suave)]">
-                        {marco.texto}
-                      </span>
-                      {/* O traço do acento cresce da esquerda no hover. */}
-                      <span className="absolute top-0 left-0 h-px w-full origin-left scale-x-0 bg-gradient-to-r from-[var(--color-acento)] via-[var(--color-ouro-300)] to-transparent transition-transform duration-700 [transition-timing-function:var(--ease-suave)] group-hover:scale-x-100" />
-                    </li>
-                  ))}
-                </ol>
-              ) : null}
-
-              <BotaoNovo
-                href={txt(construtor, "botao_url", "/empreendimentos")}
-                className="mt-10"
-              >
-                {txt(construtor, "botao")}
-              </BotaoNovo>
             </div>
-          </div>
-        </Secao>
+          </Secao>
 
-        {/* ========================================== faixa de contato */}
-        {/* Três camadas de luz sobre o verde mais escuro da marca: a aurora
+          {/* ========================================== faixa de contato */}
+          {/* Três camadas de luz sobre o verde mais escuro da marca: a aurora
             vindo do alto à direita, um brilho quente subindo da esquerda e
             a grade fina do topo da página, que fecha a página com o mesmo
             gesto com que ela abre. O `isolate` segura o modo de mistura da
             aurora dentro do bloco. */}
-        <Secao className="pt-0 md:pt-0">
-          <div data-revelar>
-            <div className="relative isolate overflow-hidden rounded-[2rem] bg-[var(--color-verde-950)] px-6 py-16 text-center sm:px-12 md:py-24">
-              <div aria-hidden className="aurora" />
-              <div
-                aria-hidden
-                className="brilho pointer-events-none absolute -bottom-48 -left-40 h-[30rem] w-[30rem] rounded-full opacity-70"
-              />
-              <div aria-hidden className="linhas absolute inset-0 opacity-70" />
-              <Simbolo className="pointer-events-none absolute -bottom-10 -left-8 h-56 w-auto text-white/[0.04]" />
-
-              <div className="relative mx-auto max-w-2xl">
-                <IconeAtendimento className="mx-auto mb-8" />
-
-                <Palavras
-                  como="h2"
-                  passo={50}
-                  html={lerTitulo(configs.faixa_contato)}
-                  tom="ouro"
-                  className="font-display text-display-sm sm:text-display-md font-medium text-balance text-white"
+          <Secao className="pt-0 md:pt-0">
+            <div data-revelar>
+              <div className="relative isolate overflow-hidden rounded-[2rem] bg-[var(--color-verde-950)] px-6 py-16 text-center sm:px-12 md:py-24">
+                <div aria-hidden className="aurora" />
+                <div
+                  aria-hidden
+                  className="brilho pointer-events-none absolute -bottom-48 -left-40 h-[30rem] w-[30rem] rounded-full opacity-70"
                 />
-                <p className="mt-5 leading-relaxed text-white/70">
-                  {txt(configs.faixa_contato, "texto")}
-                </p>
-                <div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-                  <BotaoNovo
-                    href={txt(
-                      configs.faixa_contato,
-                      "botao_primario_url",
-                      "/cadastro",
-                    )}
-                  >
-                    {txt(configs.faixa_contato, "botao_primario")}
-                  </BotaoNovo>
-                  <BotaoNovo
-                    href={
-                      txt(configs.faixa_contato, "botao_secundario_url") ||
-                      empresa.whatsapp_link
-                    }
-                    tipo="secundario"
-                    icone="zap"
-                    className="sobre-escuro"
-                  >
-                    {txt(configs.faixa_contato, "botao_secundario")}
-                  </BotaoNovo>
+                <div
+                  aria-hidden
+                  className="linhas absolute inset-0 opacity-70"
+                />
+                <Simbolo className="pointer-events-none absolute -bottom-10 -left-8 h-56 w-auto text-white/[0.04]" />
+
+                <div className="relative mx-auto max-w-2xl">
+                  <IconeAtendimento className="mx-auto mb-8" />
+
+                  <Palavras
+                    como="h2"
+                    passo={50}
+                    html={lerTitulo(configs.faixa_contato)}
+                    tom="ouro"
+                    className="font-display text-display-sm sm:text-display-md font-medium text-balance text-white"
+                  />
+                  <p className="mt-5 leading-relaxed text-white/70">
+                    {txt(configs.faixa_contato, "texto")}
+                  </p>
+                  <div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+                    <BotaoNovo
+                      href={txt(
+                        configs.faixa_contato,
+                        "botao_primario_url",
+                        "/cadastro",
+                      )}
+                    >
+                      {txt(configs.faixa_contato, "botao_primario")}
+                    </BotaoNovo>
+                    <BotaoNovo
+                      href={
+                        txt(configs.faixa_contato, "botao_secundario_url") ||
+                        empresa.whatsapp_link
+                      }
+                      tipo="secundario"
+                      icone="zap"
+                      className="sobre-escuro"
+                    >
+                      {txt(configs.faixa_contato, "botao_secundario")}
+                    </BotaoNovo>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </Secao>
+          </Secao>
+        </div>
       </div>
     </div>
   );

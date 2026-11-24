@@ -2214,3 +2214,52 @@
     animation: none;
   }
 }
+
+/* ------------------------------------ fundo claro e blog (home nova) */
+/* O menta fica no topo e na faixa de palavras; a partir dos destaques o
+   fundo desce para o branco em ~28rem e segue branco até o fim. As
+   variáveis acompanham, para cards e bordas não ficarem tingidos. */
+.home-nova-claro {
+  --bg: #ffffff;
+  --bg-fundo: #f1f7f4;
+  --borda: #dcebe3;
+  background: linear-gradient(to bottom, #ebfff6 0, #ffffff 28rem) no-repeat;
+  background-color: #ffffff;
+}
+
+/* O blog no verde da marca, de ponta a ponta da tela. Um brilho dourado
+   bem fraco no alto à direita tira a chapa reta do verde. */
+.home-nova-blog {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(60rem 30rem at 85% -10%, rgb(243 214 148 / 0.1), transparent 70%),
+    #004527;
+  color: #ffffff;
+}
+
+.home-nova .home-nova-blog .olho {
+  background: rgb(243 214 148 / 0.12);
+  color: #f3d694;
+}
+
+.home-nova .home-nova-blog .olho::before {
+  background: #f3d694;
+}
+
+/* O dourado do destaque, mais encorpado que o do site atual (que quase
+   some no branco sobre este verde): bronze nas pontas, o claro só no
+   brilho que atravessa. Medium, como o destaque verde. */
+.home-nova .destaque-ouro {
+  margin-right: -0.08em;
+  padding-right: 0.08em;
+  background-image: linear-gradient(
+    100deg,
+    #cfa862 0%,
+    #f3d694 28%,
+    #fff1d7 46%,
+    #f3d694 62%,
+    #cfa862 100%
+  );
+  font-weight: 500;
+}
