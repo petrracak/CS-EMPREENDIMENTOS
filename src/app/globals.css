@@ -1875,7 +1875,9 @@
   }
 
   .home-nova .topo-novo-subtitulo {
-    max-width: none;
+    /* Mais estreito que o título: a última linha chegava ao ombro do
+       Girlan e perdia o contraste. */
+    max-width: calc(585 * var(--u));
     margin-top: calc(11.328 * var(--u));
     font-size: max(15px, calc(22.655 * var(--u)));
     line-height: 1.2;
