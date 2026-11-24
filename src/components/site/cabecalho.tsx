@@ -56,18 +56,27 @@ export function Cabecalho({ whatsapp }: { whatsapp: string }) {
     };
   }, [menuAberto]);
 
+  // A home nova (em teste em /home-nova) abre com fundo claro: o
+  // cabeçalho flutua transparente, mas com a logo colorida e o texto
+  // escuro, como no estado sólido.
+  const sobreClaro = caminho === "/home-nova";
+
   // "Sólido" é o estado com fundo: ou a pessoa rolou, ou o menu está
   // aberto, ou a página não tem foto de topo para o cabeçalho flutuar.
-  const solido = rolou || menuAberto || !sobreFoto;
+  const comFundo = rolou || menuAberto || (!sobreFoto && !sobreClaro);
+  // As cores: escuras sempre, menos quando flutua sobre a foto.
+  const solido = comFundo || sobreClaro;
 
   return (
     <header
       className={cn(
         "sticky top-0 z-40 transition-all duration-500",
         "[transition-timing-function:var(--ease-saida)]",
-        solido
-          ? "border-b border-[var(--borda)] bg-[var(--bg)]/90 backdrop-blur-md"
-          : "border-b border-transparent bg-transparent",
+        !comFundo
+          ? "border-b border-transparent bg-transparent"
+          : sobreClaro
+            ? "border-b border-[#cfeadd] bg-[#ebfff6]/90 backdrop-blur-md"
+            : "border-b border-[var(--borda)] bg-[var(--bg)]/90 backdrop-blur-md",
       )}
     >
       <div

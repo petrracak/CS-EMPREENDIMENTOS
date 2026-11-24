@@ -32,6 +32,8 @@ const APARENCIA: Record<Aparencia, string> = {
     "text-[var(--acento)] hover:text-[var(--acento-hover)] underline-offset-4 hover:underline px-0",
 };
 
+// O data-botao não tem estilo no site atual: é o gancho da home nova
+// (.home-nova em globals.css), que redesenha os botões sem mexer aqui.
 const BASE_BOTAO =
   "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 " +
   "text-sm font-medium transition-all duration-500 " +
@@ -47,6 +49,7 @@ export function Botao({
 }: ComponentProps<"button"> & { aparencia?: Aparencia }) {
   return (
     <button
+      data-botao={aparencia}
       className={cn(BASE_BOTAO, APARENCIA[aparencia], className)}
       {...props}
     />
@@ -64,6 +67,7 @@ export function BotaoLink({
     typeof props.href === "string" && /^(https?:|mailto:|tel:)/.test(props.href);
   return (
     <Link
+      data-botao={aparencia}
       className={cn(BASE_BOTAO, APARENCIA[aparencia], className)}
       {...(externo ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       {...props}
@@ -80,6 +84,7 @@ export function BotaoExterno({
     <a
       target="_blank"
       rel="noopener noreferrer"
+      data-botao={aparencia}
       className={cn(BASE_BOTAO, APARENCIA[aparencia], className)}
       {...props}
     />

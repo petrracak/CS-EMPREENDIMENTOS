@@ -12,6 +12,9 @@ import localFont from "next/font/local";
  */
 export const switzer = localFont({
   src: [
+    // A Light entrou com o redesenho da home (home-nova): título e texto
+    // corrido em 300, só o destaque em 500.
+    { path: "../fontes/Switzer-300.woff2", weight: "300", style: "normal" },
     { path: "../fontes/Switzer-400.woff2", weight: "400", style: "normal" },
     { path: "../fontes/Switzer-500.woff2", weight: "500", style: "normal" },
     { path: "../fontes/Switzer-600.woff2", weight: "600", style: "normal" },

@@ -1412,3 +1412,437 @@
     transform: scaleX(1);
   }
 }
+
+/* ===================================================================
+   HOME NOVA (em teste em /home-nova)
+
+   O redesenho do Figma, aplicado só dentro de .home-nova: a home atual
+   e as outras páginas não mudam. Fora de camada (@layer) de propósito,
+   para vencer os utilitários do Tailwind sem !important.
+
+   O que o Figma trouxe e vale para a página toda:
+     fundo        menta #EBFFF6, com o filete dourado #F3D694 → #CFA862
+     título       Switzer Light (300), entrelinha 1.2, cor #28513F
+     texto        Switzer Light, #393939
+     destaque     Switzer Medium (500), gradiente #004527 → #00AB61
+     botões       Switzer Regular (400), cantos de ~11 px, o mesmo gradiente
+     letras       -6% de espaçamento em todo tamanho (-0.06em)
+   =================================================================== */
+
+.home-nova {
+  --bg: #ebfff6;
+  --bg-fundo: #dcf5e9;
+  --borda: #cfeadd;
+  --borda-forte: #b2d9c6;
+  --fg: #28513f;
+  --fg-suave: #393939;
+  --fg-tenue: #5f7a6d;
+  --grad-claro-de: #004527;
+  --grad-claro-ate: #00ab61;
+  --grad-nova: linear-gradient(90deg, #004527, #00ab61);
+
+  background-color: var(--bg);
+  color: var(--fg);
+  font-weight: 300;
+}
+
+/* Caixa alta e números tabulados ficam com o espaçamento que já têm:
+   apertar letra maiúscula miúda a deixa ilegível. */
+.home-nova :is(h1, h2, h3, h4, p, li, a, button, label, span):not(.uppercase, .tabular, .olho) {
+  letter-spacing: -0.06em;
+}
+
+.home-nova :is(h1, h2, h3, h4) {
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+/* No Figma o texto corrido também tem entrelinha 1.2. Aqui é 1.4: em
+   parágrafo de várias linhas, 1.2 cola uma linha na outra. */
+.home-nova p {
+  line-height: 1.4;
+}
+
+.home-nova .destaque {
+  background-image: var(--grad-nova);
+  font-weight: 500;
+}
+
+/* O olho de seção vira o selo do Figma: fundo menta, o símbolo da CS no
+   lugar do traço, sem caixa alta. */
+.home-nova .olho {
+  gap: 0.5rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.3rem;
+  background: #ccf1e0;
+  color: rgb(0 69 39 / 0.64);
+  font-size: 0.9375rem;
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -0.06em;
+  text-transform: none;
+}
+
+.home-nova .olho::before {
+  width: 0.6em;
+  height: 1.1em;
+  border-radius: 0;
+  background: #49836a;
+  mask: url("/home-nova/simbolo.svg") center / contain no-repeat;
+}
+
+/* Botões: os do site inteiro ganham o desenho dos botões do topo. */
+.home-nova [data-botao] {
+  border-radius: 0.66rem;
+  padding: 0.95rem 1.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+}
+
+.home-nova [data-botao="solido"] {
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background-image: var(--grad-nova);
+}
+
+.home-nova [data-botao="solido"]:hover {
+  background-image: linear-gradient(90deg, #00552f, #00bd6b);
+}
+
+.home-nova [data-botao="contorno"]:not(.text-white) {
+  border: 1.5px solid rgb(11 11 11 / 0.15);
+  background-color: #f4f4f4;
+  color: #004527;
+}
+
+.home-nova [data-botao="contorno"]:not(.text-white):hover {
+  border-color: #00ab61;
+  background-color: #ffffff;
+}
+
+/* ------------------------------------------------- a primeira dobra */
+/* Celular primeiro: a foto é uma faixa no topo, abaixo do cabeçalho, e
+   o texto vem embaixo dela, no fluxo da página. */
+
+.topo-novo {
+  position: relative;
+  overflow: hidden;
+  margin-top: -5rem;
+  padding-bottom: 3.5rem;
+  background: #ebfff6;
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(90deg, #f3d694, #cfa862) 1;
+}
+
+/* A faixa da foto no celular. --m é quanto vale 1 px do quadro do
+   Figma: a faixa mostra 1421 px do desenho, centrada no Girlan (x 1563
+   do quadro), até o teto de 0,45 px no tablet em pé. */
+.topo-novo-foto {
+  --m: min(calc(100vw / 1421), 0.45px);
+  position: relative;
+  height: calc(900 * var(--m));
+  margin-top: 5rem;
+  /* O prédio é cortado na borda de cima; o esfumado faz o corte sumir
+     embaixo do cabeçalho. */
+  mask-image: linear-gradient(to bottom, transparent, #000 18%);
+}
+
+.topo-novo-fundo {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 1123 * var(--m));
+  width: calc(1464 * var(--m));
+  max-width: none;
+  height: calc(962 * var(--m));
+}
+
+.topo-novo-selo {
+  position: relative;
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 0.5rem;
+  /* Sobe até o peito do Girlan, como no computador. */
+  margin: calc(-260 * min(calc(100vw / 1421), 0.45px)) auto 0;
+  padding: 0.4rem 0.6rem;
+  border: 0.5px solid rgb(255 255 255 / 0.46);
+  border-radius: 0.3rem;
+  background: rgb(0 69 39 / 0.32);
+  backdrop-filter: blur(6.3px);
+  -webkit-backdrop-filter: blur(6.3px);
+}
+
+.topo-novo-selo-cargo {
+  color: #ebfff6;
+  font-size: 0.75rem;
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -0.06em;
+  white-space: nowrap;
+}
+
+.topo-novo-assinatura {
+  display: block;
+  width: 7.5rem;
+  height: auto;
+}
+
+.topo-novo-texto {
+  position: relative;
+  margin-top: 1.75rem;
+  padding: 0 1.25rem;
+}
+
+.topo-novo-chamada {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.3rem;
+  background: #ccf1e0;
+  color: rgb(0 69 39 / 0.64);
+  font-size: 0.9375rem;
+  line-height: 1.2;
+}
+
+.topo-novo-chamada-icone {
+  width: auto;
+  height: 1.1em;
+  flex-shrink: 0;
+  color: #49836a;
+}
+
+.home-nova .topo-novo-titulo {
+  margin-top: 0.75rem;
+  color: #28513f;
+  font-size: clamp(2.25rem, 10.4vw, 3.25rem);
+  font-weight: 300;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.home-nova .topo-novo-subtitulo {
+  margin-top: 0.75rem;
+  color: #393939;
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+
+.topo-novo-botoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+}
+
+/* Tablet em pé: a mesma pilha, com a margem do cabeçalho e os botões
+   lado a lado. */
+@media (min-width: 640px) {
+  .topo-novo-texto {
+    padding: 0 2rem;
+  }
+
+  .topo-novo-botoes {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .home-nova .topo-novo-titulo {
+    font-size: 3.5rem;
+  }
+
+  .home-nova .topo-novo-subtitulo {
+    max-width: 36rem;
+    font-size: 1.1875rem;
+  }
+}
+
+.topo-novo-botao {
+  display: inline-flex;
+  min-height: 3.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0 1.5rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.4;
+  white-space: nowrap;
+  transition:
+    transform 0.5s var(--ease-suave),
+    box-shadow 0.5s var(--ease-suave),
+    border-color 0.5s var(--ease-suave),
+    background-color 0.5s var(--ease-suave);
+}
+
+.topo-novo-botao:hover {
+  transform: translateY(-2px);
+}
+
+.topo-novo-botao:active {
+  transform: none;
+  transition-duration: 0.1s;
+}
+
+.topo-novo-botao-primario {
+  border: 0.944px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.66rem;
+  background-image: var(--grad-nova);
+  color: #ffffff;
+}
+
+.topo-novo-botao-primario:hover {
+  box-shadow: 0 14px 30px -12px rgb(0 69 39 / 0.55);
+}
+
+.topo-novo-seta {
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: transform 0.9s var(--ease-lento);
+}
+
+.topo-novo-botao-primario:hover .topo-novo-seta {
+  transform: rotate(45deg);
+}
+
+.topo-novo-botao-secundario {
+  border: 1.888px solid rgb(11 11 11 / 0.15);
+  border-radius: 0.7rem;
+  background-color: #f4f4f4;
+  backdrop-filter: blur(14px);
+}
+
+.topo-novo-botao-secundario:hover {
+  border-color: rgb(0 171 97 / 0.6);
+  background-color: #ffffff;
+}
+
+.topo-novo-zap {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #004527;
+}
+
+.topo-novo-gradiente {
+  background-image: var(--grad-nova);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Computador e tablet deitado: o quadro do Figma, em unidade própria.
+   --u vale 1 px até 1280 px de tela e encolhe na mesma proporção abaixo
+   disso (0,8 em 1024 px). Abaixo de 1024 px a letra dos botões ficaria
+   com 10 px, então o tablet em pé usa o desenho empilhado do celular; --x é onde o texto começa, alinhado com a logo do cabeçalho.
+   Foto, selo e texto se posicionam todos a partir dos mesmos dois
+   valores, então a composição é a do Figma em qualquer largura. */
+@media (min-width: 1024px) {
+  .topo-novo {
+    --u: min(1px, calc(100vw / 1280));
+    --x: max(2rem, calc(50% - 544px));
+    height: calc(1096 * var(--u));
+    padding-bottom: 0;
+  }
+
+  /* A faixa some: a imagem se posiciona direto na seção. */
+  .topo-novo-foto {
+    position: static;
+    height: auto;
+    margin: 0;
+    mask-image: none;
+  }
+
+  .topo-novo-fundo {
+    left: calc(var(--x) - 270 * var(--u));
+    width: calc(1464 * var(--u));
+    height: calc(962 * var(--u));
+  }
+
+  .topo-novo-selo {
+    position: absolute;
+    top: calc(602 * var(--u));
+    left: calc(var(--x) + 667 * var(--u));
+    width: calc(323 * var(--u));
+    height: calc(47 * var(--u));
+    justify-content: center;
+    gap: calc(8.091 * var(--u));
+    margin: 0;
+    padding: calc(8.091 * var(--u));
+    border-radius: calc(4.855 * var(--u));
+  }
+
+  .topo-novo-selo-cargo {
+    font-size: calc(13.561 * var(--u));
+  }
+
+  .topo-novo-assinatura {
+    width: calc(183 * var(--u));
+  }
+
+  .topo-novo-texto {
+    position: absolute;
+    top: calc(304 * var(--u));
+    left: var(--x);
+    width: calc(657 * var(--u));
+    margin: 0;
+    padding: 0;
+  }
+
+  .topo-novo-chamada {
+    gap: calc(8.091 * var(--u));
+    padding: calc(8.091 * var(--u)) calc(24 * var(--u));
+    border-radius: calc(4.855 * var(--u));
+    font-size: calc(19.419 * var(--u));
+  }
+
+  .topo-novo-chamada-icone {
+    height: calc(21.594 * var(--u));
+  }
+
+  .home-nova .topo-novo-titulo {
+    margin-top: calc(11.328 * var(--u));
+    font-size: calc(68.909 * var(--u));
+  }
+
+  .home-nova .topo-novo-subtitulo {
+    margin-top: calc(11.328 * var(--u));
+    font-size: calc(22.655 * var(--u));
+    line-height: 1.2;
+  }
+
+  .topo-novo-botoes {
+    flex-direction: row;
+    gap: calc(8.496 * var(--u));
+    margin-top: calc(39.1 * var(--u));
+  }
+
+  .topo-novo-botao {
+    height: calc(61.358 * var(--u));
+    min-height: 0;
+    font-size: calc(16.142 * var(--u));
+  }
+
+  .topo-novo-botao-primario {
+    gap: calc(8.968 * var(--u));
+    padding: 0 calc(35.5 * var(--u));
+    border-width: calc(0.944 * var(--u));
+    border-radius: calc(10.587 * var(--u));
+  }
+
+  .topo-novo-seta {
+    width: calc(24.072 * var(--u));
+    height: calc(24.072 * var(--u));
+  }
+
+  .topo-novo-botao-secundario {
+    gap: calc(7.552 * var(--u));
+    padding: 0 calc(24.543 * var(--u));
+    border-width: calc(1.888 * var(--u));
+    border-radius: calc(11.328 * var(--u));
+  }
+
+  .topo-novo-zap {
+    width: calc(17.699 * var(--u));
+    height: calc(17.699 * var(--u));
+  }
+}
