@@ -1817,7 +1817,9 @@
     --cab: 5.5rem;
     --u: min(1px, calc(100vw / 1280));
     --x: max(2rem, calc(50% - 544px));
-    height: calc(1096 * var(--u));
+    /* O quadro do Figma tem 1096 de altura, mas o Girlan já sumiu no
+       esfumado em ~960: o resto era espaço vazio antes da faixa. */
+    height: calc(975 * var(--u));
     padding: 0;
   }
 

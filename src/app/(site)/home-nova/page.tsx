@@ -86,12 +86,18 @@ export default async function HomeNova() {
           aria-hidden
           className="overflow-hidden border-b border-[var(--borda)] bg-[var(--bg-fundo)] py-5"
         >
+          {/* Seis voltas iguais, e a faixa anda metade (três voltas):
+              nesse ponto ela está idêntica ao começo e recomeça sem
+              salto. Com duas voltas, numa tela larga a metade era mais
+              estreita que a tela e o fim da faixa aparecia vazio. Cada
+              volta termina com o próprio espaço (pr-10), e não com gap
+              entre elas, para as voltas medirem exatamente o mesmo. */}
           <div
-            className="esteira flex w-max gap-10"
-            style={{ "--duracao": "48s" } as React.CSSProperties}
+            className="esteira flex w-max"
+            style={{ "--duracao": "144s" } as React.CSSProperties}
           >
-            {Array.from({ length: 2 }).map((_, volta) => (
-              <div key={volta} className="flex shrink-0 items-center gap-10">
+            {Array.from({ length: 6 }).map((_, volta) => (
+              <div key={volta} className="flex shrink-0 items-center gap-10 pr-10">
                 {[
                   "Casas",
                   "Condomínio fechado",
