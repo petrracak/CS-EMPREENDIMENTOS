@@ -134,10 +134,15 @@ export function PopupSaida({
       onClick={(e) => {
         if (e.target === e.currentTarget) fechar();
       }}
-      className="popup-saida m-auto text-[var(--fg)] w-[calc(100%-1.5rem)] max-w-4xl overflow-hidden rounded-[1.75rem] bg-transparent p-0 backdrop:bg-[var(--color-verde-950)]/70 backdrop:backdrop-blur-sm"
+      // O <dialog> tem uma altura máxima do navegador (100% − 2em − 6px)
+      // menor que a do conteúdo, e corta o que passa: no celular, o fim
+      // do cadastro e os empreendimentos ficavam fora de alcance, sem
+      // rolar. As duas alturas agora são a mesma, e quem rola é o
+      // conteúdo. dvh acompanha a barra do Safari aparecendo e sumindo.
+      className="popup-saida m-auto max-h-[calc(100dvh-1.5rem)] w-[calc(100%-1.5rem)] max-w-4xl overflow-hidden rounded-[1.75rem] bg-transparent p-0 text-[var(--fg)] backdrop:bg-[var(--color-verde-950)]/70 backdrop:backdrop-blur-sm"
     >
       {aberto ? (
-        <div className="grid max-h-[calc(100svh-1.5rem)] overflow-y-auto bg-[var(--bg-elevado)] md:grid-cols-[1.1fr_0.9fr]">
+        <div className="grid max-h-[calc(100dvh-1.5rem)] overflow-y-auto overscroll-contain bg-[var(--bg-elevado)] md:grid-cols-[1.1fr_0.9fr]">
           {/* ------------------------------------------- o cadastro */}
           <div className="relative p-6 sm:p-9">
             {olho ? <span className="olho">{olho}</span> : null}
