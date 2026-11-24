@@ -10,7 +10,6 @@ import { CardEmpreendimento } from "@/components/site/card-empreendimento";
 import { CardPost } from "@/components/site/card-post";
 import { IconeAtendimento } from "@/components/site/icone-atendimento";
 import { Palavras } from "@/components/site/palavras";
-import { Paragrafos } from "@/components/site/texto";
 import { Simbolo } from "@/components/site/logo";
 import { TopoNovo } from "@/components/site/topo-novo";
 import { Olho, Secao, Titulo } from "@/components/site/ui";
@@ -25,6 +24,22 @@ import { partirNumero } from "@/lib/utils";
 // As páginas públicas são geradas e revalidadas de hora em hora. O painel
 // chama revalidatePath ao salvar, então a CS nunca espera por isso.
 export const revalidate = 3600;
+
+/*
+ * A copy desta página foi revista para soar menos automática: sem
+ * travessão nem dois-pontos, com negrito nas partes que importam. Fica
+ * aqui, e não no painel, enquanto a página é teste; a home atual segue
+ * lendo os textos de lá. Quando esta virar a home, a copy vai para o
+ * painel (que vai precisar aceitar negrito nos parágrafos).
+ */
+const MARCOS_REVISTOS: Record<string, string> = {
+  "2016": "Começo da CS, com quatro casas feitas em parceria.",
+  "2017":
+    "Sete casas na Rua Raimundo Xavier, no Maracanã. A primeira obra que o Girlan tocou sozinho.",
+  "2023": "Entrega do Flat Premium I, com 60 unidades.",
+  "2026":
+    "140 unidades entregues e o House Premium em obra, com entrega no início de 2027.",
+};
 
 export const metadata: Metadata = {
   title: "Home nova (teste)",
@@ -68,7 +83,14 @@ export default async function HomeNova() {
           "Construtora e incorporadora em Santarém",
         )}
         titulo="Há <mark>10 anos</mark> construindo <mark>lares</mark> em Santarém"
-        subtitulo={txt(hero, "subtitulo")}
+        subtitulo={
+          <>
+            Casas, apartamentos e terrenos com{" "}
+            <strong>projeto bem pensado</strong> e{" "}
+            <strong>acabamento de qualidade</strong>. Veja o que está em obra e
+            o que já entregamos.
+          </>
+        }
         botaoPrimario="Conheça nossos empreendimentos"
         botaoPrimarioUrl={txt(hero, "botao_primario_url", "/empreendimentos")}
         botaoSecundario="Falar com um consultor"
@@ -146,7 +168,8 @@ export default async function HomeNova() {
                 style={{ "--atraso": "300ms" } as React.CSSProperties}
                 className="mt-4 leading-relaxed text-[var(--fg-suave)]"
               >
-                {txt(configs.destaques, "subtitulo")}
+                Acompanhe o que está <strong>saindo do chão</strong> em Santarém
+                neste momento.
               </p>
             </div>
 
@@ -172,7 +195,9 @@ export default async function HomeNova() {
                     className="text-display-sm"
                   />
                   <p className="mt-4 leading-relaxed text-[var(--fg-suave)]">
-                    {txt(configs.todos_empreendimentos, "texto")}
+                    Os projetos em obra e os já entregues, cada um com{" "}
+                    <strong>as suas unidades</strong>, de casas e apartamentos a
+                    terrenos.
                   </p>
                 </div>
                 <BotaoNovo
@@ -200,7 +225,7 @@ export default async function HomeNova() {
                 className="flex flex-wrap items-end justify-between gap-6"
               >
                 <div className="max-w-xl">
-                  <Olho>Conteúdo</Olho>
+                  <Olho>Blog</Olho>
                   <Palavras
                     como="h2"
                     html={lerTitulo(
@@ -213,7 +238,11 @@ export default async function HomeNova() {
                     className="font-display text-display-sm sm:text-display-md mt-5 text-balance text-white"
                   />
                   <p className="mt-4 leading-relaxed text-white/70">
-                    {txt(configs.blog_home, "subtitulo")}
+                    O andamento das obras, as novidades da CS e{" "}
+                    <strong className="text-white">
+                      dicas para quem quer comprar imóvel em Santarém
+                    </strong>
+                    .
                   </p>
                 </div>
                 <Link
@@ -242,39 +271,16 @@ export default async function HomeNova() {
           <Secao>
             <div className="grid items-start gap-12 lg:grid-cols-[0.85fr_1fr] lg:gap-16">
               <div data-revelar className="lg:sticky lg:top-28">
-                {/* A foto do Girlan ainda será produzida. Enquanto não chega,
-                o espaço vira um bloco da marca em vez de um vazio. */}
-                <div
-                  className={
-                    txt(construtor, "foto")
-                      ? "relative aspect-[4/5] overflow-hidden rounded-2xl bg-[var(--color-verde-900)]"
-                      : // Sem a foto do Girlan, o espaço reservado não pode
-                        // ocupar uma tela inteira de verde vazio no
-                        // celular. Lá ele vira uma faixa; ao lado do texto,
-                        // no computador, mantém o formato do retrato.
-                        "relative aspect-[16/9] overflow-hidden rounded-2xl bg-[var(--color-verde-900)] lg:aspect-[4/5]"
-                  }
-                >
-                  {txt(construtor, "foto") ? (
-                    <Image
-                      src={txt(construtor, "foto")}
-                      alt={txt(construtor, "legenda")}
-                      fill
-                      data-quadro
-                      sizes="(max-width: 1024px) 100vw, 40vw"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[var(--color-verde-800)] to-[var(--color-verde-950)]">
-                      <Simbolo className="h-24 w-auto text-white/10" />
-                    </div>
-                  )}
+                <div className="relative aspect-[3/4] overflow-hidden rounded-2xl">
+                  <Image
+                    src="/home-nova/girlan-fundador.webp"
+                    alt="Girlan Carneiro, fundador da CS Empreendimentos"
+                    fill
+                    data-quadro
+                    sizes="(max-width: 1024px) 100vw, 40vw"
+                    className="object-cover"
+                  />
                 </div>
-                {txt(construtor, "legenda") ? (
-                  <p className="mt-4 text-sm text-[var(--fg-tenue)]">
-                    {txt(construtor, "legenda")}
-                  </p>
-                ) : null}
               </div>
 
               <div>
@@ -286,7 +292,7 @@ export default async function HomeNova() {
                 de site_settings. Se a CS trocar de fundador, de nome ou de
                 discurso, muda no painel. */}
                 <div data-revelar>
-                  <Olho>{txt(construtor, "olho", "A CS")}</Olho>
+                  <Olho>Quem está por trás da CS</Olho>
                 </div>
                 <Titulo
                   html={lerTitulo(construtor)}
@@ -299,34 +305,69 @@ export default async function HomeNova() {
                   data-desfoque
                   style={{ "--atraso": "220ms" } as React.CSSProperties}
                 >
-                  <Paragrafos
-                    texto={txt(construtor, "texto")}
-                    className="mt-7"
-                  />
+                  <div className="mt-7 space-y-4 leading-relaxed text-[var(--fg-suave)]">
+                    <p>
+                      Em 2016, o Girlan Carneiro estava procurando uma casa para
+                      comprar. Rodou a cidade, visitou projeto por projeto e{" "}
+                      <strong>não encontrou nada no padrão que queria</strong>.
+                      Foi aí que percebeu que, se estava difícil para ele,
+                      estava difícil para muita gente.
+                    </p>
+                    <p>
+                      No fim daquele ano, um amigo o chamou para construir em
+                      parceria num terreno dele. Saíram quatro casas, e o Girlan
+                      nunca mais saiu do ramo. Em 2017 ele comprou um terreno na
+                      Rua Raimundo Xavier, no Maracanã, e levantou sete casas.
+                      Foi{" "}
+                      <strong>
+                        o primeiro empreendimento que tocou sozinho
+                      </strong>
+                      .
+                    </p>
+                    <p>
+                      Depois vieram os outros. Em 2023 a CS entregou o Flat
+                      Premium, com 60 unidades, e até 2026 já são{" "}
+                      <strong>140 unidades entregues</strong>. Agora está em
+                      obra o maior projeto da empresa, o{" "}
+                      <strong>House Premium, com 100 casas</strong> e entrega
+                      prevista para o início de 2027.
+                    </p>
+                    <p>
+                      A regra continua a mesma do começo.{" "}
+                      <strong>Construir algo que dure</strong> e fazer o melhor
+                      por quem escolhe morar num imóvel da CS.
+                    </p>
+                  </div>
                 </div>
 
                 {/* ------------------------------------------ linha do tempo */}
                 {marcos.length ? (
                   <ol className="mt-12 space-y-0">
-                    {marcos.map((marco, i) => (
-                      <li
-                        key={marco.id}
-                        data-revelar
-                        style={
-                          { "--atraso": `${i * 70}ms` } as React.CSSProperties
-                        }
-                        className="group relative grid grid-cols-[4.5rem_1fr] gap-5 border-t border-[var(--borda)] py-5"
-                      >
-                        <span className="font-display tabular text-sm font-semibold text-[var(--color-ouro-600)]">
-                          {marco.ano}
-                        </span>
-                        <span className="text-sm leading-relaxed text-[var(--fg-suave)]">
-                          {marco.texto}
-                        </span>
-                        {/* O traço do acento cresce da esquerda no hover. */}
-                        <span className="absolute top-0 left-0 h-px w-full origin-left scale-x-0 bg-gradient-to-r from-[var(--color-acento)] via-[var(--color-ouro-300)] to-transparent transition-transform duration-700 [transition-timing-function:var(--ease-suave)] group-hover:scale-x-100" />
-                      </li>
-                    ))}
+                    {marcos.map((original, i) => {
+                      const marco = {
+                        ...original,
+                        texto: MARCOS_REVISTOS[original.ano] ?? original.texto,
+                      };
+                      return (
+                        <li
+                          key={marco.id}
+                          data-revelar
+                          style={
+                            { "--atraso": `${i * 70}ms` } as React.CSSProperties
+                          }
+                          className="group relative grid grid-cols-[4.5rem_1fr] gap-5 border-t border-[var(--borda)] py-5"
+                        >
+                          <span className="font-display tabular text-sm font-semibold text-[var(--color-ouro-600)]">
+                            {marco.ano}
+                          </span>
+                          <span className="text-sm leading-relaxed text-[var(--fg-suave)]">
+                            {marco.texto}
+                          </span>
+                          {/* O traço do acento cresce da esquerda no hover. */}
+                          <span className="absolute top-0 left-0 h-px w-full origin-left scale-x-0 bg-gradient-to-r from-[var(--color-acento)] via-[var(--color-ouro-300)] to-transparent transition-transform duration-700 [transition-timing-function:var(--ease-suave)] group-hover:scale-x-100" />
+                        </li>
+                      );
+                    })}
                   </ol>
                 ) : null}
 
@@ -371,7 +412,11 @@ export default async function HomeNova() {
                     className="font-display text-display-sm sm:text-display-md font-medium text-balance text-white"
                   />
                   <p className="mt-5 leading-relaxed text-white/70">
-                    {txt(configs.faixa_contato, "texto")}
+                    Conte o que você procura e um consultor da CS te mostra{" "}
+                    <strong className="text-white">
+                      as opções que fazem sentido para você
+                    </strong>
+                    .
                   </p>
                   <div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
                     <BotaoNovo

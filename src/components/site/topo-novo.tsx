@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { BotaoNovo } from "@/components/site/botao-novo";
 import { Simbolo } from "@/components/site/logo";
@@ -30,7 +30,7 @@ export function TopoNovo({
 }: {
   chamada: string;
   titulo: string;
-  subtitulo: string;
+  subtitulo: ReactNode;
   botaoPrimario: string;
   botaoPrimarioUrl: string;
   botaoSecundario: string;

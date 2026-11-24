@@ -2263,3 +2263,14 @@
   );
   font-weight: 500;
 }
+
+/* Negrito da copy: com o texto em Light, o Medium já se destaca; o
+   Bold pesaria demais. No claro ganha o verde do título; no verde da
+   marca, o negrito leva text-white e fica branco. */
+.home-nova strong {
+  font-weight: 500;
+}
+
+.home-nova strong:not(.text-white) {
+  color: #28513f;
+}
