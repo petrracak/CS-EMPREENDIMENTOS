@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
-import { Whatsapp } from "@/components/icones-sociais";
+import { BotaoNovo } from "@/components/site/botao-novo";
 import { CardEmpreendimento } from "@/components/site/card-empreendimento";
 import { CardPost } from "@/components/site/card-post";
 import { Empilhada } from "@/components/site/empilhada";
@@ -14,8 +14,6 @@ import { Paragrafos } from "@/components/site/texto";
 import { Simbolo } from "@/components/site/logo";
 import { TopoNovo } from "@/components/site/topo-novo";
 import {
-  BotaoExterno,
-  BotaoLink,
   Olho,
   Secao,
   Titulo,
@@ -185,14 +183,12 @@ export default async function HomeNova() {
                     </ol>
                   ) : null}
 
-                  <BotaoLink
+                  <BotaoNovo
                     href={txt(construtor, "botao_url", "/empreendimentos")}
-                    aparencia="contorno"
-                    className="group mt-10"
+                    className="mt-10"
                   >
                     {txt(construtor, "botao")}
-                    <ArrowRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1" />
-                  </BotaoLink>
+                  </BotaoNovo>
                 </div>
               </div>
             </Secao>
@@ -292,17 +288,16 @@ export default async function HomeNova() {
                   {txt(configs.todos_empreendimentos, "texto")}
                 </p>
               </div>
-              <BotaoLink
+              <BotaoNovo
                 href={txt(
                   configs.todos_empreendimentos,
                   "botao_url",
                   "/empreendimentos",
                 )}
-                className="group shrink-0"
+                className="shrink-0"
               >
                 {txt(configs.todos_empreendimentos, "botao")}
-                <ArrowRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1" />
-              </BotaoLink>
+              </BotaoNovo>
             </div>
           </div>
         </Secao>
@@ -377,29 +372,26 @@ export default async function HomeNova() {
                   {txt(configs.faixa_contato, "texto")}
                 </p>
                 <div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-                  <BotaoLink
+                  <BotaoNovo
                     href={txt(
                       configs.faixa_contato,
                       "botao_primario_url",
                       "/cadastro",
                     )}
-                    aparencia="claro"
-                    className="group"
                   >
                     {txt(configs.faixa_contato, "botao_primario")}
-                    <ArrowRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1" />
-                  </BotaoLink>
-                  <BotaoExterno
+                  </BotaoNovo>
+                  <BotaoNovo
                     href={
                       txt(configs.faixa_contato, "botao_secundario_url") ||
                       empresa.whatsapp_link
                     }
-                    aparencia="contorno"
-                    className="border-white/25 text-white hover:border-white hover:bg-white/10 hover:text-white"
+                    tipo="secundario"
+                    icone="zap"
+                    className="sobre-escuro"
                   >
-                    <Whatsapp className="h-4 w-4" />
                     {txt(configs.faixa_contato, "botao_secundario")}
-                  </BotaoExterno>
+                  </BotaoNovo>
                 </div>
               </div>
             </div>

@@ -8,17 +8,25 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { Whatsapp } from "@/components/icones-sociais";
+import { CabecalhoNovo } from "@/components/site/cabecalho-novo";
 import { Logo } from "@/components/site/logo";
+import { ITENS } from "@/components/site/menu-itens";
 import { cn } from "@/lib/utils";
 
-const ITENS = [
-  { href: "/", rotulo: "Início" },
-  { href: "/empreendimentos", rotulo: "Empreendimentos" },
-  { href: "/blog", rotulo: "Blog" },
-  { href: "/cadastro", rotulo: "Cadastre-se" },
-];
-
+/**
+ * A home nova (em teste em /home-nova) tem o cabeçalho do redesenho; o
+ * resto do site segue com o atual até a cliente aprovar a versão nova.
+ */
 export function Cabecalho({ whatsapp }: { whatsapp: string }) {
+  const caminho = usePathname();
+  return caminho === "/home-nova" ? (
+    <CabecalhoNovo whatsapp={whatsapp} />
+  ) : (
+    <CabecalhoAtual whatsapp={whatsapp} />
+  );
+}
+
+function CabecalhoAtual({ whatsapp }: { whatsapp: string }) {
   const caminho = usePathname();
   const [rolou, setRolou] = useState(false);
   const [menuAberto, setMenuAberto] = useState(false);
@@ -56,27 +64,18 @@ export function Cabecalho({ whatsapp }: { whatsapp: string }) {
     };
   }, [menuAberto]);
 
-  // A home nova (em teste em /home-nova) abre com fundo claro: o
-  // cabeçalho flutua transparente, mas com a logo colorida e o texto
-  // escuro, como no estado sólido.
-  const sobreClaro = caminho === "/home-nova";
-
   // "Sólido" é o estado com fundo: ou a pessoa rolou, ou o menu está
   // aberto, ou a página não tem foto de topo para o cabeçalho flutuar.
-  const comFundo = rolou || menuAberto || (!sobreFoto && !sobreClaro);
-  // As cores: escuras sempre, menos quando flutua sobre a foto.
-  const solido = comFundo || sobreClaro;
+  const solido = rolou || menuAberto || !sobreFoto;
 
   return (
     <header
       className={cn(
         "sticky top-0 z-40 transition-all duration-500",
         "[transition-timing-function:var(--ease-saida)]",
-        !comFundo
-          ? "border-b border-transparent bg-transparent"
-          : sobreClaro
-            ? "border-b border-[#cfeadd] bg-[#ebfff6]/90 backdrop-blur-md"
-            : "border-b border-[var(--borda)] bg-[var(--bg)]/90 backdrop-blur-md",
+        solido
+          ? "border-b border-[var(--borda)] bg-[var(--bg)]/90 backdrop-blur-md"
+          : "border-b border-transparent bg-transparent",
       )}
     >
       <div

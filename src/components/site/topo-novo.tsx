@@ -1,7 +1,6 @@
-import Link from "next/link";
 import type { CSSProperties } from "react";
 
-import { Whatsapp } from "@/components/icones-sociais";
+import { BotaoNovo } from "@/components/site/botao-novo";
 import { Simbolo } from "@/components/site/logo";
 import { Palavras } from "@/components/site/palavras";
 
@@ -96,20 +95,10 @@ export function TopoNovo({
         </p>
 
         <div className="topo-novo-botoes" data-entrada style={atraso(760)}>
-          <Link href={botaoPrimarioUrl} className="topo-novo-botao topo-novo-botao-primario">
-            <span className="topo-novo-botao-rotulo">{botaoPrimario}</span>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/home-nova/seta.svg" alt="" width={24} height={24} className="topo-novo-seta" />
-          </Link>
-          <a
-            href={whatsapp}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="topo-novo-botao topo-novo-botao-secundario"
-          >
-            <Whatsapp className="topo-novo-zap" />
-            <span className="topo-novo-gradiente">{botaoSecundario}</span>
-          </a>
+          <BotaoNovo href={botaoPrimarioUrl}>{botaoPrimario}</BotaoNovo>
+          <BotaoNovo href={whatsapp} tipo="secundario" icone="zap">
+            {botaoSecundario}
+          </BotaoNovo>
         </div>
       </div>
     </section>
