@@ -59,7 +59,14 @@ export function CardPost({
           {post.capa_url ? (
             <div
               data-quadro
-              className="relative aspect-[16/10] overflow-hidden bg-[var(--bg-fundo)]"
+              // No escuro, a moldura tem a cor do card: ela termina em
+              // meio pixel, e com o card subindo e a foto crescendo no
+              // hover o fundo claro aparecia como um fio piscando na
+              // borda de baixo da capa.
+              className={cn(
+                "relative aspect-[16/10] overflow-hidden",
+                escuro ? "bg-[#01331d]" : "bg-[var(--bg-fundo)]",
+              )}
             >
               <Image
                 src={post.capa_url}
@@ -73,7 +80,7 @@ export function CardPost({
                 // do esfumado, sem linha entre foto e conteúdo.
                 <span
                   aria-hidden
-                  className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-[#01331d] via-[#01331d]/60 to-transparent"
+                  className="absolute inset-x-0 -bottom-px h-3/5 bg-gradient-to-t from-[#01331d] via-[#01331d]/60 to-transparent"
                 />
               ) : null}
               <span
