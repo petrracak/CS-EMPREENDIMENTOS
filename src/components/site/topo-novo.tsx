@@ -16,8 +16,9 @@ import { Palavras } from "@/components/site/palavras";
  * No computador tudo é medido na unidade do quadro do Figma (--u, ver
  * .topo-novo em globals.css): 1 px do desenho até 1280 px de tela, e
  * proporcional abaixo disso. Assim foto, texto e botões encolhem juntos
- * e não se atropelam. Abaixo de 1024 px (celular e tablet em pé) a foto
- * vira uma faixa no topo e o texto desce para baixo dela, no fluxo normal.
+ * e não se atropelam. Abaixo de 1024 px (celular e tablet em pé) vale o
+ * quadro MOBILE: foto grande no topo, selo sobre o peito do Girlan e o
+ * texto centrado logo abaixo, subindo sobre o esfumado da foto.
  */
 export function TopoNovo({
   chamada,
@@ -40,15 +41,15 @@ export function TopoNovo({
 
   return (
     <section className="topo-novo">
-      {/* Uma imagem só, a do quadro do computador. No celular ela é
-          recortada em volta do Girlan (ver .topo-novo-foto): a versão
-          de celular do Figma deixava ele com 95 px de largura. */}
+      {/* Uma imagem só, a do quadro do computador. No celular ela é a
+          mesma composição em escala menor e recortada em volta do Girlan,
+          como no quadro MOBILE do Figma (ver .topo-novo-foto). */}
       <div className="topo-novo-foto">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/home-nova/topo-computador.webp"
           srcSet="/home-nova/topo-computador.webp 1464w, /home-nova/topo-computador@2x.webp 2928w"
-          sizes="(min-width: 1280px) 1464px, (min-width: 1024px) 114.4vw, min(103vw, 659px)"
+          sizes="(min-width: 1280px) 1464px, (min-width: 1024px) 114.4vw, min(142vw, 796px)"
           width={1464}
           height={962}
           alt="Girlan Carneiro, CEO e fundador da CS, em frente a um dos prédios da construtora"
@@ -57,18 +58,22 @@ export function TopoNovo({
         />
       </div>
 
+      {/* Selo do fundador: o quadro de vidro do Figma com a assinatura
+          no centro. Por fora, a entrada; por dentro, a flutuação lenta —
+          as duas são animação, e no mesmo elemento uma apagaria a outra. */}
       <div className="topo-novo-selo" data-entrada style={atraso(900)}>
-        <span className="topo-novo-selo-cargo">CEO e fundador</span>
-        {/* A assinatura é o desenho do Figma convertido em curva: a fonte
-            manuscrita não precisa vir junto com o site. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/home-nova/assinatura-girlan.svg"
-          alt="Girlan Carneiro"
-          width={183}
-          height={31}
-          className="topo-novo-assinatura"
-        />
+        <div className="topo-novo-selo-quadro">
+          {/* "CEO e fundador" e a assinatura vêm num SVG só, em curvas:
+              a fonte manuscrita não precisa vir junto com o site. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/home-nova/selo-girlan.svg"
+            alt="Girlan Carneiro, CEO e fundador"
+            width={288}
+            height={35}
+            className="topo-novo-assinatura"
+          />
+        </div>
       </div>
 
       <div className="topo-novo-texto">
@@ -92,7 +97,7 @@ export function TopoNovo({
 
         <div className="topo-novo-botoes" data-entrada style={atraso(760)}>
           <Link href={botaoPrimarioUrl} className="topo-novo-botao topo-novo-botao-primario">
-            {botaoPrimario}
+            <span className="topo-novo-botao-rotulo">{botaoPrimario}</span>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/home-nova/seta.svg" alt="" width={24} height={24} className="topo-novo-seta" />
           </Link>
