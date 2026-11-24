@@ -2049,3 +2049,166 @@
     height: 2.5rem;
   }
 }
+
+/* ------------------------------------------------ abertura (home nova) */
+/* O roteiro, em 3 s:
+     0 – 1,3 s    os dois traços do símbolo se desenham em dourado
+     1,05 – 1,8   o dourado preenche, e o traço some dentro dele
+     1,6 – 2,5    um brilho atravessa o símbolo
+     2,45 – 3,05  o símbolo cresce um pouco e a tela se abre para o site
+   A entrada do topo é empurrada pelo mesmo tempo (--abertura), para o
+   título não terminar de entrar escondido atrás da tela. */
+
+.home-nova {
+  --abertura: 2.5s;
+}
+
+.home-nova [data-entrada],
+.home-nova [data-palavras="entrada"] > span {
+  animation-delay: calc(var(--atraso, 0ms) + var(--abertura));
+}
+
+@keyframes abertura-sair {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.abertura {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 46%, #00452799 0%, transparent 60%),
+    #012616;
+  animation: abertura-sair 0.6s var(--ease-entrada-saida) 2.45s forwards;
+}
+
+@keyframes abertura-luz {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Luz dourada atrás do símbolo, que acende junto com o preenchimento. */
+.abertura-luz {
+  position: absolute;
+  width: min(34rem, 90vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(243 214 148 / 0.22) 0%,
+    rgb(243 214 148 / 0.06) 40%,
+    transparent 68%
+  );
+  filter: blur(10px);
+  animation: abertura-luz 1.4s var(--ease-saida) 0.9s both;
+}
+
+@keyframes abertura-simbolo-sair {
+  to {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+
+.abertura-simbolo {
+  position: relative;
+  height: clamp(6.5rem, 20vw, 8.5rem);
+  aspect-ratio: 307 / 563;
+  animation: abertura-simbolo-sair 0.6s var(--ease-entrada-saida) 2.4s forwards;
+}
+
+.abertura-simbolo svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+@keyframes abertura-desenhar {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes abertura-preencher {
+  to {
+    fill-opacity: 1;
+    stroke-opacity: 0;
+  }
+}
+
+.abertura-traco {
+  fill: url(#abertura-ouro);
+  fill-opacity: 0;
+  stroke: #f3d694;
+  stroke-width: 1.4px;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  vector-effect: non-scaling-stroke;
+  animation:
+    abertura-desenhar 1.3s var(--ease-entrada-saida) both,
+    abertura-preencher 0.75s var(--ease-suave) both;
+}
+
+@keyframes abertura-brilhar {
+  from {
+    background-position: 130% 0;
+  }
+  to {
+    background-position: -30% 0;
+  }
+}
+
+/* Recortado pela própria logo: o SVG enviado tem 4 unidades a menos de
+   cada lado que o desenhado acima, daí o recuo. */
+.abertura-brilho {
+  position: absolute;
+  inset: 0.71% 1.3%;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgb(255 250 235 / 0.85) 50%,
+    transparent 60%
+  );
+  background-size: 300% 100%;
+  background-position: 130% 0;
+  mask: url("/home-nova/simbolo-abertura.svg") center / contain no-repeat;
+  animation: abertura-brilhar 0.9s var(--ease-entrada-saida) 1.6s both;
+}
+
+/* Sem movimento: o símbolo já aparece dourado e a tela sai logo. */
+@media (prefers-reduced-motion: reduce) {
+  .home-nova {
+    --abertura: 0.3s;
+  }
+
+  .abertura {
+    animation-delay: 0.4s;
+  }
+
+  .abertura-traco {
+    fill-opacity: 1;
+    stroke-opacity: 0;
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+
+  .abertura-luz,
+  .abertura-brilho,
+  .abertura-simbolo {
+    animation: none;
+  }
+}

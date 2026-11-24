@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
+import { Abertura } from "@/components/site/abertura";
 import { BotaoNovo } from "@/components/site/botao-novo";
 import { CardEmpreendimento } from "@/components/site/card-empreendimento";
 import { CardPost } from "@/components/site/card-post";
@@ -63,6 +64,8 @@ export default async function HomeNova() {
 
   return (
     <div className="home-nova">
+      <Abertura />
+
       {/* ================================================= dobra 1: topo */}
       {/* O redesenho do Figma. Os textos estão aqui, e não no painel,
           enquanto a página é teste: o bloco "hero" do painel continua
