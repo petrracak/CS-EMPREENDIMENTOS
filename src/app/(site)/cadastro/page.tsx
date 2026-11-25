@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { Whatsapp } from "@/components/icones-sociais";
 import { FormularioCompleto } from "@/components/site/formulario-lead";
 import { BotaoExterno, Olho, Secao, Titulo } from "@/components/site/ui";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -80,9 +79,9 @@ export default async function PaginaCadastro({
           <BotaoExterno
             href={empresa.whatsapp_link}
             aparencia="claro"
+            icone="zap"
             className="mt-7"
           >
-            <Whatsapp className="h-4 w-4" />
             Chamar no WhatsApp
           </BotaoExterno>
 

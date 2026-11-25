@@ -5,7 +5,7 @@ import { Whatsapp } from "@/components/icones-sociais";
 import { cn } from "@/lib/utils";
 
 /**
- * O botão do redesenho (home nova), no modelo dos botões do topo do Figma.
+ * O botão do site, no modelo dos botões do topo do Figma.
  *
  *   primario     gradiente da marca correndo devagar, seta num círculo
  *                menta; no hover um brilho atravessa e a seta gira
@@ -42,7 +42,7 @@ export function BotaoNovo({
       </span>
       {ehZap ? null : (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src="/home-nova/seta.svg" alt="" width={24} height={24} className="botao-novo-seta" />
+        <img src="/site/seta.svg" alt="" width={24} height={24} className="botao-novo-seta" />
       )}
     </>
   );

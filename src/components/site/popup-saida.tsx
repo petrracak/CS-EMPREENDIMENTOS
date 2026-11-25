@@ -142,7 +142,7 @@ export function PopupSaida({
       className="popup-saida m-auto max-h-[calc(100dvh-1.5rem)] w-[calc(100%-1.5rem)] max-w-4xl overflow-hidden rounded-[1.75rem] bg-transparent p-0 text-[var(--fg)] backdrop:bg-[var(--color-verde-950)]/70 backdrop:backdrop-blur-sm"
     >
       {aberto ? (
-        <div className="grid max-h-[calc(100dvh-1.5rem)] overflow-y-auto overscroll-contain bg-[var(--bg-elevado)] md:grid-cols-[1.1fr_0.9fr]">
+        <div className="grid max-h-[calc(100dvh-1.5rem)] overflow-y-auto overscroll-contain bg-white bg-[linear-gradient(to_bottom,#ebfff6,#ffffff_16rem)] md:grid-cols-[1.1fr_0.9fr]">
           {/* ------------------------------------------- o cadastro */}
           <div className="relative p-6 sm:p-9">
             {olho ? <span className="olho">{olho}</span> : null}
@@ -166,10 +166,9 @@ export function PopupSaida({
 
           {/* ------------------------------------ o que está em obra */}
           {destaques.length ? (
-            <aside className="relative isolate overflow-hidden bg-[var(--color-verde-950)] p-6 text-white sm:p-9">
-              <div aria-hidden className="aurora -z-10 opacity-60" />
+            <aside className="blog-verde relative isolate overflow-hidden p-6 text-white sm:p-9">
               <Simbolo className="pointer-events-none absolute -right-10 -bottom-12 -z-10 h-56 w-auto text-white/[0.04]" />
-              <p className="text-[0.6875rem] font-semibold tracking-[0.14em] text-[var(--color-ouro-300)] uppercase">
+              <p className="text-[0.9375rem] text-[var(--color-ouro-300)]">
                 {tituloDestaques}
               </p>
               <ul className="mt-5 space-y-3">

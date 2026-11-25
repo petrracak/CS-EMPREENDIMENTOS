@@ -11,5 +11,7 @@ export default function LayoutAdmin({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  // .painel leva o design novo para o painel e a tela de login (ver
+  // globals.css): mesma fonte, cores e botões do site.
+  return <div className="painel">{children}</div>;
 }

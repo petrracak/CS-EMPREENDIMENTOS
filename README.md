@@ -53,6 +53,15 @@ supabase/
 
 ## Decisões que valem saber
 
+**O design está em dois invólucros.** `.site` (layout público) e `.painel`
+(`/admin`, com a tela de login) levam o redesenho do Figma: Switzer Light,
+letras a -6%, títulos em `#28513F`, destaque em gradiente `#004527 →
+#00AB61`, botões de cantos de ~11 px. As regras ficam em `globals.css`, fora
+de `@layer`, para vencer os utilitários do Tailwind. O botão do site é o
+`BotaoNovo` (`BotaoLink`/`BotaoExterno` em `ui.tsx` usam ele). A copy da
+página inicial está na própria página até o painel ser adaptado ao layout
+novo.
+
 **Campo vazio não aparece.** Valor, registro de incorporação, previsão de
 entrega: enquanto a CS não preencher, o campo some do site junto com o
 rótulo, em vez de virar "R$ 0,00" ou "a consultar". A regra está em

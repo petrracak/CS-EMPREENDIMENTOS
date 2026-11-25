@@ -1,5 +1,5 @@
 /**
- * Tela de abertura da home nova: o símbolo da CS é desenhado em traço,
+ * Tela de abertura da página inicial: o símbolo da CS é desenhado em traço,
  * se preenche com o dourado da marca, um brilho o atravessa e a tela se
  * abre para o site.
  *
@@ -7,6 +7,11 @@
  * do servidor, anima sozinha e some sozinha — se o JS falhar ou demorar,
  * ela não fica presa na frente do site. No fim fica invisível e sem
  * clique, então não precisa ser removida.
+ *
+ * Aparece uma vez por visita. O script abaixo roda enquanto o HTML ainda
+ * está sendo lido, antes de qualquer coisa ser pintada: se a visita já
+ * viu a abertura, marca data-sem-abertura no <html> e o CSS nem a
+ * mostra (nem atrasa a entrada do topo).
  *
  * Os dois traços do símbolo usam pathLength="1": o comprimento de cada
  * um vira 1, e o desenho é só levar o tracejado de 1 a 0.
@@ -17,34 +22,39 @@ const CAMINHOS = [
   "M197.117 0.0325305C199.093 -0.0274871 201.286 -0.0984256 203.116 0.759248C229.047 12.908 254.723 25.6283 280.625 37.8502C286.528 40.6363 292.499 43.4239 298.21 46.573C299.045 65.668 298.435 88.7473 298.416 108.136C265.469 96.6646 231.792 80.8713 199.296 69.4658C174.183 78.5039 141.745 93.663 116.097 104.178L71.9728 122.439C66.0301 124.856 50.1202 130.877 45.3047 133.922L44.5592 384.887C44.5694 404.606 44.6749 424.383 44.5339 444.098C44.4544 455.276 43.4342 465.159 43.9222 476.508C55.0919 476.427 74.022 478.876 85.8351 480.073L153.397 486.699C170.061 488.381 193.279 491.892 209.52 490.484C228.714 488.822 249.314 487.482 268.324 484.975C278.461 484.084 288.163 482.913 298.399 482.166L298.436 539.091C291.279 539.3 278.154 541.809 270.813 543.03L224.421 550.833C213.013 552.754 202.218 555.423 190.653 553.452C179.395 551.534 168.099 549.673 156.825 547.857L52.3363 530.539C39.3931 528.395 11.717 523.091 0 522.53L0.00939997 94.0246C65.592 63.8849 131.867 31.168 197.117 0.0325305Z",
 ];
 
+const UMA_VEZ = `try{if(sessionStorage.getItem("cs:abertura")){document.documentElement.setAttribute("data-sem-abertura","")}else{sessionStorage.setItem("cs:abertura","1")}}catch(e){}`;
+
 export function Abertura() {
   return (
-    <div className="abertura" aria-hidden>
-      <div className="abertura-luz" />
-      <div className="abertura-simbolo">
-        <svg viewBox="-4 -4 307 563" fill="none">
-          <defs>
-            {/* O dourado do site: o claro do favicon descendo para o bronze. */}
-            <linearGradient id="abertura-ouro" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#fff1d7" />
-              <stop offset="0.45" stopColor="#f3d694" />
-              <stop offset="1" stopColor="#cfa862" />
-            </linearGradient>
-          </defs>
-          {CAMINHOS.map((d, i) => (
-            <path
-              key={i}
-              d={d}
-              pathLength={1}
-              className="abertura-traco"
-              style={{ animationDelay: `${i * 140}ms, ${1050 + i * 80}ms` }}
-            />
-          ))}
-        </svg>
-        {/* O brilho: uma faixa clara que corre por dentro do símbolo,
+    <>
+      <script dangerouslySetInnerHTML={{ __html: UMA_VEZ }} />
+      <div className="abertura" aria-hidden>
+        <div className="abertura-luz" />
+        <div className="abertura-simbolo">
+          <svg viewBox="-4 -4 307 563" fill="none">
+            <defs>
+              {/* O dourado do site: o claro do favicon descendo para o bronze. */}
+              <linearGradient id="abertura-ouro" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#fff1d7" />
+                <stop offset="0.45" stopColor="#f3d694" />
+                <stop offset="1" stopColor="#cfa862" />
+              </linearGradient>
+            </defs>
+            {CAMINHOS.map((d, i) => (
+              <path
+                key={i}
+                d={d}
+                pathLength={1}
+                className="abertura-traco"
+                style={{ animationDelay: `${i * 140}ms, ${1050 + i * 80}ms` }}
+              />
+            ))}
+          </svg>
+          {/* O brilho: uma faixa clara que corre por dentro do símbolo,
             recortada pela própria logo (máscara). */}
-        <div className="abertura-brilho" />
+          <div className="abertura-brilho" />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

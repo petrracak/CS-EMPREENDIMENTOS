@@ -1,4 +1,4 @@
-/** Os itens do menu, iguais no cabeçalho atual e no da home nova. */
+/** Os itens do menu do cabeçalho. */
 export const ITENS = [
   { href: "/", rotulo: "Início" },
   { href: "/empreendimentos", rotulo: "Empreendimentos" },

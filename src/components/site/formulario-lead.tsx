@@ -86,15 +86,16 @@ function Enviar({ rotulo }: { rotulo: string }) {
     <button
       type="submit"
       disabled={pending}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-full",
-        "bg-[var(--acento)] px-7 py-3.5 text-sm font-medium text-white",
-        "transition-colors duration-500 hover:bg-[var(--acento-hover)]",
-        "disabled:pointer-events-none disabled:opacity-60",
-      )}
+      // O botão principal do site (.botao-novo), com a seta do Figma.
+      className="botao-novo botao-novo-primario disabled:pointer-events-none disabled:opacity-60"
     >
-      {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-      {pending ? "Enviando…" : rotulo}
+      <span>{pending ? "Enviando…" : rotulo}</span>
+      {pending ? (
+        <Loader2 className="h-5 w-5 animate-spin" />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src="/site/seta.svg" alt="" width={24} height={24} className="botao-novo-seta" />
+      )}
     </button>
   );
 }

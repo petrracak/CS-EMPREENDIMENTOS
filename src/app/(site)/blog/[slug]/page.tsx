@@ -2,9 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
-import { Whatsapp } from "@/components/icones-sociais";
 import { Markdown } from "@/components/site/texto";
 import { BotaoExterno, BotaoLink, Secao } from "@/components/site/ui";
 import { lerPost, listarSlugsPosts } from "@/lib/queries";
@@ -117,16 +116,12 @@ export default async function PaginaPost({
             Veja os projetos e fale com a nossa equipe.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <BotaoLink href="/empreendimentos" aparencia="claro">
-              Ver empreendimentos
-              <ArrowRight className="h-4 w-4" />
-            </BotaoLink>
+            <BotaoLink href="/empreendimentos">Ver empreendimentos</BotaoLink>
             <BotaoExterno
               href={empresa.whatsapp_link}
-              aparencia="contorno"
-              className="border-white/25 text-white hover:border-white hover:text-white"
+              aparencia="claro"
+              icone="zap"
             >
-              <Whatsapp className="h-4 w-4" />
               Falar no WhatsApp
             </BotaoExterno>
           </div>

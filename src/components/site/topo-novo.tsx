@@ -6,7 +6,7 @@ import { Palavras } from "@/components/site/palavras";
 
 /**
  * A primeira dobra do redesenho (Figma "DOBRAS SITE PRINCIPAL", 83:96 e
- * 83:124), em teste em /home-nova.
+ * 83:124), a primeira dobra da página inicial.
  *
  * O fundo é uma imagem só, exportada do Figma: as linhas da marca, o
  * prédio dentro do "C" e o Girlan, já com o esfumado do pé. O texto, o
@@ -46,8 +46,8 @@ export function TopoNovo({
       <div className="topo-novo-foto">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/home-nova/topo-computador.webp"
-          srcSet="/home-nova/topo-computador.webp 1464w, /home-nova/topo-computador@2x.webp 2928w"
+          src="/site/topo-computador.webp"
+          srcSet="/site/topo-computador.webp 1464w, /site/topo-computador@2x.webp 2928w"
           sizes="(min-width: 1280px) 1464px, (min-width: 1024px) 114.4vw, min(142vw, 796px)"
           width={1464}
           height={962}
@@ -66,7 +66,7 @@ export function TopoNovo({
               a fonte manuscrita não precisa vir junto com o site. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/home-nova/selo-girlan.svg"
+            src="/site/selo-girlan.svg"
             alt="Girlan Carneiro, CEO e fundador"
             width={288}
             height={35}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Cabecalho } from "@/components/site/cabecalho";
+import { GradienteContinuo } from "@/components/site/gradiente-continuo";
 import { FaixaCampanha } from "@/components/site/faixa-campanha";
 import { PopupSaida } from "@/components/site/popup-saida";
 import { Rastreamento } from "@/components/site/rastreamento";
@@ -44,8 +45,9 @@ export default async function LayoutDoSite({
   const saida = configs.popup_saida;
   const rastreio = lerRastreamento(configs.rastreamento);
 
+  // .site leva o design do site (fonte, cores, botões: ver globals.css).
   return (
-    <>
+    <div className="site">
       {bool(faixa, "ativo") ? (
         <FaixaCampanha
           mensagem={lerMensagemDaFaixa(faixa)}
@@ -88,6 +90,7 @@ export default async function LayoutDoSite({
 
       {/* Liga as animações de entrada depois que a página monta. */}
       <Revelar />
-    </>
+      <GradienteContinuo />
+    </div>
   );
 }

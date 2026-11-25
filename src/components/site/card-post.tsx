@@ -22,7 +22,7 @@ type Post = {
  * invólucro, hover no CartaoVivo, data-quadro na moldura da capa. Ver o
  * comentário em card-empreendimento.tsx para o porquê.
  *
- * O tom "escuro" é o da home nova, sobre o verde da marca: o card é um
+ * O tom "escuro" é o do blog da página inicial, sobre o verde da marca: o card é um
  * verde mais fundo, a capa esfuma nele em vez de acabar num corte reto,
  * e os detalhes vão para o dourado. O "claro" é o de sempre.
  */

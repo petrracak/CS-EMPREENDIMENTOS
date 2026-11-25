@@ -1,9 +1,10 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 /**
- * Gradiente contínuo nos títulos da home nova.
+ * Gradiente contínuo nos títulos do site.
  *
  * O título entra palavra por palavra, e cada palavra é um elemento: com
  * o gradiente em cada uma, "10 anos" virava dois gradientes emendados.
@@ -15,11 +16,16 @@ import { useEffect } from "react";
  * fica com o próprio gradiente, como antes. A conta é refeita quando o
  * título muda de largura (girar o celular, redimensionar a janela) e
  * depois que a fonte carrega, porque a largura das palavras muda.
+ *
+ * Fica no layout do site e roda de novo a cada troca de página: o
+ * layout não remonta na navegação, mas os títulos são outros.
  */
 export function GradienteContinuo() {
+  const caminho = usePathname();
+
   useEffect(() => {
     const titulos = Array.from(
-      document.querySelectorAll<HTMLElement>(".home-nova [data-palavras]"),
+      document.querySelectorAll<HTMLElement>(".site [data-palavras]"),
     );
 
     const ajustar = (titulo: HTMLElement) => {
@@ -70,7 +76,7 @@ export function GradienteContinuo() {
     );
     titulos.forEach((t) => observador.observe(t));
     return () => observador.disconnect();
-  }, []);
+  }, [caminho]);
 
   return null;
 }

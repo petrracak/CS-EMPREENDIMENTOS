@@ -230,16 +230,14 @@ export default async function PaginaEmpreendimento({
               style={{ "--atraso": "760ms" } as React.CSSProperties}
               className="mt-8 flex flex-wrap gap-3"
             >
-              <BotaoLink href="#cadastro" aparencia="claro" className="group">
+              <BotaoLink href="#cadastro">
                 {textoUtil(item.botao_primario) ?? "Quero atendimento"}
-                <ArrowRight className="h-4 w-4 transition-transform duration-[900ms] [transition-timing-function:var(--ease-lento)] group-hover:translate-x-1" />
               </BotaoLink>
               <BotaoExterno
                 href={empresa.whatsapp_link}
-                aparencia="contorno"
-                className="border-white/30 text-white hover:border-white hover:bg-white/10 hover:text-white"
+                aparencia="claro"
+                icone="zap"
               >
-                <Whatsapp className="h-4 w-4" />
                 {textoUtil(item.botao_secundario) ?? "Falar no WhatsApp"}
               </BotaoExterno>
             </div>
@@ -464,7 +462,6 @@ export default async function PaginaEmpreendimento({
 
                 {item.mapa_link ? (
                   <BotaoExterno href={item.mapa_link} className="mt-8">
-                    <MapPin className="h-4 w-4" />
                     Ver no mapa
                   </BotaoExterno>
                 ) : null}
@@ -517,7 +514,11 @@ export default async function PaginaEmpreendimento({
               titulo="Contato comercial"
               texto={`Fale direto com o nosso time comercial pelo WhatsApp ${empresa.whatsapp}.`}
               acao={
-                <BotaoExterno href={empresa.whatsapp_link} className="mt-5">
+                <BotaoExterno
+                  href={empresa.whatsapp_link}
+                  icone="zap"
+                  className="mt-5"
+                >
                   Chamar no WhatsApp
                 </BotaoExterno>
               }

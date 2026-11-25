@@ -112,6 +112,11 @@ const nextConfig: NextConfig = {
     // que vai até 2400 px. A Vercel aceita até 4,5 MB por requisição.
     serverActions: { bodySizeLimit: "4mb" },
   },
+  // A home nova foi testada em /home-nova antes de virar a página inicial;
+  // quem guardou o link cai na home.
+  async redirects() {
+    return [{ source: "/home-nova", destination: "/", permanent: true }];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: SEGURANCA },

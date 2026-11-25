@@ -17,7 +17,7 @@ export async function Rodape() {
   const emDestaque = empreendimentos.slice(0, 4);
 
   return (
-    <footer className="bg-[var(--bg-tinta)] text-[var(--fg-sobre-tinta)]">
+    <footer className="rodape text-[var(--fg-sobre-tinta)]">
       <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 md:py-20">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* ---------------------------------------------- institucional */}
@@ -34,7 +34,7 @@ export async function Rodape() {
 
           {/* -------------------------------------------- empreendimentos */}
           <div>
-            <h3 className="text-xs font-semibold tracking-[0.16em] text-[var(--color-ouro-300)] uppercase">
+            <h3 className="text-[0.9375rem] text-[var(--color-ouro-300)]">
               Empreendimentos
             </h3>
             <ul className="mt-3 space-y-0 text-sm">
@@ -61,7 +61,7 @@ export async function Rodape() {
 
           {/* ------------------------------------------------ fale conosco */}
           <div>
-            <h3 className="text-xs font-semibold tracking-[0.16em] text-[var(--color-ouro-300)] uppercase">
+            <h3 className="text-[0.9375rem] text-[var(--color-ouro-300)]">
               Fale com a gente
             </h3>
             <ul className="mt-5 space-y-4 text-sm text-white/60">
@@ -110,7 +110,7 @@ export async function Rodape() {
 
           {/* ------------------------------------------------------ redes */}
           <div>
-            <h3 className="text-xs font-semibold tracking-[0.16em] text-[var(--color-ouro-300)] uppercase">
+            <h3 className="text-[0.9375rem] text-[var(--color-ouro-300)]">
               Siga a CS
             </h3>
             <div className="mt-5 flex gap-3">

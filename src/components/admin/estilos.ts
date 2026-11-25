@@ -12,10 +12,11 @@ import { cn } from "@/lib/utils";
 export type TomBotao = "principal" | "neutro" | "perigo" | "suave";
 
 export const TOM_BOTAO: Record<TomBotao, string> = {
+  // O principal do site: o gradiente da marca, que desliza no hover.
   principal:
-    "bg-[var(--color-verde-900)] text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_6px_16px_-8px_rgb(1_38_22/0.7)] hover:bg-[var(--color-verde-800)]",
+    "border border-white/10 bg-[linear-gradient(100deg,#004527_0%,#00ab61_50%,#004527_100%)] bg-[length:200%_100%] bg-left text-white shadow-[0_8px_20px_-14px_rgb(0_69_39/0.7)] transition-[background-position,box-shadow,transform] duration-700 hover:bg-right hover:shadow-[0_14px_28px_-14px_rgb(0_171_97/0.6)]",
   neutro:
-    "border border-[var(--borda)] bg-[var(--bg-elevado)] text-[var(--fg)] shadow-[0_1px_0_rgb(1_38_22/0.04)] hover:border-[var(--borda-forte)] hover:bg-[var(--bg)]",
+    "border border-[rgb(11_11_11/0.14)] bg-[#f4f4f4] text-[var(--color-verde-800)] hover:border-[#00ab61]/50 hover:bg-white",
   suave:
     "text-[var(--fg-suave)] hover:bg-[var(--bg-fundo)] hover:text-[var(--fg)]",
   perigo:
@@ -23,8 +24,8 @@ export const TOM_BOTAO: Record<TomBotao, string> = {
 };
 
 export const BASE_BOTAO =
-  "inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 " +
-  "text-sm font-medium whitespace-nowrap transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.98] " +
+  "inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-[0.66rem] px-5 " +
+  "text-sm font-normal tracking-[-0.03em] whitespace-nowrap transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.98] " +
   "disabled:pointer-events-none disabled:opacity-50";
 
 /** As classes do botão, para um Link que precisa parecer botão. */

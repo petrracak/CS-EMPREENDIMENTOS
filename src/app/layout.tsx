@@ -31,7 +31,10 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={switzer.variable}>
+    // suppressHydrationWarning só vale para os atributos do próprio <html>:
+    // a abertura da página inicial marca data-sem-abertura nele antes de
+    // o React carregar (ver components/site/abertura.tsx).
+    <html lang="pt-BR" className={switzer.variable} suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );
