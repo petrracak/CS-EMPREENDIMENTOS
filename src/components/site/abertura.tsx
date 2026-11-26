@@ -22,8 +22,17 @@ const CAMINHOS = [
   "M197.117 0.0325305C199.093 -0.0274871 201.286 -0.0984256 203.116 0.759248C229.047 12.908 254.723 25.6283 280.625 37.8502C286.528 40.6363 292.499 43.4239 298.21 46.573C299.045 65.668 298.435 88.7473 298.416 108.136C265.469 96.6646 231.792 80.8713 199.296 69.4658C174.183 78.5039 141.745 93.663 116.097 104.178L71.9728 122.439C66.0301 124.856 50.1202 130.877 45.3047 133.922L44.5592 384.887C44.5694 404.606 44.6749 424.383 44.5339 444.098C44.4544 455.276 43.4342 465.159 43.9222 476.508C55.0919 476.427 74.022 478.876 85.8351 480.073L153.397 486.699C170.061 488.381 193.279 491.892 209.52 490.484C228.714 488.822 249.314 487.482 268.324 484.975C278.461 484.084 288.163 482.913 298.399 482.166L298.436 539.091C291.279 539.3 278.154 541.809 270.813 543.03L224.421 550.833C213.013 552.754 202.218 555.423 190.653 553.452C179.395 551.534 168.099 549.673 156.825 547.857L52.3363 530.539C39.3931 528.395 11.717 523.091 0 522.53L0.00939997 94.0246C65.592 63.8849 131.867 31.168 197.117 0.0325305Z",
 ];
 
+/*
+ * Rede de segurança: 2 s depois, a tela sai de qualquer jeito
+ * (data-abertura-fim → display: none). A saída normal é a animação de
+ * CSS, mas há aparelho em que ela não chega ao fim — Safari antigo não
+ * aplica o "visibility: hidden" do último quadro, e celular em economia
+ * de energia ou aba em segundo plano pausa a animação. Sem isto a tela
+ * ficava por cima do site, invisível, e engolia todo toque: no app
+ * instalado, os campos do login não abriam.
+ */
 const umaVez = (chave: string, atributo: string) =>
-  `try{if(sessionStorage.getItem("${chave}")){document.documentElement.setAttribute("${atributo}","")}else{sessionStorage.setItem("${chave}","1")}}catch(e){}`;
+  `try{if(sessionStorage.getItem("${chave}")){document.documentElement.setAttribute("${atributo}","")}else{sessionStorage.setItem("${chave}","1");setTimeout(function(){document.documentElement.setAttribute("data-abertura-fim","")},2000)}}catch(e){document.documentElement.setAttribute("data-abertura-fim","")}`;
 
 /**
  * `onde` separa a abertura do site da do painel: cada uma tem a sua

@@ -1762,7 +1762,8 @@
 
 /* Já vista nesta visita: nada de tela, nada de espera. */
 [data-sem-abertura] .abertura:not(.abertura-painel),
-[data-sem-abertura-painel] .abertura-painel {
+[data-sem-abertura-painel] .abertura-painel,
+[data-abertura-fim] .abertura {
   display: none;
 }
 
@@ -1805,6 +1806,9 @@
   background:
     radial-gradient(circle at 50% 46%, #00452799 0%, transparent 60%),
     #012616;
+  /* É só enfeite: nunca segura toque, nem enquanto aparece. Se a
+     animação travar no meio, o toque ainda chega ao site por baixo. */
+  pointer-events: none;
   animation: abertura-sair 0.45s var(--ease-entrada-saida) 1.3s forwards;
 }
 
