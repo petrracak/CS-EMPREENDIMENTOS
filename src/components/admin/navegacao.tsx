@@ -24,6 +24,7 @@ import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { sair } from "@/app/actions/auth";
+import { BotaoInstalar } from "@/components/admin/instalar-app";
 import { Logo } from "@/components/site/logo";
 import { pode, type Area, type Nivel } from "@/lib/permissoes";
 import { cn } from "@/lib/utils";
@@ -157,7 +158,10 @@ function LinkLateral({
   novos: number;
 }) {
   return (
+    // prefetch: a página do menu já vem baixada em segundo plano, e o
+    // toque vira troca imediata (staleTimes em next.config guarda 30 s).
     <Link
+      prefetch
       href={item.href}
       aria-current={ativo ? "page" : undefined}
       className={cn(
@@ -233,6 +237,8 @@ function Lateral({
           </div>
         </div>
       </nav>
+
+      <BotaoInstalar aparencia="lateral" />
 
       <Link
         href="/"
@@ -475,6 +481,7 @@ function AbaInferior({
     const ativo = ativoEm(caminho, item);
     return (
       <Link
+        prefetch
         key={item.href}
         href={item.href}
         aria-current={ativo ? "page" : undefined}
@@ -627,6 +634,7 @@ function AbaInferior({
               aoEscolher={fechar}
               externo
             />
+            <BotaoInstalar />
 
             <form action={sair} className="mt-1">
               <button

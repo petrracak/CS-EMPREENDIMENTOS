@@ -2447,3 +2447,46 @@
 html {
   font-synthesis-weight: none;
 }
+
+/* ================================================= PAINEL COMO APLICATIVO */
+/* No celular o painel se comporta como app: toque sem o flash cinza do
+   navegador, sem seleção acidental de texto em botões e abas, e sem o
+   "puxa e estica" da página inteira quando instalado. */
+.painel {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.painel :is(button, nav a, [role="tab"]) {
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+@media (display-mode: standalone) {
+  html:has(.painel),
+  body:has(.painel) {
+    overscroll-behavior-y: none;
+  }
+}
+
+/* O tutorial de instalação sobe de baixo no celular, como as folhas. */
+.instalar-tutorial[open] {
+  animation: tutorial-sobe 0.45s var(--ease-saida, ease-out) both;
+}
+
+.instalar-tutorial[open]::backdrop {
+  animation: popup-fundo 0.35s ease-out both;
+}
+
+@keyframes tutorial-sobe {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .instalar-tutorial[open] {
+    animation: none;
+  }
+}

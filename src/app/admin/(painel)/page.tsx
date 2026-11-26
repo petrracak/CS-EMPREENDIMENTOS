@@ -11,6 +11,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { BotaoInstalar } from "@/components/admin/instalar-app";
 import { Aviso, Cabecalho, Cartao, Etiqueta } from "@/components/admin/ui";
 import { exigirPerfil } from "@/lib/auth";
 import { pode, type Area } from "@/lib/permissoes";
@@ -152,6 +153,11 @@ export default async function VisaoGeral({
           um administrador.
         </Aviso>
       ) : null}
+
+      {/* Só no celular, e só enquanto o painel não foi instalado. */}
+      <div className="lg:hidden">
+        <BotaoInstalar aparencia="cartao" />
+      </div>
 
       {/* -------------------------------------------------------- números */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

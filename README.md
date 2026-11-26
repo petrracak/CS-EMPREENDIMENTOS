@@ -171,6 +171,16 @@ s), a foto principal com prioridade, o mapa e os vídeos carregando só perto
 da tela, a fonte só em 300, 400 e 500, e os links do site sem pré-carregar
 outras páginas (`prefetch={false}`), que disputavam banda com a foto.
 
+**Painel como aplicativo.** O `/admin` tem manifesto próprio
+(`public/painel.webmanifest`, abre em `/admin`), ícones em `public/painel` e
+um service worker de escopo `/admin` (`public/sw-painel.js`) que guarda só
+arquivos do build e ícones; página e dado do painel nunca entram em cache.
+O botão "Instalar o painel" abre a janela do Android quando o navegador
+deixa, e um passo a passo (iPhone pelo Compartilhar, Android pelo menu)
+quando não. Navegação instantânea: links do menu com `prefetch`,
+`loading.tsx` com esqueleto, sessão conferida localmente (chave ES256) e
+funções na mesma região do banco (`vercel.json`, iad1).
+
 **Textos com negrito.** Os textos da página inicial saem do painel com
 negrito (`EditorTitulo` com `tamanho="texto"`; com `paragrafos`, para os
 textos longos). O site lê pelo `Trecho` e pelo `TextoRico`
