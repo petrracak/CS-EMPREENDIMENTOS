@@ -1310,6 +1310,27 @@
 }
 
 /* ------------------------------------------------- pop-up de saída */
+.popup-saida {
+  /* vh antes, para iPhone sem suporte a dvh; dvh acompanha a barra do
+     Safari aparecendo e sumindo. */
+  max-height: calc(100vh - 1.5rem);
+  max-height: calc(100dvh - 1.5rem);
+}
+
+/* Quem rola é esta caixa, uma div comum em volta da grade. Antes a
+   própria grade rolava: no Safari do iPhone, uma grade com altura
+   máxima cresce até o tamanho do conteúdo, o <dialog> cortava o resto
+   e nada rolava, e o cadastro e os empreendimentos ficavam fora de
+   alcance. */
+.popup-saida-rolagem {
+  max-height: calc(100vh - 1.5rem);
+  max-height: calc(100dvh - 1.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
 .popup-saida[open] {
   animation: popup-entra 0.6s var(--ease-saida, ease-out) both;
 }
@@ -2397,6 +2418,7 @@
 
 .banner-campanha {
   --barra: 8.25rem;
+  width: min(calc(100vw - 1.5rem), calc((100vh - 1.5rem - var(--barra)) * var(--formato-celular, 0.8)));
   width: min(calc(100vw - 1.5rem), calc((100dvh - 1.5rem - var(--barra)) * var(--formato-celular, 0.8)));
   max-width: none;
   max-height: none;
@@ -2423,6 +2445,7 @@
 @media (min-width: 768px) {
   .banner-campanha {
     --barra: 5.5rem;
+    width: min(1100px, calc(100vw - 4rem), calc((100vh - 4rem - var(--barra)) * 16 / 9));
     width: min(1100px, calc(100vw - 4rem), calc((100dvh - 4rem - var(--barra)) * 16 / 9));
   }
 }

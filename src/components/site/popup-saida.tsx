@@ -136,88 +136,88 @@ export function PopupSaida({
       onClick={(e) => {
         if (e.target === e.currentTarget) fechar();
       }}
-      // O <dialog> tem uma altura máxima do navegador (100% − 2em − 6px)
-      // menor que a do conteúdo, e corta o que passa: no celular, o fim
-      // do cadastro e os empreendimentos ficavam fora de alcance, sem
-      // rolar. As duas alturas agora são a mesma, e quem rola é o
-      // conteúdo. dvh acompanha a barra do Safari aparecendo e sumindo.
-      className="popup-saida m-auto max-h-[calc(100dvh-1.5rem)] w-[calc(100%-1.5rem)] max-w-4xl overflow-hidden rounded-[1.75rem] bg-transparent p-0 text-[var(--fg)] backdrop:bg-[var(--color-verde-950)]/70 backdrop:backdrop-blur-sm"
+      // A altura máxima e a rolagem ficam em .popup-saida e
+      // .popup-saida-rolagem (globals.css): ver lá por que a rolagem é
+      // uma caixa comum em volta da grade, e não a própria grade.
+      className="popup-saida m-auto w-[calc(100%-1.5rem)] max-w-4xl overflow-hidden rounded-[1.75rem] bg-transparent p-0 text-[var(--fg)] backdrop:bg-[var(--color-verde-950)]/70 backdrop:backdrop-blur-sm"
     >
       {aberto ? (
-        <div className="grid max-h-[calc(100dvh-1.5rem)] overflow-y-auto overscroll-contain bg-white bg-[linear-gradient(to_bottom,#ebfff6,#ffffff_16rem)] md:grid-cols-[1.1fr_0.9fr]">
-          {/* ------------------------------------------- o cadastro */}
-          <div className="relative p-6 sm:p-9">
-            {olho ? <span className="olho">{olho}</span> : null}
-            <h2
-              id="popup-saida-titulo"
-              className="font-display text-display-sm mt-4 pr-8 font-medium text-balance"
-            >
-              <TextoRico html={titulo} tom="verde" />
-            </h2>
-            {texto ? (
-              <p className="mt-3 text-sm leading-relaxed text-[var(--fg-suave)] sm:text-base">
-                {texto}
-              </p>
-            ) : null}
-            <FormularioSaida
-              empreendimentos={empreendimentos}
-              origem={`popup-saida:${caminho}`}
-              botao={botao}
-            />
-          </div>
-
-          {/* ------------------------------------ o que está em obra */}
-          {destaques.length ? (
-            <aside className="blog-verde relative isolate overflow-hidden p-6 text-white sm:p-9">
-              <Simbolo className="pointer-events-none absolute -right-10 -bottom-12 -z-10 h-56 w-auto text-white/[0.04]" />
-              <p className="text-[0.9375rem] text-[var(--color-ouro-300)]">
-                {tituloDestaques}
-              </p>
-              <ul className="mt-5 space-y-3">
-                {destaques.map((item) => (
-                  <li key={item.id}>
-                    <Link
-                      href={`/empreendimentos/${item.slug}`}
-                      onClick={fechar}
-                      className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 pr-4 transition-colors duration-300 hover:border-white/25 hover:bg-white/[0.08]"
-                    >
-                      <span className="relative h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-[var(--color-verde-900)] sm:h-[4.5rem] sm:w-24">
-                        {item.imagem_principal ? (
-                          <Image
-                            src={item.imagem_principal}
-                            alt=""
-                            fill
-                            sizes="96px"
-                            className="object-cover transition-transform duration-700 group-hover:scale-[1.06]"
-                          />
-                        ) : null}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium">
-                          {item.nome}
-                        </span>
-                        {item.bairro ? (
-                          <span className="mt-1 flex items-center gap-1 truncate text-xs text-white/55">
-                            <MapPin className="h-3 w-3 shrink-0" />
-                            {item.bairro}
-                          </span>
-                        ) : null}
-                      </span>
-                      <ArrowUpRight className="h-4 w-4 shrink-0 text-[var(--color-ouro-300)] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/empreendimentos"
-                onClick={fechar}
-                className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-white/80 underline-offset-4 hover:text-white hover:underline"
+        <div className="popup-saida-rolagem">
+          <div className="grid bg-white bg-[linear-gradient(to_bottom,#ebfff6,#ffffff_16rem)] md:grid-cols-[1.1fr_0.9fr]">
+            {/* ------------------------------------------- o cadastro */}
+            <div className="relative p-6 sm:p-9">
+              {olho ? <span className="olho">{olho}</span> : null}
+              <h2
+                id="popup-saida-titulo"
+                className="font-display text-display-sm mt-4 pr-8 font-medium text-balance"
               >
-                Ver todos os empreendimentos
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </Link>
-            </aside>
-          ) : null}
+                <TextoRico html={titulo} tom="verde" />
+              </h2>
+              {texto ? (
+                <p className="mt-3 text-sm leading-relaxed text-[var(--fg-suave)] sm:text-base">
+                  {texto}
+                </p>
+              ) : null}
+              <FormularioSaida
+                empreendimentos={empreendimentos}
+                origem={`popup-saida:${caminho}`}
+                botao={botao}
+              />
+            </div>
+
+            {/* ------------------------------------ o que está em obra */}
+            {destaques.length ? (
+              <aside className="blog-verde relative isolate overflow-hidden p-6 text-white sm:p-9">
+                <Simbolo className="pointer-events-none absolute -right-10 -bottom-12 -z-10 h-56 w-auto text-white/[0.04]" />
+                <p className="text-[0.9375rem] text-[var(--color-ouro-300)]">
+                  {tituloDestaques}
+                </p>
+                <ul className="mt-5 space-y-3">
+                  {destaques.map((item) => (
+                    <li key={item.id}>
+                      <Link
+                        href={`/empreendimentos/${item.slug}`}
+                        onClick={fechar}
+                        className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 pr-4 transition-colors duration-300 hover:border-white/25 hover:bg-white/[0.08]"
+                      >
+                        <span className="relative h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-[var(--color-verde-900)] sm:h-[4.5rem] sm:w-24">
+                          {item.imagem_principal ? (
+                            <Image
+                              src={item.imagem_principal}
+                              alt=""
+                              fill
+                              sizes="96px"
+                              className="object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+                            />
+                          ) : null}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium">
+                            {item.nome}
+                          </span>
+                          {item.bairro ? (
+                            <span className="mt-1 flex items-center gap-1 truncate text-xs text-white/55">
+                              <MapPin className="h-3 w-3 shrink-0" />
+                              {item.bairro}
+                            </span>
+                          ) : null}
+                        </span>
+                        <ArrowUpRight className="h-4 w-4 shrink-0 text-[var(--color-ouro-300)] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/empreendimentos"
+                  onClick={fechar}
+                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-white/80 underline-offset-4 hover:text-white hover:underline"
+                >
+                  Ver todos os empreendimentos
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </Link>
+              </aside>
+            ) : null}
+          </div>
         </div>
       ) : null}
 
