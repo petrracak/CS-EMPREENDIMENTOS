@@ -85,7 +85,7 @@ export async function fotosDaVitrine(): Promise<FotoVitrine[]> {
         .filter((c, i, todos) => todos.indexOf(c) === i)
         .slice(0, 9);
 
-      const medidas = await Promise.all(caminhos.map(medir));
+      const medidas = await Promise.all(caminhos.map((c) => medir(c)));
       return caminhos
         .map((caminho, posicao) => {
           const m = medidas[posicao];
@@ -140,7 +140,7 @@ function notaDaFoto(largura: number, altura: number, posicao: number) {
  * primeiros 30 bytes bastam. Toda foto que passa pelo painel vira WebP
  * (preparar-imagem.ts); o que não for WebP fica de fora.
  */
-async function medir(caminho: string) {
+export async function medir(caminho: string) {
   if (
     !caminho.endsWith(".webp") ||
     caminho.startsWith("http") ||

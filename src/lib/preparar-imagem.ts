@@ -34,18 +34,35 @@ export type ImagemPronta = {
 
 export async function prepararImagem(
   arquivo: File,
-  { limite = LIMITE_GRANDE }: { limite?: number } = {},
+  {
+    limite = LIMITE_GRANDE,
+    aparar = false,
+  }: {
+    limite?: number;
+    /**
+     * Corta a borda transparente em volta do desenho. Para logo: o PNG
+     * costuma vir com muito vazio em volta, e no site o desenho encolhia
+     * para caber o vazio junto.
+     */
+    aparar?: boolean;
+  } = {},
 ): Promise<ImagemPronta> {
   const fonte = await decodificar(arquivo);
 
   try {
-    const grande = await desenhar(fonte.imagem, fonte.largura, fonte.altura, limite);
-    const pequena = await desenhar(fonte.imagem, fonte.largura, fonte.altura, LIMITE_PEQUENA);
+    const recorte: Recorte = (aparar && areaDoDesenho(fonte)) || {
+      x: 0,
+      y: 0,
+      largura: fonte.largura,
+      altura: fonte.altura,
+    };
+    const grande = await desenhar(fonte.imagem, recorte, limite);
+    const pequena = await desenhar(fonte.imagem, recorte, LIMITE_PEQUENA);
     return {
       grande,
       pequena,
-      largura: fonte.largura,
-      altura: fonte.altura,
+      largura: recorte.largura,
+      altura: recorte.altura,
       bytesOriginal: arquivo.size,
     };
   } finally {
@@ -94,15 +111,63 @@ async function decodificar(arquivo: File): Promise<Fonte> {
   }
 }
 
+type Recorte = { x: number; y: number; largura: number; altura: number };
+
+/**
+ * A caixa em volta do que não é transparente, com uma folga de 2%. Lê
+ * uma cópia reduzida (até 800 px), que basta para achar a borda. Sem
+ * transparência, ou se o desenho já ocupa quase tudo, devolve null.
+ */
+function areaDoDesenho(fonte: Fonte): Recorte | null {
+  const escala = Math.min(1, 800 / Math.max(fonte.largura, fonte.altura));
+  const l = Math.max(1, Math.round(fonte.largura * escala));
+  const a = Math.max(1, Math.round(fonte.altura * escala));
+  const tela = document.createElement("canvas");
+  tela.width = l;
+  tela.height = a;
+  const ctx = tela.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return null;
+  ctx.drawImage(fonte.imagem, 0, 0, l, a);
+  const { data } = ctx.getImageData(0, 0, l, a);
+
+  let x0 = l;
+  let y0 = a;
+  let x1 = -1;
+  let y1 = -1;
+  for (let y = 0; y < a; y++) {
+    for (let x = 0; x < l; x++) {
+      if (data[(y * l + x) * 4 + 3] > 8) {
+        if (x < x0) x0 = x;
+        if (x > x1) x1 = x;
+        if (y < y0) y0 = y;
+        if (y > y1) y1 = y;
+      }
+    }
+  }
+  if (x1 < 0) return null;
+  if (x1 - x0 + 1 > l * 0.96 && y1 - y0 + 1 > a * 0.96) return null;
+
+  const folga = Math.round(Math.max(x1 - x0, y1 - y0) * 0.02);
+  const xa = Math.max(0, x0 - folga);
+  const ya = Math.max(0, y0 - folga);
+  const xb = Math.min(l, x1 + 1 + folga);
+  const yb = Math.min(a, y1 + 1 + folga);
+  return {
+    x: Math.floor(xa / escala),
+    y: Math.floor(ya / escala),
+    largura: Math.min(fonte.largura, Math.ceil((xb - xa) / escala)),
+    altura: Math.min(fonte.altura, Math.ceil((yb - ya) / escala)),
+  };
+}
+
 async function desenhar(
   imagem: CanvasImageSource,
-  larguraOriginal: number,
-  alturaOriginal: number,
+  recorte: Recorte,
   limite: number,
 ): Promise<Blob> {
-  const escala = Math.min(1, limite / Math.max(larguraOriginal, alturaOriginal));
-  const largura = Math.round(larguraOriginal * escala);
-  const altura = Math.round(alturaOriginal * escala);
+  const escala = Math.min(1, limite / Math.max(recorte.largura, recorte.altura));
+  const largura = Math.round(recorte.largura * escala);
+  const altura = Math.round(recorte.altura * escala);
 
   const tela = document.createElement("canvas");
   tela.width = largura;
@@ -112,7 +177,17 @@ async function desenhar(
   if (!ctx) throw new Error("Não foi possível preparar a imagem.");
 
   ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(imagem, 0, 0, largura, altura);
+  ctx.drawImage(
+    imagem,
+    recorte.x,
+    recorte.y,
+    recorte.largura,
+    recorte.altura,
+    0,
+    0,
+    largura,
+    altura,
+  );
 
   const blob = await new Promise<Blob | null>((resolver) =>
     tela.toBlob(resolver, "image/webp", QUALIDADE),

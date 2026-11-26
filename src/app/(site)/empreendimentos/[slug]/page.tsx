@@ -31,8 +31,10 @@ import {
   listarParaSelecao,
   listarSlugs,
 } from "@/lib/queries";
+import { urlDaMidia } from "@/lib/midia";
 import { lerEmpresa } from "@/lib/settings";
 import { SITUACOES, formatarValor, textoUtil } from "@/lib/utils";
+import { medir } from "@/lib/vitrine";
 
 export const revalidate = 3600;
 
@@ -75,6 +77,12 @@ export default async function PaginaEmpreendimento({
   ]);
 
   if (!item) notFound();
+
+  // A logo ocupa sempre mais ou menos a mesma área, seja larga ou mais
+  // quadrada: uma logo larga numa caixa de altura fixa ficava fina e
+  // pequena. O formato vem do próprio arquivo.
+  const medidas = item.logo_url ? await medir(item.logo_url) : null;
+  const logo = tamanhoDaLogo(medidas ? medidas.largura / medidas.altura : 2);
 
   const situacao = SITUACOES[item.situacao as keyof typeof SITUACOES];
   const galeria = item.imagens.filter((i) => i.categoria === "galeria");
@@ -177,14 +185,22 @@ export default async function PaginaEmpreendimento({
             {item.logo_url ? (
               <div
                 data-entrada
-                style={{ "--atraso": "120ms" } as React.CSSProperties}
-                className="relative mt-7 h-20 w-56 sm:h-24 sm:w-72"
+                style={
+                  {
+                    "--atraso": "120ms",
+                    "--logo-l": `${logo.largura}px`,
+                    "--logo-a": `${logo.altura}px`,
+                  } as React.CSSProperties
+                }
+                className="logo-empreendimento mt-7"
               >
-                <Image
-                  src={item.logo_url}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={urlDaMidia(item.logo_url)}
                   alt={item.nome}
-                  fill
-                  className="object-contain object-left"
+                  width={logo.largura}
+                  height={logo.altura}
+                  fetchPriority="high"
                 />
               </div>
             ) : null}
@@ -610,4 +626,16 @@ function Opcao({
       {acao ? <div className="mt-auto">{acao}</div> : null}
     </div>
   );
+}
+
+/** Largura e altura da logo no computador, em px (no celular, 74%). */
+function tamanhoDaLogo(formato: number) {
+  const AREA = 40000;
+  let largura = Math.min(460, Math.sqrt(AREA * formato));
+  let altura = largura / formato;
+  if (altura > 170) {
+    altura = 170;
+    largura = altura * formato;
+  }
+  return { largura: Math.round(largura), altura: Math.round(altura) };
 }

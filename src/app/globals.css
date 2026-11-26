@@ -2755,3 +2755,19 @@
   outline: 3px solid #00ab61;
   outline-offset: 3px;
 }
+
+/* Logo do empreendimento no topo da ficha. O tamanho vem da página,
+   calculado pelo formato do arquivo (--logo-l e --logo-a); no celular,
+   74% dele, sem passar da largura da tela. */
+.logo-empreendimento img {
+  display: block;
+  width: calc(var(--logo-l) * 0.74);
+  max-width: 100%;
+  height: auto;
+}
+
+@media (min-width: 640px) {
+  .logo-empreendimento img {
+    width: var(--logo-l);
+  }
+}

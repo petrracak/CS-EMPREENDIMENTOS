@@ -33,12 +33,15 @@ export function useEnvioDeImagem({
   larguraIdeal,
   limite,
   formatoIdeal,
+  aparar,
 }: {
   inicial: string | null;
   pasta: string;
   larguraIdeal?: number;
   /** Largura e altura que a arte deve ter, para avisar quando o formato não bate. */
   formatoIdeal?: { largura: number; altura: number };
+  /** Corta a borda transparente (logo). */
+  aparar?: boolean;
   /** Lado maior da versão grande. Padrão: 1600 px. */
   limite?: number;
 }) {
@@ -60,7 +63,7 @@ export function useEnvioDeImagem({
 
     setEnviando(true);
     try {
-      const pronta = await prepararImagem(arquivo, { limite });
+      const pronta = await prepararImagem(arquivo, { limite, aparar });
 
       // Avisa, mas não impede: às vezes a única foto que existe é essa.
       const formato = formatoIdeal && formatoIdeal.largura / formatoIdeal.altura;
@@ -218,6 +221,7 @@ export function EnviarImagem({
   limite,
   fundoEscuro,
   encaixe = "cobrir",
+  aparar,
 }: {
   nome: string;
   valor: string | null;
@@ -233,8 +237,10 @@ export function EnviarImagem({
   fundoEscuro?: boolean;
   /** "conter" mostra a imagem inteira, sem corte (logo, planta). */
   encaixe?: "cobrir" | "conter";
+  /** Corta a borda transparente em volta do desenho (logo). */
+  aparar?: boolean;
 }) {
-  const envio = useEnvioDeImagem({ inicial: valor, pasta, larguraIdeal, limite });
+  const envio = useEnvioDeImagem({ inicial: valor, pasta, larguraIdeal, limite, aparar });
   const { caminho, enviando } = envio;
   const proporcao =
     larguraIdeal && alturaIdeal ? `${larguraIdeal} / ${alturaIdeal}` : "16 / 10";

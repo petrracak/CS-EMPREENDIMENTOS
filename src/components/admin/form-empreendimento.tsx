@@ -183,11 +183,12 @@ export function FormEmpreendimento({
                 valor={t("logo_url") || null}
                 pasta={pasta}
                 rotulo="Logo do empreendimento"
-                apoio="Se houver, entra no lugar do nome escrito no topo da página. Use a versão branca, em PNG com fundo transparente."
+                apoio="Se houver, entra no lugar do nome escrito no topo da página. Use a versão branca, em PNG com fundo transparente. A borda vazia em volta do desenho é cortada sozinha, então a logo aparece grande."
                 larguraIdeal={900}
                 alturaIdeal={600}
                 fundoEscuro
                 encaixe="conter"
+                aparar
               />
             </div>
           </Cartao>
