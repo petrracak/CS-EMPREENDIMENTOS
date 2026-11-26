@@ -59,8 +59,7 @@ letras a -6%, títulos em `#28513F`, destaque em gradiente `#004527 →
 #00AB61`, botões de cantos de ~11 px. As regras ficam em `globals.css`, fora
 de `@layer`, para vencer os utilitários do Tailwind. O botão do site é o
 `BotaoNovo` (`BotaoLink`/`BotaoExterno` em `ui.tsx` usam ele). A copy da
-página inicial está na própria página até o painel ser adaptado ao layout
-novo.
+página inicial sai do painel.
 
 **Campo vazio não aparece.** Valor, registro de incorporação, previsão de
 entrega: enquanto a CS não preencher, o campo some do site junto com o
@@ -89,9 +88,7 @@ foto. Em desenvolvimento, o `Revelar` avisa no console se alguém juntar
 os dois no mesmo elemento.
 
 **Rolagem em camadas.** O topo da página inicial e da ficha é um palco
-parado (sticky); o resto sobe por cima, numa `.cortina`. A dobra do
-Girlan fica presa enquanto os destaques passam por cima (`Empilhada` e
-`.sobrepor`). Texto saindo e foto escurecendo são animações ligadas à
+parado (sticky); o resto sobe por cima, numa `.cortina`. Texto saindo e foto escurecendo são animações ligadas à
 rolagem, em CSS; onde o navegador não tem suporte, o resto funciona sem
 elas. No celular a seção presa é desligada.
 
@@ -117,10 +114,22 @@ converte para WebP antes de subir, qualquer que seja o formato escolhido (JPG,
 PNG, HEIC), o que evita a dependência nativa (sharp) no deploy e
 não sobe 8 MB de foto de celular para reduzir do outro lado.
 
-**Topo com foto de computador e de celular.** O bloco `hero` guarda
-`imagem_desktop` e `imagem_mobile`. O site monta um `<picture>` com corte em
-768px (`src/components/site/foto-do-topo.tsx`), então o navegador baixa só
-uma. Sem a de celular, o celular usa a do computador cortada no centro.
+**Topo com a logo e os empreendimentos.** O topo da página inicial não tem
+foto escolhida no painel: a logo da CS serve de máscara para um slide em
+preto e branco das fotos dos empreendimentos (`vitrine-logo.tsx`), e quem
+escolhe as fotos é uma regra, a cada envio no painel (`src/lib/vitrine.ts`).
+A tela de login usa a mesma cena.
+
+**Banner de campanha.** O bloco `banner_campanha` abre como pop-up por cima
+do site (`banner-campanha.tsx`), uma vez por visita: arte de computador
+1920 × 1080 e, opcional, de celular 1080 × 1350. Embaixo da arte, o botão
+da campanha e um botão de fechar do mesmo tamanho. O painel tem as medidas
+para o designer e a prévia num notebook e num iPhone, numa janela.
+
+**Textos com negrito.** Os textos da página inicial saem do painel com
+negrito (`EditorTitulo` com `tamanho="texto"`; com `paragrafos`, para os
+textos longos). O site lê pelo `Trecho` e pelo `TextoRico`
+(`src/components/site/texto-rico.tsx`), sem injetar HTML.
 
 **Painel: explicação no "?", nunca solta.** Rótulo numa linha só; o texto de
 apoio vai para `<Dica>` (balão no hover, toque no celular). Texto aberto

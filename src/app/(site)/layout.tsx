@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { BannerCampanha } from "@/components/site/banner-campanha";
 import { Cabecalho } from "@/components/site/cabecalho";
 import { GradienteContinuo } from "@/components/site/gradiente-continuo";
 import { FaixaCampanha } from "@/components/site/faixa-campanha";
@@ -34,13 +35,20 @@ export default async function LayoutDoSite({
   children: React.ReactNode;
 }) {
   const [configs, empresa, destaques, empreendimentos] = await Promise.all([
-    lerConfigs(["faixa_campanha", "whatsapp_flutuante", "popup_saida", "rastreamento"]),
+    lerConfigs([
+      "faixa_campanha",
+      "banner_campanha",
+      "whatsapp_flutuante",
+      "popup_saida",
+      "rastreamento",
+    ]),
     lerEmpresa(),
     listarDestaques(3),
     listarParaSelecao(),
   ]);
 
   const faixa = configs.faixa_campanha;
+  const banner = configs.banner_campanha;
   const zap = configs.whatsapp_flutuante;
   const saida = configs.popup_saida;
   const rastreio = lerRastreamento(configs.rastreamento);
@@ -83,6 +91,20 @@ export default async function LayoutDoSite({
           )}
           destaques={destaques}
           empreendimentos={empreendimentos}
+        />
+      ) : null}
+
+      {/* Sem a arte do computador não há banner, mesmo ligado. */}
+      {bool(banner, "ativo") && txt(banner, "imagem_desktop") ? (
+        <BannerCampanha
+          dados={{
+            computador: txt(banner, "imagem_desktop"),
+            celular: txt(banner, "imagem_mobile") || null,
+            descricao: txt(banner, "descricao"),
+            botao: txt(banner, "botao", "Quero saber mais"),
+            botaoUrl: txt(banner, "botao_url", "/cadastro"),
+            fechar: txt(banner, "botao_fechar", "Agora não"),
+          }}
         />
       ) : null}
 

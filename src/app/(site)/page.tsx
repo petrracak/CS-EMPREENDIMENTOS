@@ -9,10 +9,11 @@ import { CardPost } from "@/components/site/card-post";
 import { IconeAtendimento } from "@/components/site/icone-atendimento";
 import { Palavras } from "@/components/site/palavras";
 import { Simbolo } from "@/components/site/logo";
+import { TextoRico, Trecho } from "@/components/site/texto-rico";
 import { TopoNovo } from "@/components/site/topo-novo";
 import { Olho, Secao, Titulo } from "@/components/site/ui";
 import { listarDestaques, listarMarcos, listarPosts } from "@/lib/queries";
-import { lerConfigs, lerEmpresa, txt } from "@/lib/settings";
+import { lerConfigs, lerEmpresa, lista, txt } from "@/lib/settings";
 import { lerTitulo } from "@/lib/texto-rico";
 import { fotosDaVitrine } from "@/lib/vitrine";
 import { partirNumero } from "@/lib/utils";
@@ -21,70 +22,70 @@ import { partirNumero } from "@/lib/utils";
 // chama revalidatePath ao salvar, então a CS nunca espera por isso.
 export const revalidate = 3600;
 
-/*
- * A copy desta página foi revista para soar menos automática: sem
- * travessão nem dois-pontos, com negrito nas partes que importam. Fica
- * aqui, e não no painel, até o painel ser adaptado ao layout novo (que
- * vai precisar aceitar negrito nos parágrafos).
- */
-const MARCOS_REVISTOS: Record<string, string> = {
-  "2016": "Começo da CS, com quatro casas feitas em parceria.",
-  "2017":
-    "Sete casas na Rua Raimundo Xavier, no Maracanã. A primeira obra que o Girlan tocou sozinho.",
-  "2023": "Entrega do Flat Premium I, com 60 unidades.",
-  "2026":
-    "140 unidades entregues e o House Premium em obra, com entrega no início de 2027.",
-};
-
-
 export default async function PaginaInicial() {
-  const [configs, empresa, destaques, marcos, posts, vitrine] = await Promise.all([
-    lerConfigs([
-      "hero",
-      "construtor",
-      "destaques",
-      "todos_empreendimentos",
-      "blog_home",
-      "faixa_contato",
-    ]),
-    lerEmpresa(),
-    listarDestaques(3),
-    listarMarcos(),
-    listarPosts(3),
-    fotosDaVitrine(),
-  ]);
+  const [configs, empresa, destaques, marcos, posts, vitrine] =
+    await Promise.all([
+      lerConfigs([
+        "hero",
+        "construtor",
+        "destaques",
+        "todos_empreendimentos",
+        "blog_home",
+        "faixa_contato",
+      ]),
+      lerEmpresa(),
+      listarDestaques(3),
+      listarMarcos(),
+      listarPosts(3),
+      fotosDaVitrine(),
+    ]);
 
   const hero = configs.hero;
   const construtor = configs.construtor;
+
+  // A linha do tempo mora no bloco do fundador, no painel. A tabela
+  // marcos é a de antes, e só vale enquanto o bloco não tiver nenhuma.
+  const doPainel = lista<{ ano?: string | null; texto?: string | null }>(
+    construtor,
+    "marcos",
+  )
+    .filter((m) => m.ano?.trim())
+    .map((m, i) => ({
+      id: `${i}-${m.ano}`,
+      ano: m.ano!.trim(),
+      texto: m.texto ?? "",
+    }));
+  const linhaDoTempo = doPainel.length ? doPainel : marcos;
 
   return (
     <div className="pagina-inicial">
       <Abertura />
 
       {/* ================================================= dobra 1: topo */}
-      {/* O redesenho do Figma. Os textos estão aqui, e não no painel,
-          enquanto a página é teste: o bloco "hero" do painel continua
-          servindo a home atual. Quando esta virar a home, voltam a sair
-          de lá. */}
       <TopoNovo
         chamada={txt(
           hero,
           "chamada",
           "Construtora e incorporadora em Santarém",
         )}
-        titulo="Há <mark>10 anos</mark> construindo <mark>lares</mark> em Santarém"
-        subtitulo={
-          <>
-            Casas, apartamentos e terrenos com{" "}
-            <strong>projeto bem pensado</strong> e{" "}
-            <strong>acabamento de qualidade</strong>. Veja o que está em obra e
-            o que já entregamos.
-          </>
-        }
-        botaoPrimario="Conheça nossos empreendimentos"
+        titulo={lerTitulo(
+          hero,
+          "titulo",
+          "Há <mark>10 anos</mark> construindo <mark>lares</mark> em Santarém",
+        )}
+        subtitulo={<Trecho html={txt(hero, "subtitulo")} />}
+        botaoPrimario={txt(
+          hero,
+          "botao_primario",
+          "Conheça nossos empreendimentos",
+        )}
         botaoPrimarioUrl={txt(hero, "botao_primario_url", "/empreendimentos")}
-        botaoSecundario="Falar com um consultor"
-        whatsapp={empresa.whatsapp_link}
+        botaoSecundario={txt(
+          hero,
+          "botao_secundario",
+          "Falar com um consultor",
+        )}
+        whatsapp={txt(hero, "botao_secundario_url") || empresa.whatsapp_link}
         fotos={vitrine}
       />
 
@@ -142,7 +143,7 @@ export default async function PaginaInicial() {
           <Secao>
             <div className="max-w-2xl">
               <span data-revelar className="olho">
-                Em obra agora
+                {txt(configs.destaques, "olho", "Em obra agora")}
               </span>
               <Titulo
                 html={lerTitulo(
@@ -159,8 +160,7 @@ export default async function PaginaInicial() {
                 style={{ "--atraso": "300ms" } as React.CSSProperties}
                 className="mt-4 leading-relaxed text-[var(--fg-suave)]"
               >
-                Acompanhe o que está <strong>saindo do chão</strong> em Santarém
-                neste momento.
+                <Trecho html={txt(configs.destaques, "subtitulo")} />
               </p>
             </div>
 
@@ -186,9 +186,9 @@ export default async function PaginaInicial() {
                     className="text-display-sm"
                   />
                   <p className="mt-4 leading-relaxed text-[var(--fg-suave)]">
-                    Os projetos em obra e os já entregues, cada um com{" "}
-                    <strong>as suas unidades</strong>, de casas e apartamentos a
-                    terrenos.
+                    <Trecho
+                      html={txt(configs.todos_empreendimentos, "texto")}
+                    />
                   </p>
                 </div>
                 <BotaoNovo
@@ -216,7 +216,7 @@ export default async function PaginaInicial() {
                 className="flex flex-wrap items-end justify-between gap-6"
               >
                 <div className="max-w-xl">
-                  <Olho>Blog</Olho>
+                  <Olho>{txt(configs.blog_home, "olho", "Blog")}</Olho>
                   <Palavras
                     como="h2"
                     html={lerTitulo(
@@ -229,11 +229,10 @@ export default async function PaginaInicial() {
                     className="font-display text-display-sm sm:text-display-md mt-5 text-balance text-white"
                   />
                   <p className="mt-4 leading-relaxed text-white/70">
-                    O andamento das obras, as novidades da CS e{" "}
-                    <strong className="text-white">
-                      dicas para quem quer comprar imóvel em Santarém
-                    </strong>
-                    .
+                    <Trecho
+                      html={txt(configs.blog_home, "subtitulo")}
+                      forte="text-white"
+                    />
                   </p>
                 </div>
                 <Link
@@ -264,7 +263,7 @@ export default async function PaginaInicial() {
               <div data-revelar className="lg:sticky lg:top-28">
                 <div className="relative aspect-[3/4] overflow-hidden rounded-2xl">
                   <Image
-                    src="/site/girlan-fundador.webp"
+                    src={txt(construtor, "foto", "/site/girlan-fundador.webp")}
                     alt="Girlan Carneiro, fundador da CS Empreendimentos"
                     fill
                     data-quadro
@@ -283,7 +282,9 @@ export default async function PaginaInicial() {
                 de site_settings. Se a CS trocar de fundador, de nome ou de
                 discurso, muda no painel. */}
                 <div data-revelar>
-                  <Olho>Quem está por trás da CS</Olho>
+                  <Olho>
+                    {txt(construtor, "olho", "Quem está por trás da CS")}
+                  </Olho>
                 </div>
                 <Titulo
                   html={lerTitulo(construtor)}
@@ -296,49 +297,16 @@ export default async function PaginaInicial() {
                   data-desfoque
                   style={{ "--atraso": "220ms" } as React.CSSProperties}
                 >
-                  <div className="mt-7 space-y-4 leading-relaxed text-[var(--fg-suave)]">
-                    <p>
-                      Em 2016, o Girlan Carneiro estava procurando uma casa para
-                      comprar. Rodou a cidade, visitou projeto por projeto e{" "}
-                      <strong>não encontrou nada no padrão que queria</strong>.
-                      Foi aí que percebeu que, se estava difícil para ele,
-                      estava difícil para muita gente.
-                    </p>
-                    <p>
-                      No fim daquele ano, um amigo o chamou para construir em
-                      parceria num terreno dele. Saíram quatro casas, e o Girlan
-                      nunca mais saiu do ramo. Em 2017 ele comprou um terreno na
-                      Rua Raimundo Xavier, no Maracanã, e levantou sete casas.
-                      Foi{" "}
-                      <strong>
-                        o primeiro empreendimento que tocou sozinho
-                      </strong>
-                      .
-                    </p>
-                    <p>
-                      Depois vieram os outros. Em 2023 a CS entregou o Flat
-                      Premium, com 60 unidades, e até 2026 já são{" "}
-                      <strong>140 unidades entregues</strong>. Agora está em
-                      obra o maior projeto da empresa, o{" "}
-                      <strong>House Premium, com 100 casas</strong> e entrega
-                      prevista para o início de 2027.
-                    </p>
-                    <p>
-                      A regra continua a mesma do começo.{" "}
-                      <strong>Construir algo que dure</strong> e fazer o melhor
-                      por quem escolhe morar num imóvel da CS.
-                    </p>
-                  </div>
+                  <TextoRico
+                    html={txt(construtor, "texto")}
+                    className="mt-7 leading-relaxed text-[var(--fg-suave)]"
+                  />
                 </div>
 
                 {/* ------------------------------------------ linha do tempo */}
-                {marcos.length ? (
+                {linhaDoTempo.length ? (
                   <ol className="mt-12 space-y-0">
-                    {marcos.map((original, i) => {
-                      const marco = {
-                        ...original,
-                        texto: MARCOS_REVISTOS[original.ano] ?? original.texto,
-                      };
+                    {linhaDoTempo.map((marco, i) => {
                       return (
                         <li
                           key={marco.id}
@@ -403,11 +371,10 @@ export default async function PaginaInicial() {
                     className="font-display text-display-sm sm:text-display-md font-medium text-balance text-white"
                   />
                   <p className="mt-5 leading-relaxed text-white/70">
-                    Conte o que você procura e um consultor da CS te mostra{" "}
-                    <strong className="text-white">
-                      as opções que fazem sentido para você
-                    </strong>
-                    .
+                    <Trecho
+                      html={txt(configs.faixa_contato, "texto")}
+                      forte="text-white"
+                    />
                   </p>
                   <div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
                     <BotaoNovo

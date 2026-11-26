@@ -60,6 +60,8 @@ export function PopupSaida({
   const abrir = useCallback(() => {
     const el = dialogo.current;
     if (!el || el.open) return;
+    // O banner de campanha está aberto: um pop-up por cima do outro, não.
+    if (document.querySelector("dialog.banner-campanha[open]")) return;
     try {
       if (localStorage.getItem(MARCA_CADASTRO)) return;
       if (sessionStorage.getItem(VISTO_NA_VISITA)) return;

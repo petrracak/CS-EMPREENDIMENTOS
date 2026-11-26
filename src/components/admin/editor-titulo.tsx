@@ -26,7 +26,8 @@ import { cn } from "@/lib/utils";
  *
  * Grava um HTML mínimo num campo escondido (ver lib/texto-rico.ts, que é
  * quem lê isso no site). A caixa aceita uma linha só: título é uma frase,
- * e a quebra de linha fica por conta da largura da tela.
+ * e a quebra de linha fica por conta da largura da tela. Com `paragrafos`,
+ * vira a caixa dos textos longos, com Enter abrindo parágrafo.
  */
 
 /** Documento de um parágrafo só: o Enter não abre outro. */
@@ -48,6 +49,25 @@ const SemQuebra = Extension.create({
   },
 });
 
+/** Para textos de vários parágrafos: o Enter abre um parágrafo novo. */
+const DocumentoDeParagrafos = Node.create({
+  name: "doc",
+  topNode: true,
+  content: "paragraph+",
+});
+
+/** Texto antigo, de caixa comum: cada linha em branco vira parágrafo. */
+function emParagrafos(valor: string) {
+  if (!valor.trim()) return "";
+  if (/<p[\s>]/i.test(valor)) return valor;
+  return valor
+    .split(/\r?\n\s*\r?\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p>${p.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</p>`)
+    .join("");
+}
+
 /** O destaque do site. No HTML gravado é um <mark> sem atributos. */
 const Destaque = Mark.create({
   name: "destaque",
@@ -65,8 +85,9 @@ const Destaque = Mark.create({
 });
 
 /** O HTML do Tiptap vem embrulhado num <p>; o título não precisa dele. */
-function limpar(editor: Editor) {
+function limpar(editor: Editor, paragrafos: boolean) {
   if (editor.isEmpty) return "";
+  if (paragrafos) return editor.getHTML().replace(/<p><\/p>/g, "").trim();
   return editor
     .getHTML()
     .replace(/^<p>/, "")
@@ -88,6 +109,7 @@ export function EditorTitulo({
   rotulo,
   placeholder,
   tamanho = "grande",
+  paragrafos = false,
 }: {
   nome: string;
   valor: string;
@@ -98,6 +120,8 @@ export function EditorTitulo({
   placeholder?: string;
   /** "texto" é para frases que não são título, como a faixa de campanha. */
   tamanho?: "grande" | "medio" | "texto";
+  /** Aceita vários parágrafos (Enter abre outro). Para textos, não títulos. */
+  paragrafos?: boolean;
 }) {
   const idDaCaixa = useIdDoCampo(id);
   const [html, setHtml] = useState(valor);
@@ -126,24 +150,24 @@ export function EditorTitulo({
         gapcursor: false,
         trailingNode: false,
       }),
-      DocumentoDeUmaLinha,
-      SemQuebra,
+      ...(paragrafos ? [DocumentoDeParagrafos] : [DocumentoDeUmaLinha, SemQuebra]),
       Destaque,
     ],
-    content: valor ? `<p>${valor}</p>` : "",
+    content: paragrafos ? emParagrafos(valor) : valor ? `<p>${valor}</p>` : "",
     editorProps: {
       attributes: {
         ...(idDaCaixa ? { id: idDaCaixa } : {}),
         role: "textbox",
-        "aria-multiline": "false",
+        "aria-multiline": paragrafos ? "true" : "false",
         ...(rotulo ? { "aria-label": rotulo } : {}),
         class: cn(
           "editor-titulo min-h-[3.25rem] px-4 py-3 leading-snug text-[var(--fg)] outline-none",
+          paragrafos && "min-h-[9rem] leading-relaxed [&_p+p]:mt-3",
           LETRA[tamanho],
         ),
       },
     },
-    onUpdate: ({ editor }) => setHtml(limpar(editor)),
+    onUpdate: ({ editor }) => setHtml(limpar(editor, paragrafos)),
   });
 
   // A prévia do topo escuta "input" no formulário; um campo escondido

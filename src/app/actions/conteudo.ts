@@ -52,7 +52,9 @@ function montarObjeto(dados: FormData): Record<string, unknown> {
   const raiz: Record<string, unknown> = {};
 
   for (const [campo, bruto] of dados.entries()) {
-    if (campo.startsWith("__") || bruto instanceof File) continue;
+    // "__" são os nossos campos de controle; "$ACTION" são os do React,
+    // que o formulário de Server Action manda junto e não são conteúdo.
+    if (campo.startsWith("__") || campo.startsWith("$") || bruto instanceof File) continue;
 
     const texto = String(bruto);
     const partes = campo.split(".");

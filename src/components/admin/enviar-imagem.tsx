@@ -32,10 +32,13 @@ export function useEnvioDeImagem({
   pasta,
   larguraIdeal,
   limite,
+  formatoIdeal,
 }: {
   inicial: string | null;
   pasta: string;
   larguraIdeal?: number;
+  /** Largura e altura que a arte deve ter, para avisar quando o formato não bate. */
+  formatoIdeal?: { largura: number; altura: number };
   /** Lado maior da versão grande. Padrão: 1600 px. */
   limite?: number;
 }) {
@@ -60,7 +63,12 @@ export function useEnvioDeImagem({
       const pronta = await prepararImagem(arquivo, { limite });
 
       // Avisa, mas não impede: às vezes a única foto que existe é essa.
-      if (larguraIdeal && pronta.largura < larguraIdeal * 0.8) {
+      const formato = formatoIdeal && formatoIdeal.largura / formatoIdeal.altura;
+      if (formato && Math.abs(pronta.largura / pronta.altura / formato - 1) > 0.03) {
+        setAviso(
+          `Esta arte tem ${pronta.largura} × ${pronta.altura} px, fora do formato de ${formatoIdeal.largura} × ${formatoIdeal.altura} px. No site ela vai ser cortada para caber.`,
+        );
+      } else if (larguraIdeal && pronta.largura < larguraIdeal * 0.8) {
         setAviso(
           `Esta imagem tem ${pronta.largura} px de largura. O ideal é ${larguraIdeal} px: em tela grande ela pode aparecer borrada.`,
         );

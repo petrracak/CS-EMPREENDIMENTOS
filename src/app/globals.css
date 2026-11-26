@@ -2385,3 +2385,198 @@
   background: #49836a;
   mask: url("/site/simbolo.svg") center / contain no-repeat;
 }
+
+/* ===================================================== BANNER DE CAMPANHA */
+/* O pop-up com a arte da campanha (components/site/banner-campanha.tsx).
+   A largura sai da altura disponível: a arte inteira e os botões sempre
+   cabem na tela, sem rolar. Embaixo da arte, uma barra branca com o
+   botão da campanha e o de fechar, do mesmo tamanho.
+
+   --formato-celular é o formato da arte que o celular mostra: 4/5 com
+   a arte própria, 16/9 quando ele usa a do computador. */
+
+.banner-campanha {
+  --barra: 8.25rem;
+  width: min(calc(100vw - 1.5rem), calc((100dvh - 1.5rem - var(--barra)) * var(--formato-celular, 0.8)));
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+}
+
+.banner-campanha::backdrop {
+  background: rgb(1 38 22 / 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.banner-campanha[open] {
+  animation: popup-entra 0.6s var(--ease-saida, ease-out) both;
+}
+
+.banner-campanha[open]::backdrop {
+  animation: popup-fundo 0.45s ease-out both;
+}
+
+@media (min-width: 768px) {
+  .banner-campanha {
+    --barra: 5.5rem;
+    width: min(1100px, calc(100vw - 4rem), calc((100dvh - 4rem - var(--barra)) * 16 / 9));
+  }
+}
+
+.banner-cartao {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  background: #fff;
+  box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.55);
+}
+
+.banner-arte {
+  display: block;
+  aspect-ratio: var(--formato-celular, 0.8);
+  background: #ebfff6;
+}
+
+.banner-arte img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.banner-cartao[data-modo="computador"] .banner-arte {
+  aspect-ratio: 16 / 9;
+}
+
+@media (min-width: 768px) {
+  .banner-cartao[data-modo="auto"] .banner-arte {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.banner-x {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.92);
+  color: #004527;
+  box-shadow: 0 6px 18px -6px rgb(0 0 0 / 0.35);
+  transition: transform 0.4s var(--ease-saida, ease-out), background-color 0.3s;
+}
+
+.banner-x:hover {
+  background: #fff;
+  transform: rotate(90deg);
+}
+
+/* Celular: os dois botões um embaixo do outro, na largura toda. */
+.banner-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.banner-acao {
+  justify-content: center;
+  width: 100%;
+  min-height: 3.25rem;
+}
+
+.banner-fechar {
+  gap: 0.5rem;
+  color: #28513f;
+  font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+  .banner-acoes {
+    flex-direction: row;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .banner-acao {
+    width: auto;
+    min-width: 15rem;
+  }
+}
+
+/* Prévia do painel: o mesmo cartão com o layout de cada aparelho,
+   escolhido pelo modo e não pela largura da janela do painel. */
+.banner-cartao[data-modo="computador"] .banner-acoes {
+  flex-direction: row;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.banner-cartao[data-modo="computador"] .banner-acao {
+  width: auto;
+  min-width: 15rem;
+}
+
+.banner-cartao[data-modo="celular"] .banner-acoes {
+  flex-direction: column;
+  padding: 0.75rem;
+}
+
+.banner-cartao[data-modo="celular"] .banner-acao {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner-campanha[open],
+  .banner-campanha[open]::backdrop {
+    animation: none;
+  }
+}
+
+/* ================================================== LOGIN DO PAINEL */
+/* A cena do topo do site, ao lado do formulário: menta, as linhas da
+   marca e a logo com os empreendimentos. A logo é medida pela altura da
+   cena, para caber inteira em qualquer tela. */
+
+.login-cena {
+  background: #ebfff6;
+}
+
+.login-cena-fundo {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: auto;
+  max-width: none;
+  height: 115%;
+  transform: translateX(-62%);
+  pointer-events: none;
+}
+
+/* No celular a faixa tem a logo escrita no alto: a da vitrine começa
+   abaixo dela e termina antes do formulário, que sobe 1,75 rem. */
+.login-vitrine {
+  position: absolute;
+  top: calc(4.5rem + env(safe-area-inset-top));
+  left: 50%;
+  height: calc(100% - 4.5rem - 2.5rem - env(safe-area-inset-top));
+  aspect-ratio: 453 / 840.177;
+  transform: translateX(-50%);
+  mask-image: linear-gradient(to bottom, #000 72%, transparent 98%);
+}
+
+@media (min-width: 1024px) {
+  .login-vitrine {
+    top: 50%;
+    height: min(68%, 620px);
+    transform: translate(-50%, -58%);
+  }
+}
