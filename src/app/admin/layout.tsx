@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 
 import { RegistrarApp } from "@/components/admin/instalar-app";
+import { Abertura } from "@/components/site/abertura";
 
 /**
  * O manifesto do app mora aqui, no layout de todo o /admin, e não no da
@@ -33,6 +34,7 @@ export default function LayoutAdmin({
   // globals.css): mesma fonte, cores e botões do site.
   return (
     <div className="painel">
+      <Abertura onde="painel" />
       {children}
       <RegistrarApp />
     </div>

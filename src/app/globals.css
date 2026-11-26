@@ -1761,8 +1761,22 @@
 }
 
 /* Já vista nesta visita: nada de tela, nada de espera. */
-[data-sem-abertura] .abertura {
+[data-sem-abertura] .abertura:not(.abertura-painel),
+[data-sem-abertura-painel] .abertura-painel {
   display: none;
+}
+
+/* No painel, a entrada do login espera a abertura, como o topo do site. */
+.painel {
+  --abertura: 1.35s;
+}
+
+[data-sem-abertura-painel] .painel {
+  --abertura: 0s;
+}
+
+.painel .login-entra {
+  animation-delay: calc(var(--atraso, 0ms) + var(--abertura, 0s));
 }
 
 [data-sem-abertura] .pagina-inicial {
@@ -1897,7 +1911,8 @@
 
 /* Sem movimento: o símbolo já aparece dourado e a tela sai logo. */
 @media (prefers-reduced-motion: reduce) {
-  .pagina-inicial {
+  .pagina-inicial,
+  .painel {
     --abertura: 0.3s;
   }
 
