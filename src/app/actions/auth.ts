@@ -4,6 +4,13 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { FORMATO_USUARIO } from "@/lib/equipe";
+import {
+  hash,
+  ipDoVisitante,
+  limparTentativas,
+  passouDoLimite,
+  registrarTentativa,
+} from "@/lib/limite";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -25,10 +32,37 @@ export async function entrar(
   // quem tenta adivinhar se aquele usuário existe.
   const ERRO = "Usuário, e-mail ou senha incorretos.";
 
+  // Contra quem tenta adivinhar a senha: 5 erros na mesma conta ou 20 do
+  // mesmo IP em 15 minutos pausam o acesso. A conta conta pelo que foi
+  // digitado, exista ou não, para a pausa não revelar quem existe.
+  const contaChave = hash(`conta:${acesso.replace(/^@/, "")}`);
+  const ipChave = hash(`ip:${await ipDoVisitante()}`);
+  if (
+    await passouDoLimite(
+      "login",
+      [
+        { chave: contaChave, maximo: 5 },
+        { chave: ipChave, maximo: 20 },
+      ],
+      15,
+    )
+  ) {
+    return {
+      erro: "Muitas tentativas seguidas. Por segurança, o acesso foi pausado por 15 minutos.",
+    };
+  }
+
+  const falhou = async () => {
+    await registrarTentativa("login", [contaChave, ipChave]);
+    // Um respiro em cada erro deixa a tentativa em massa lenta demais.
+    await new Promise((r) => setTimeout(r, 700));
+    return { erro: ERRO };
+  };
+
   const email = acesso.includes("@")
     ? acesso.toLowerCase()
     : await emailDoUsuario(acesso);
-  if (!email) return { erro: ERRO };
+  if (!email) return falhou();
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
@@ -36,10 +70,14 @@ export async function entrar(
     password: senha,
   });
 
-  if (error) return { erro: ERRO };
+  if (error) return falhou();
+  await limparTentativas("login", contaChave);
 
   revalidatePath("/admin", "layout");
-  redirect(destino.startsWith("/admin") ? destino : "/admin");
+  // Só volta para uma página do próprio painel ("/admin" ou "/admin/…").
+  redirect(
+    /^\/admin(\/[\w\-/]*)?(\?[\w=&%-]*)?$/.test(destino) ? destino : "/admin",
+  );
 }
 
 export async function sair() {

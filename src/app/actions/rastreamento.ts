@@ -35,7 +35,9 @@ export async function salvarRastreamento(
     if (typeof valor === "string") bruto[campo] = valor;
   }
   // O Interruptor manda "false" escondido e "true" quando está ligado.
-  bruto.pedir_consentimento = dados.getAll("pedir_consentimento").includes("true");
+  bruto.pedir_consentimento = dados
+    .getAll("pedir_consentimento")
+    .includes("true");
 
   for (const campo of ["script_head", "script_body"]) {
     if (String(bruto[campo] ?? "").length > LIMITE_SCRIPT) {
@@ -56,7 +58,12 @@ export async function salvarRastreamento(
   const supabase = await createClient();
   const { error } = await supabase
     .from("site_settings")
-    .upsert({ chave: "rastreamento", valor: limpo, publico: true, updated_by: perfil.id });
+    .upsert({
+      chave: "rastreamento",
+      valor: limpo,
+      publico: true,
+      updated_by: perfil.id,
+    });
 
   if (error) return { erro: "Não conseguimos salvar. Tente de novo." };
 

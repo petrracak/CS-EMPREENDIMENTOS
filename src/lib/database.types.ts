@@ -141,6 +141,7 @@ export type Database = {
       }
       empreendimentos: {
         Row: {
+          andamento_obra: number | null
           area_construida: string | null
           atendimento_chamada: string | null
           bairro: string | null
@@ -182,6 +183,7 @@ export type Database = {
           valor_a_partir_de: number | null
         }
         Insert: {
+          andamento_obra?: number | null
           area_construida?: string | null
           atendimento_chamada?: string | null
           bairro?: string | null
@@ -223,6 +225,7 @@ export type Database = {
           valor_a_partir_de?: number | null
         }
         Update: {
+          andamento_obra?: number | null
           area_construida?: string | null
           atendimento_chamada?: string | null
           bairro?: string | null
@@ -495,6 +498,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tentativas: {
+        Row: {
+          chave: string
+          criado_em: string
+          id: number
+          tipo: string
+        }
+        Insert: {
+          chave: string
+          criado_em?: string
+          id?: never
+          tipo: string
+        }
+        Update: {
+          chave?: string
+          criado_em?: string
+          id?: never
+          tipo?: string
+        }
+        Relationships: []
       }
       tipos_empreendimento: {
         Row: {

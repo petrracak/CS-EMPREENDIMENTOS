@@ -52,6 +52,14 @@ export function FormConta({ nome }: { nome: string }) {
             Trocar a senha
           </TituloBloco>
           <div className="space-y-4">
+            <Campo rotulo="Senha atual">
+              <Entrada
+                name="atual"
+                type="password"
+                autoComplete="current-password"
+                required
+              />
+            </Campo>
             <Campo rotulo="Nova senha">
               <Entrada
                 name="senha"

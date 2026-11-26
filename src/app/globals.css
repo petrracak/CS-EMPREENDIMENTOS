@@ -2761,6 +2761,7 @@
    74% dele, sem passar da largura da tela. */
 .logo-empreendimento img {
   display: block;
+  margin-inline: auto;
   width: calc(var(--logo-l) * 0.74);
   max-width: 100%;
   height: auto;
@@ -2770,4 +2771,31 @@
   .logo-empreendimento img {
     width: var(--logo-l);
   }
+}
+
+/* ================================================ FICHA DO EMPREENDIMENTO */
+/* O banner do topo: contido na largura do cabeçalho, baixo. Com a foto
+   na tela inteira, qualquer imagem abaixo de 2500 px ficava borrada no
+   monitor grande; nesta altura, 1600 px bastam. */
+.ficha-banner {
+  height: clamp(22rem, 62vw, 26rem);
+}
+
+@media (min-width: 1024px) {
+  .ficha-banner {
+    height: clamp(24rem, 46vh, 31rem);
+  }
+}
+
+.ficha-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgb(255 255 255 / 0.22);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.12);
+  color: #fff;
+  font-size: 0.875rem;
+  backdrop-filter: blur(8px);
 }

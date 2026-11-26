@@ -16,10 +16,23 @@ const nulo = (v: FormDataEntryValue | null) => {
 };
 
 const numero = (v: FormDataEntryValue | null) => {
-  const texto = String(v ?? "").trim().replace(/\./g, "").replace(",", ".");
+  const texto = String(v ?? "")
+    .trim()
+    .replace(/\./g, "")
+    .replace(",", ".");
   if (!texto) return null;
   const n = Number(texto);
   return Number.isFinite(n) && n > 0 ? n : null;
+};
+
+/** 0 a 100, inteiro; fora disso ou em branco, nada. */
+const porcentagem = (v: FormDataEntryValue | null) => {
+  const texto = String(v ?? "")
+    .trim()
+    .replace(",", ".");
+  if (!texto) return null;
+  const n = Math.round(Number(texto));
+  return Number.isFinite(n) && n >= 0 && n <= 100 ? n : null;
 };
 
 /** Recalcula as páginas que mostram este empreendimento. */
@@ -64,6 +77,7 @@ export async function salvarEmpreendimento(
     previsao_entrega: nulo(dados.get("previsao_entrega")),
     valor_a_partir_de: numero(dados.get("valor_a_partir_de")),
     registro_incorporacao: nulo(dados.get("registro_incorporacao")),
+    andamento_obra: porcentagem(dados.get("andamento_obra")),
     endereco: nulo(dados.get("endereco")),
     bairro: nulo(dados.get("bairro")),
     cidade: String(dados.get("cidade") ?? "Santarém").trim() || "Santarém",
@@ -229,7 +243,8 @@ export async function salvarUnidade(
   const empreendimentoId = String(dados.get("empreendimento_id") ?? "");
   const identificacao = String(dados.get("identificacao") ?? "").trim();
 
-  if (!identificacao) return { erro: "A unidade precisa de uma identificação." };
+  if (!identificacao)
+    return { erro: "A unidade precisa de uma identificação." };
 
   const campos = {
     empreendimento_id: empreendimentoId,

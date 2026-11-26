@@ -9,6 +9,8 @@ import { BotaoExterno, BotaoLink, Secao } from "@/components/site/ui";
 import { lerPost, listarSlugsPosts } from "@/lib/queries";
 import { lerEmpresa } from "@/lib/settings";
 import { formatarData, textoUtil } from "@/lib/utils";
+import { DadosEstruturados } from "@/components/site/dados-estruturados";
+import { SITE_URL, absoluta, trilha } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -26,10 +28,21 @@ export async function generateMetadata({
   const post = await lerPost(slug);
   if (!post) return {};
 
+  const descricao = textoUtil(post.seo_descricao) ?? textoUtil(post.resumo) ?? undefined;
+  const imagem = absoluta(post.capa_url);
   return {
     title: textoUtil(post.seo_titulo) ?? post.titulo,
-    description: textoUtil(post.seo_descricao) ?? textoUtil(post.resumo) ?? undefined,
-    openGraph: post.capa_url ? { images: [{ url: post.capa_url }] } : undefined,
+    description: descricao,
+    alternates: { canonical: `/blog/${post.slug}` },
+    openGraph: {
+      type: "article",
+      title: post.titulo,
+      description: descricao,
+      url: `/blog/${post.slug}`,
+      publishedTime: post.publicado_em ?? undefined,
+      modifiedTime: post.updated_at ?? undefined,
+      ...(imagem ? { images: [{ url: imagem, alt: post.titulo }] } : {}),
+    },
   };
 }
 
@@ -43,8 +56,31 @@ export default async function PaginaPost({
 
   if (!post) notFound();
 
+  const dados = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.titulo,
+      description: textoUtil(post.resumo) ?? undefined,
+      image: absoluta(post.capa_url),
+      datePublished: post.publicado_em ?? undefined,
+      dateModified: post.updated_at ?? post.publicado_em ?? undefined,
+      inLanguage: "pt-BR",
+      mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
+      author: { "@id": `${SITE_URL}/#empresa` },
+      publisher: { "@id": `${SITE_URL}/#empresa` },
+      articleSection: post.categoria ?? undefined,
+    },
+    trilha([
+      { nome: "Início", caminho: "/" },
+      { nome: "Blog", caminho: "/blog" },
+      { nome: post.titulo, caminho: `/blog/${post.slug}` },
+    ]),
+  ];
+
   return (
     <article>
+      <DadosEstruturados dados={dados} />
       <Secao className="pt-14 pb-0 md:pt-20 md:pb-0">
         <div className="mx-auto max-w-3xl">
           <Link
@@ -85,7 +121,7 @@ export default async function PaginaPost({
             >
               <Image
                 src={post.capa_url}
-                alt=""
+                alt={post.titulo}
                 fill
                 priority
                 data-quadro

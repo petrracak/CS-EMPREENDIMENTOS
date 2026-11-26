@@ -132,6 +132,31 @@ negrito, listas, citação, link, imagem. Grava HTML, e o site lê por
 `src/lib/conteudo-blog.ts`, que só deixa passar essas marcas e endereços
 seguros. As publicações antigas, em Markdown, abrem já convertidas.
 
+**Ficha do empreendimento.** Banner contido na largura do cabeçalho, e não
+a foto na tela inteira (que borrava qualquer foto abaixo de 2500 px). Ficha
+técnica, características e diferenciais com ícone; o ícone sai das palavras
+de cada linha (`src/components/site/icone-do-item.ts`), e o painel mostra a
+prévia embaixo da caixa. Fotos e plantas em carrossel (`galeria.tsx`), mapa
+do Google embutido pelo endereço e barra "Acompanhe a obra" quando o campo
+`andamento_obra` tem número.
+
+**SEO e IAs.** O domínio vem de `NEXT_PUBLIC_SITE_URL` (`src/lib/seo.ts`):
+canonical, `sitemap.xml`, `robots.txt` (aberto também para os robôs de IA),
+`/llms.txt` e os dados estruturados (empresa, empreendimento, publicação,
+trilha e perguntas frequentes) acompanham a variável. Ao trocar o domínio,
+troque a variável e publique de novo.
+
+**Segurança.** Login com limite de tentativas (5 erros por conta ou 20 por
+IP em 15 minutos) e cadastro com limite por visitante, guardados em
+`public.tentativas` como hash (`src/lib/limite.ts`). Cadastro de
+interessado só entra pelo servidor (a chave pública não grava em `leads`).
+Troca de senha pede a atual; senha comum ou com o próprio nome é recusada
+(`src/lib/senha.ts`). Upload confere que o arquivo é WebP de verdade.
+
+**Termos e privacidade.** `/termos-de-uso` e `/politica-de-privacidade`,
+com os dados da empresa do painel. O aviso de cookies aparece para todos,
+com ou sem pixel. Os textos são um modelo: vale a revisão de um advogado.
+
 **Textos com negrito.** Os textos da página inicial saem do painel com
 negrito (`EditorTitulo` com `tamanho="texto"`; com `paragrafos`, para os
 textos longos). O site lê pelo `Trecho` e pelo `TextoRico`

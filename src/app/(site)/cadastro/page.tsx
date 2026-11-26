@@ -7,6 +7,7 @@ import { listarParaSelecao } from "@/lib/queries";
 import { lerConfig, lerEmpresa, txt } from "@/lib/settings";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/cadastro" },
   title: "Cadastre-se",
   description:
     "Deixe seus dados e receba o atendimento de um consultor da CS com as opções certas para o seu perfil.",

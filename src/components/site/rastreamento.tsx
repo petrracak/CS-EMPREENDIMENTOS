@@ -3,7 +3,7 @@
 import Script from "next/script";
 import { useEffect, useSyncExternalStore } from "react";
 
-import type { Rastreamento as Config } from "@/lib/rastreamento";
+import { temRastreio, type Rastreamento as Config } from "@/lib/rastreamento";
 import { cn } from "@/lib/utils";
 
 /**
@@ -84,7 +84,9 @@ function ScriptLivre({ html, onde }: { html: string; onde: "head" | "body" }) {
 function Pixels({ c }: { c: Config }) {
   const googleTag = c.ga4 || c.google_ads;
   const conversaoAds =
-    c.google_ads && c.google_ads_rotulo ? `${c.google_ads}/${c.google_ads_rotulo}` : "";
+    c.google_ads && c.google_ads_rotulo
+      ? `${c.google_ads}/${c.google_ads_rotulo}`
+      : "";
 
   return (
     <>
@@ -143,35 +145,48 @@ fbq('init','${c.meta_pixel}');fbq('track','PageView');`}
 
 /* --------------------------------------------------- aviso de cookies */
 
+/**
+ * O aviso aparece para todo mundo uma vez, com ou sem pixel ligado: o
+ * site usa armazenamento do navegador (lembrar o pop-up já visto, o
+ * cadastro feito) e a LGPD pede transparência sobre isso. A resposta
+ * fica guardada e o aviso não volta.
+ */
 function AvisoCookies() {
   return (
     <div
       role="region"
       aria-label="Aviso de cookies"
       className={cn(
-        "fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-xl rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)]/95 p-4 shadow-[0_18px_40px_-16px_rgb(1_38_22/0.45)] backdrop-blur-xl",
-        "pb-[calc(1rem+env(safe-area-inset-bottom))] sm:bottom-5 sm:flex sm:items-center sm:gap-4 sm:pb-4",
+        "aviso-cookies fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-2xl rounded-2xl border border-[var(--borda)] bg-white/95 p-4 shadow-[0_18px_40px_-16px_rgb(1_38_22/0.45)] backdrop-blur-xl",
+        "pb-[calc(1rem+env(safe-area-inset-bottom))] sm:bottom-5 sm:flex sm:items-center sm:gap-5 sm:p-5",
         "motion-safe:animate-[aviso-sobe_0.6s_var(--ease-saida)_both]",
       )}
     >
       <p className="text-sm leading-relaxed text-[var(--fg-suave)]">
-        Usamos cookies para medir as visitas e melhorar os nossos anúncios. Você pode recusar sem
-        perder nada do site.
+        Usamos cookies para o site funcionar e, com a sua permissão, para
+        entender as visitas e melhorar o atendimento. Saiba mais na{" "}
+        <a
+          href="/politica-de-privacidade"
+          className="text-[#00552f] underline underline-offset-2"
+        >
+          Política de privacidade
+        </a>
+        .
       </p>
       <div className="mt-3 flex shrink-0 gap-2 sm:mt-0">
         <button
           type="button"
           onClick={() => responder("recusado")}
-          className="min-h-11 flex-1 rounded-full border border-[var(--borda)] px-4 text-sm font-medium text-[var(--fg-suave)] transition-colors hover:bg-[var(--bg-fundo)] sm:flex-none"
+          className="botao-novo botao-novo-secundario min-h-11 flex-1 sm:flex-none"
         >
-          Recusar
+          <span>Só os essenciais</span>
         </button>
         <button
           type="button"
           onClick={() => responder("aceito")}
-          className="min-h-11 flex-1 rounded-full bg-[var(--color-verde-900)] px-5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-verde-800)] sm:flex-none"
+          className="botao-novo botao-novo-primario min-h-11 flex-1 sm:flex-none"
         >
-          Aceitar
+          <span>Aceitar</span>
         </button>
       </div>
     </div>
@@ -180,9 +195,22 @@ function AvisoCookies() {
 
 export function Rastreamento({ config }: { config: Config }) {
   const consentimento = useConsentimento();
+  const temPixel = temRastreio(config);
 
-  if (!config.pedir_consentimento) return <Pixels c={config} />;
-  if (consentimento === "carregando") return null;
-  if (consentimento === null) return <AvisoCookies />;
-  return consentimento === "aceito" ? <Pixels c={config} /> : null;
+  if (consentimento === "carregando") {
+    // Sem pedido de consentimento, o pixel não espera pela resposta.
+    return temPixel && !config.pedir_consentimento ? (
+      <Pixels c={config} />
+    ) : null;
+  }
+
+  const carregar =
+    temPixel && (!config.pedir_consentimento || consentimento === "aceito");
+
+  return (
+    <>
+      {carregar ? <Pixels c={config} /> : null}
+      {consentimento === null ? <AvisoCookies /> : null}
+    </>
+  );
 }

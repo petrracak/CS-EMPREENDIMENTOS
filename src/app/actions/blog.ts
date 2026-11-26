@@ -43,7 +43,7 @@ export async function salvarPost(
     // rascunho, e não muda em cada edição depois disso.
     publicado_em:
       status === "publicado"
-        ? nulo(dados.get("publicado_em")) ?? new Date().toISOString()
+        ? (nulo(dados.get("publicado_em")) ?? new Date().toISOString())
         : null,
   };
 

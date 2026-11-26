@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { BannerCampanha } from "@/components/site/banner-campanha";
 import { Cabecalho } from "@/components/site/cabecalho";
+import { DadosEstruturados } from "@/components/site/dados-estruturados";
 import { GradienteContinuo } from "@/components/site/gradiente-continuo";
 import { FaixaCampanha } from "@/components/site/faixa-campanha";
 import { PopupSaida } from "@/components/site/popup-saida";
@@ -13,7 +14,8 @@ import { bool, lerConfigs, lerEmpresa, txt } from "@/lib/settings";
 import { temaDaFaixa } from "@/lib/temas-faixa";
 import { lerMensagemDaFaixa, lerTitulo } from "@/lib/texto-rico";
 import { listarDestaques, listarParaSelecao } from "@/lib/queries";
-import { lerRastreamento, temRastreio } from "@/lib/rastreamento";
+import { lerRastreamento } from "@/lib/rastreamento";
+import { dadosDaEmpresa, dadosDoSite } from "@/lib/seo";
 
 /** As tags de verificação de domínio do Meta e do Google, do painel. */
 export async function generateMetadata(): Promise<Metadata> {
@@ -56,6 +58,7 @@ export default async function LayoutDoSite({
   // .site leva o design do site (fonte, cores, botões: ver globals.css).
   return (
     <div className="site">
+      <DadosEstruturados dados={[dadosDaEmpresa(empresa), dadosDoSite()]} />
       {bool(faixa, "ativo") ? (
         <FaixaCampanha
           mensagem={lerMensagemDaFaixa(faixa)}
@@ -108,7 +111,8 @@ export default async function LayoutDoSite({
         />
       ) : null}
 
-      {temRastreio(rastreio) ? <Rastreamento config={rastreio} /> : null}
+      {/* Pixels (quando houver) e o aviso de cookies, que aparece sempre. */}
+      <Rastreamento config={rastreio} />
 
       {/* Liga as animações de entrada depois que a página monta. */}
       <Revelar />

@@ -4,16 +4,26 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import {
   ArrowRight,
-  Check,
+  Building2,
+  CalendarCheck,
+  Car,
   Clock,
+  HardHat,
+  House,
+  LandPlot,
+  Landmark,
+  LayoutGrid,
   MapPin,
-  Navigation,
+  Ruler,
   UserRound,
+  Wallet,
+  type LucideIcon,
 } from "lucide-react";
 
 import { Whatsapp } from "@/components/icones-sociais";
 import { Palavras } from "@/components/site/palavras";
 import { Galeria } from "@/components/site/galeria";
+import { iconeDoTexto } from "@/components/site/icone-do-item";
 import { FormularioCurto } from "@/components/site/formulario-lead";
 import { Simbolo } from "@/components/site/logo";
 import { Paragrafos } from "@/components/site/texto";
@@ -23,7 +33,6 @@ import {
   BotaoLink,
   Olho,
   Secao,
-  Selo,
   Titulo,
 } from "@/components/site/ui";
 import {
@@ -35,6 +44,8 @@ import { urlDaMidia } from "@/lib/midia";
 import { lerEmpresa } from "@/lib/settings";
 import { SITUACOES, formatarValor, textoUtil } from "@/lib/utils";
 import { medir } from "@/lib/vitrine";
+import { SITE_URL, absoluta, trilha } from "@/lib/seo";
+import { DadosEstruturados } from "@/components/site/dados-estruturados";
 
 export const revalidate = 3600;
 
@@ -52,15 +63,27 @@ export async function generateMetadata({
   const item = await lerEmpreendimento(slug);
   if (!item) return {};
 
+  const descricao =
+    textoUtil(item.seo_descricao) ??
+    [
+      textoUtil(item.frase_impacto),
+      `${item.nome}, da CS Empreendimentos, em ${item.bairro ? `${item.bairro}, ` : ""}${item.cidade}.`,
+    ]
+      .filter(Boolean)
+      .join(" ");
+  const imagem = absoluta(item.imagem_principal);
+
   return {
-    title: textoUtil(item.seo_titulo) ?? item.nome,
-    description:
-      textoUtil(item.seo_descricao) ??
-      textoUtil(item.frase_impacto) ??
-      undefined,
-    openGraph: item.imagem_principal
-      ? { images: [{ url: item.imagem_principal }] }
-      : undefined,
+    title: textoUtil(item.seo_titulo) ?? `${item.nome} em ${item.cidade}`,
+    description: descricao,
+    alternates: { canonical: `/empreendimentos/${item.slug}` },
+    openGraph: {
+      type: "website",
+      title: item.nome,
+      description: descricao,
+      url: `/empreendimentos/${item.slug}`,
+      ...(imagem ? { images: [{ url: imagem, alt: item.nome }] } : {}),
+    },
   };
 }
 
@@ -93,14 +116,23 @@ export default async function PaginaEmpreendimento({
 
   // A ficha técnica se monta só com o que existe. A regra da copy é clara:
   // campo vazio, zerado ou pendente não aparece — nem o rótulo.
-  const ficha: { rotulo: string; valor: string }[] = [
-    { rotulo: "Tipo", valor: item.tipo?.nome ?? "" },
-    { rotulo: "Situação", valor: situacao?.rotulo ?? "" },
-    { rotulo: "Localização", valor: local },
-    { rotulo: "Unidades", valor: textoUtil(item.unidades_total) ?? "" },
-    { rotulo: "Área construída", valor: textoUtil(item.area_construida) ?? "" },
+  const ficha: { rotulo: string; valor: string; Icone: LucideIcon }[] = [
+    { rotulo: "Tipo", valor: item.tipo?.nome ?? "", Icone: Building2 },
+    { rotulo: "Situação", valor: situacao?.rotulo ?? "", Icone: HardHat },
+    { rotulo: "Localização", valor: local, Icone: MapPin },
+    {
+      rotulo: "Unidades",
+      valor: textoUtil(item.unidades_total) ?? "",
+      Icone: House,
+    },
+    {
+      rotulo: "Área construída",
+      valor: textoUtil(item.area_construida) ?? "",
+      Icone: Ruler,
+    },
     {
       rotulo: "Área do terreno",
+      Icone: LandPlot,
       valor:
         textoUtil(item.terreno_dimensoes) && textoUtil(item.terreno_area)
           ? `${item.terreno_dimensoes} (${item.terreno_area})`
@@ -108,91 +140,129 @@ export default async function PaginaEmpreendimento({
             textoUtil(item.terreno_area) ??
             ""),
     },
-    { rotulo: "Distribuição", valor: textoUtil(item.distribuicao) ?? "" },
-    { rotulo: "Vagas", valor: textoUtil(item.vagas) ?? "" },
+    {
+      rotulo: "Distribuição",
+      valor: textoUtil(item.distribuicao) ?? "",
+      Icone: LayoutGrid,
+    },
+    { rotulo: "Vagas", valor: textoUtil(item.vagas) ?? "", Icone: Car },
     {
       rotulo: "Previsão de entrega",
       valor: textoUtil(item.previsao_entrega) ?? "",
+      Icone: CalendarCheck,
     },
     {
       rotulo: "Valor a partir de",
       valor: formatarValor(item.valor_a_partir_de) ?? "",
+      Icone: Wallet,
     },
     {
       rotulo: "Registro de incorporação",
       valor: textoUtil(item.registro_incorporacao) ?? "",
+      Icone: Landmark,
     },
   ].filter((linha) => linha.valor);
 
+  // Mapa embutido do Google, sem chave: só com o endereço escrito.
+  const enderecoMapa = [item.endereco, item.bairro, item.cidade, "PA"]
+    .filter(Boolean)
+    .join(", ");
+  const comoChegar = local
+    ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(enderecoMapa)}`
+    : null;
+  const andamento =
+    typeof item.andamento_obra === "number" && item.situacao !== "entregue"
+      ? item.andamento_obra
+      : null;
+
+  // O que entra nas etiquetas do banner: situação, bairro e área.
+  const area = textoUtil(item.area_construida);
+
+  // Para o Google e as IAs: o que é o empreendimento, onde fica e o que
+  // tem, além da trilha Início > Empreendimentos > este.
+  const tipoSchema = /flat|apartamento|pr[ée]dio/i.test(
+    `${item.tipo?.nome} ${item.nome}`,
+  )
+    ? "ApartmentComplex"
+    : /condom[íi]nio|residence|casas/i.test(
+          `${item.tipo?.nome} ${item.nome} ${item.sobre ?? ""}`,
+        )
+      ? "GatedResidenceCommunity"
+      : "Residence";
+  const dados = [
+    {
+      "@context": "https://schema.org",
+      "@type": tipoSchema,
+      name: item.nome,
+      url: `${SITE_URL}/empreendimentos/${item.slug}`,
+      description:
+        textoUtil(item.frase_impacto) ?? textoUtil(item.sobre) ?? undefined,
+      image: [item.imagem_principal, ...galeria.slice(0, 5).map((g) => g.url)]
+        .map((c) => absoluta(c))
+        .filter(Boolean),
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: item.endereco ?? undefined,
+        addressLocality: item.cidade,
+        addressRegion: "PA",
+        addressCountry: "BR",
+      },
+      numberOfAccommodationUnits: textoUtil(item.unidades_total) ?? undefined,
+      amenityFeature: [...item.caracteristicas, ...item.diferenciais].map(
+        (c) => ({
+          "@type": "LocationFeatureSpecification",
+          name: c.texto,
+          value: true,
+        }),
+      ),
+      containedInPlace: item.bairro
+        ? { "@type": "Place", name: `${item.bairro}, ${item.cidade}` }
+        : undefined,
+      provider: { "@id": `${SITE_URL}/#empresa` },
+    },
+    trilha([
+      { nome: "Início", caminho: "/" },
+      { nome: "Empreendimentos", caminho: "/empreendimentos" },
+      { nome: item.nome, caminho: `/empreendimentos/${item.slug}` },
+    ]),
+  ];
+
   return (
     <>
-      {/* ============================================ bloco 1: abertura */}
-      {/* O palco, como na página inicial: parado enquanto o resto da
-          ficha sobe por cima. Ver .cortina em globals.css. */}
-      <section className="sticky top-0 -mt-20 flex min-h-[100svh] items-end overflow-hidden">
-        <div className="palco-fundo absolute inset-0">
+      <DadosEstruturados dados={dados} />
+      {/* ============================================ bloco 1: banner */}
+      {/* Um banner contido, na largura do cabeçalho, e não a foto na tela
+          inteira: com a foto ampliada até a borda de um monitor grande,
+          qualquer imagem que não fosse de altíssima resolução ficava
+          borrada. O nome (ou a logo) e as etiquetas ficam no centro. */}
+      <section className="px-3 pt-3 sm:px-8 sm:pt-4">
+        <div className="ficha-banner relative mx-auto max-w-[1224px] overflow-hidden rounded-[1.5rem]">
           {item.imagem_principal ? (
             <Image
               src={item.imagem_principal}
-              alt={item.nome}
+              alt=""
               fill
               priority
               fetchPriority="high"
-              sizes="100vw"
-              className="respirar object-cover"
+              sizes="(max-width: 1280px) 100vw, 1224px"
+              className="object-cover"
             />
           ) : (
-            <div className="h-full w-full bg-gradient-to-br from-[var(--color-verde-800)] to-[var(--color-verde-950)]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00552f] to-[#01261a]" />
           )}
-          {/* Esta página tem mais texto sobre a foto que a inicial — selo,
-              logo, frase e subtítulo. Em vez de escurecer a foto inteira,
-              que apagaria o render, o véu vem de dois lados: de baixo e da
-              esquerda, que é onde o texto fica. O lado direito da imagem
-              continua limpo. */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-verde-950)]/92 via-[var(--color-verde-950)]/35 via-55% to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-verde-950)]/80 via-[var(--color-verde-950)]/25 via-45% to-transparent" />
-          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[var(--color-verde-950)]/50 to-transparent" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_top,rgb(1_38_22/0.88),rgb(1_38_22/0.35)_55%,rgb(1_38_22/0.2))]" />
 
-          {/* O mesmo brilho da página inicial, para o topo das duas ter
-              o mesmo gesto. A foto fica limpa, sem grade por cima. */}
-          <div
-            aria-hidden
-            className="brilho pointer-events-none absolute -bottom-[25vh] -left-[18vw] h-[75vh] w-[75vh] rounded-full"
-          />
-          <div
-            aria-hidden
-            className="palco-sombra absolute inset-0 bg-[var(--color-verde-950)]"
-          />
-        </div>
-
-        <div className="palco-conteudo relative mx-auto w-full max-w-6xl px-5 pt-28 pb-20 sm:px-8 sm:pt-32 md:pb-28">
-          {/* Primeira dobra: data-entrada em vez do observador, senão o
-              nome do empreendimento só aparece depois da hidratação. */}
-          <div className="max-w-3xl">
-            <div data-entrada className="flex flex-wrap items-center gap-4">
-              <Selo tipo={item.situacao}>{situacao?.rotulo}</Selo>
-              {local ? (
-                <span className="inline-flex items-center gap-1.5 text-sm text-white/65">
-                  <MapPin className="h-3.5 w-3.5" />
-                  {local}
-                </span>
-              ) : null}
-            </div>
-
-            {/* A logo própria do empreendimento, quando existe, entra no
-                lugar do nome escrito — é assim que a CS apresenta cada
-                projeto no material impresso. */}
+          <div className="relative flex h-full flex-col items-center justify-end px-5 pb-8 text-center sm:pb-12">
             {item.logo_url ? (
               <div
                 data-entrada
                 style={
                   {
-                    "--atraso": "120ms",
                     "--logo-l": `${logo.largura}px`,
                     "--logo-a": `${logo.altura}px`,
                   } as React.CSSProperties
                 }
-                className="logo-empreendimento mt-7"
+                className="logo-empreendimento"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -205,392 +275,485 @@ export default async function PaginaEmpreendimento({
               </div>
             ) : null}
 
-            {/* Com logo, o nome fica só para leitor de tela; sem logo, é
-                ele que entra palavra por palavra. */}
-            {item.logo_url ? (
-              <h1 className="sr-only">{item.nome}</h1>
-            ) : (
-              <Palavras
-                como="h1"
-                modo="entrada"
-                atraso={140}
-                passo={60}
-                segmentos={[{ texto: item.nome }]}
-                className="font-display text-display-md sm:text-display-lg mt-6 font-medium text-balance text-white"
-              />
-            )}
+            {/* Com logo, o nome fica só para leitor de tela. */}
+            <h1
+              data-entrada
+              className={
+                item.logo_url
+                  ? "sr-only"
+                  : "text-[2.25rem] leading-[1.1] font-light tracking-[-0.05em] text-balance text-white sm:text-[3.5rem]"
+              }
+            >
+              {item.nome}
+            </h1>
 
+            <ul
+              data-entrada
+              style={{ "--atraso": "200ms" } as React.CSSProperties}
+              className="mt-5 flex flex-wrap justify-center gap-2"
+            >
+              {situacao ? (
+                <li className="ficha-chip">
+                  <HardHat className="h-3.5 w-3.5" />
+                  {situacao.rotulo}
+                </li>
+              ) : null}
+              {item.bairro ? (
+                <li className="ficha-chip">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {item.bairro}
+                </li>
+              ) : null}
+              {area ? (
+                <li className="ficha-chip">
+                  <Ruler className="h-3.5 w-3.5" />
+                  {area}
+                </li>
+              ) : null}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================================== bloco 2: apresentação */}
+      <Secao className="pt-14 md:pt-20">
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+          <div>
+            <div data-revelar>
+              <Olho>O projeto</Olho>
+            </div>
             {item.frase_impacto ? (
               <Palavras
-                como="p"
-                modo="entrada"
-                atraso={320}
+                como="h2"
+                atraso={100}
                 passo={45}
                 segmentos={[{ texto: item.frase_impacto }]}
-                className="font-display mt-6 max-w-2xl text-2xl leading-snug font-medium text-balance text-white sm:text-3xl"
+                className="mt-5 text-[2rem] leading-[1.15] font-light tracking-[-0.05em] text-balance text-[#28513f] sm:text-[2.6rem]"
               />
-            ) : null}
-
+            ) : (
+              <Titulo
+                antes="Sobre o"
+                destaque="empreendimento"
+                className="mt-5"
+              />
+            )}
             {item.subtitulo ? (
               <p
-                data-entrada
-                style={{ "--atraso": "620ms" } as React.CSSProperties}
-                className="mt-4 max-w-xl leading-relaxed text-white/70"
+                data-revelar
+                className="mt-5 text-lg leading-relaxed text-[var(--fg-suave)]"
               >
                 {item.subtitulo}
               </p>
             ) : null}
 
-            <div
-              data-entrada
-              style={{ "--atraso": "760ms" } as React.CSSProperties}
-              className="mt-8 flex flex-wrap gap-3"
-            >
-              <BotaoLink href="#cadastro">
+            {item.sobre ? (
+              <div data-revelar>
+                <Paragrafos texto={item.sobre} className="mt-7" />
+              </div>
+            ) : null}
+
+            {item.conceito ? (
+              <div data-revelar className="mt-10">
+                <h3 className="text-xl font-normal tracking-[-0.04em] text-[#28513f]">
+                  O conceito
+                </h3>
+                <Paragrafos texto={item.conceito} className="mt-3" />
+              </div>
+            ) : null}
+
+            {item.historia ? (
+              <div data-revelar className="mt-10">
+                <h3 className="text-xl font-normal tracking-[-0.04em] text-[#28513f]">
+                  A história do projeto
+                </h3>
+                <Paragrafos texto={item.historia} className="mt-3" />
+              </div>
+            ) : null}
+
+            <div data-revelar className="mt-9 flex flex-wrap gap-3">
+              <BotaoLink href="#formulario">
                 {textoUtil(item.botao_primario) ?? "Quero atendimento"}
               </BotaoLink>
               <BotaoExterno
                 href={empresa.whatsapp_link}
-                aparencia="claro"
+                aparencia="contorno"
                 icone="zap"
               >
                 {textoUtil(item.botao_secundario) ?? "Falar no WhatsApp"}
               </BotaoExterno>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ============================================================ cortina */}
-      <div className="cortina">
-        {/* ===================== blocos 2 e 3: apresentação, conceito, ficha */}
-        <Secao>
-          <div className="grid gap-12 lg:grid-cols-[1fr_0.75fr] lg:gap-16">
-            <div>
-              {item.sobre ? (
-                <div data-revelar>
-                  <Olho>O projeto</Olho>
-                  <Titulo
-                    antes="Sobre o"
-                    destaque="empreendimento"
-                    className="mt-5"
-                  />
-                  <Paragrafos texto={item.sobre} className="mt-7" />
-                </div>
-              ) : null}
-
-              {item.conceito ? (
-                <div data-revelar className="mt-14">
-                  <h3 className="font-display text-xl font-medium">
-                    O conceito
-                  </h3>
-                  <Paragrafos texto={item.conceito} className="mt-4" />
-                </div>
-              ) : null}
-
-              {item.historia ? (
-                <div data-revelar className="mt-10">
-                  <h3 className="font-display text-xl font-medium">
-                    A história do projeto
-                  </h3>
-                  <Paragrafos texto={item.historia} className="mt-4" />
-                </div>
-              ) : null}
-            </div>
-
-            {/* --------------------------------------------- ficha técnica */}
-            {ficha.length ? (
-              <aside
-                data-revelar
-                className="h-fit rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] p-7 lg:sticky lg:top-28"
-              >
-                <h2 className="font-display text-lg font-medium">
-                  Características do imóvel
-                </h2>
-                <dl className="mt-5 divide-y divide-[var(--borda)]">
-                  {ficha.map((linha) => (
-                    <div key={linha.rotulo} className="py-3.5">
-                      <dt className="text-xs tracking-wide text-[var(--fg-tenue)] uppercase">
+          {/* ------------------------------------------- ficha técnica */}
+          {ficha.length ? (
+            <aside
+              data-revelar
+              className="h-fit rounded-2xl border border-[var(--borda)] bg-white p-6 sm:p-7 lg:sticky lg:top-28"
+            >
+              <h2 className="text-lg font-normal tracking-[-0.04em] text-[#28513f]">
+                Ficha técnica
+              </h2>
+              <dl className="mt-4 divide-y divide-[var(--borda)]">
+                {ficha.map((linha) => (
+                  <div key={linha.rotulo} className="flex gap-3.5 py-3.5">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#ebfff6] text-[#004527]">
+                      <linha.Icone
+                        className="h-[1.05rem] w-[1.05rem]"
+                        strokeWidth={1.7}
+                      />
+                    </span>
+                    <div className="min-w-0">
+                      <dt className="text-[0.8125rem] text-[var(--fg-tenue)]">
                         {linha.rotulo}
                       </dt>
-                      <dd className="mt-1 text-sm leading-relaxed text-[var(--fg)]">
+                      <dd className="mt-0.5 text-[0.9375rem] leading-snug text-[var(--fg)]">
                         {linha.valor}
                       </dd>
                     </div>
-                  ))}
-                </dl>
-              </aside>
+                  </div>
+                ))}
+              </dl>
+            </aside>
+          ) : null}
+        </div>
+      </Secao>
+
+      {/* ===================== bloco 3: características e diferenciais */}
+      {item.caracteristicas.length || item.diferenciais.length ? (
+        <Secao className="pt-0 md:pt-0">
+          {item.caracteristicas.length ? (
+            <>
+              <div data-revelar>
+                <Olho>Características</Olho>
+                <Titulo
+                  antes="O que o imóvel"
+                  destaque="oferece"
+                  className="mt-5"
+                />
+              </div>
+              <ListaComIcones itens={item.caracteristicas} />
+            </>
+          ) : null}
+
+          {item.diferenciais.length ? (
+            <div className={item.caracteristicas.length ? "mt-16" : ""}>
+              <div data-revelar>
+                <Olho>Diferenciais</Olho>
+                <Titulo
+                  antes="O que faz a"
+                  destaque="diferença"
+                  className="mt-5"
+                />
+              </div>
+              <ListaComIcones itens={item.diferenciais} destaque />
+            </div>
+          ) : null}
+        </Secao>
+      ) : null}
+
+      {/* ========================================= bloco 4: imagens */}
+      {galeria.length ? (
+        <Secao className="pt-0 md:pt-0">
+          <div data-revelar className="max-w-2xl">
+            <Olho>Imagens</Olho>
+            <Titulo antes="Conheça o" destaque="projeto" className="mt-5" />
+            {item.legenda_galeria ? (
+              <p className="mt-4 text-sm text-[var(--fg-tenue)]">
+                {item.legenda_galeria}
+              </p>
             ) : null}
           </div>
+          <div data-revelar className="mt-10">
+            <Galeria fotos={galeria} />
+          </div>
         </Secao>
+      ) : null}
 
-        {/* =============================== bloco 4: características e mais */}
-        {item.caracteristicas.length || item.diferenciais.length ? (
-          <Secao className="pt-0 md:pt-0">
-            <div className="grid gap-10 md:grid-cols-2 md:gap-14">
-              {item.caracteristicas.length ? (
-                <div data-revelar>
-                  <h2 className="font-display text-2xl font-medium">
-                    Características do imóvel
-                  </h2>
-                  <ul className="mt-6 space-y-3.5">
-                    {item.caracteristicas.map((c) => (
-                      <li key={c.id} className="flex gap-3">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-verde-600)]" />
-                        <span className="leading-relaxed text-[var(--fg-suave)]">
-                          {c.texto}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
+      {/* ========================================== bloco 5: plantas */}
+      {plantas.length ? (
+        <Secao className="blog-verde">
+          <div data-revelar className="max-w-2xl">
+            <Olho>Plantas</Olho>
+            <h2 className="mt-5 text-[2rem] leading-[1.15] font-light tracking-[-0.05em] text-white sm:text-[2.6rem]">
+              Como os espaços se <span className="destaque-ouro">dividem</span>
+            </h2>
+          </div>
+          <div data-revelar className="mt-10">
+            <Galeria fotos={plantas} tipo="planta" escuro />
+          </div>
+        </Secao>
+      ) : null}
 
-              {item.diferenciais.length ? (
-                <div
-                  data-revelar
-                  style={{ "--atraso": "90ms" } as React.CSSProperties}
-                >
-                  <h2 className="font-display text-2xl font-medium">
-                    Diferenciais
-                  </h2>
-                  <ul className="mt-6 space-y-3.5">
-                    {item.diferenciais.map((d) => (
-                      <li key={d.id} className="flex gap-3">
-                        <span
-                          aria-hidden
-                          className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-acento)]"
-                        />
-                        <span className="leading-relaxed text-[var(--fg-suave)]">
-                          {d.texto}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-            </div>
-          </Secao>
-        ) : null}
+      {/* ========================================= bloco 6: unidades */}
+      {item.unidades.length ? (
+        <Secao className={plantas.length ? undefined : "pt-0 md:pt-0"}>
+          <div data-revelar className="max-w-2xl">
+            <Olho>Catálogo</Olho>
+            <Titulo antes="Unidades" className="mt-5" />
+            <p className="mt-4 leading-relaxed text-[var(--fg-suave)]">
+              Veja o que está disponível neste empreendimento.
+            </p>
+          </div>
+          <div className="mt-10">
+            <Unidades
+              unidades={item.unidades as never}
+              slugEmpreendimento={item.slug}
+              observacao={item.unidades[0]?.observacao}
+            />
+          </div>
+        </Secao>
+      ) : null}
 
-        {/* ================================== bloco 5: planta e imagens */}
-        {galeria.length ? (
-          <Secao className="pt-0 md:pt-0">
-            <div data-revelar className="max-w-2xl">
-              <Olho>O projeto por dentro</Olho>
-              <Titulo antes="Imagens" className="mt-5" />
-              {item.legenda_galeria ? (
-                <p className="mt-4 text-sm text-[var(--fg-tenue)]">
-                  {item.legenda_galeria}
+      {/* ====================================== bloco 7: localização */}
+      {local || item.mapa_imagem || item.referencias.length ? (
+        <Secao
+          className={
+            item.unidades.length || !plantas.length ? "pt-0 md:pt-0" : undefined
+          }
+        >
+          <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
+            <div data-revelar>
+              <Olho>Localização</Olho>
+              <Titulo antes="Onde" destaque="fica" className="mt-5" />
+
+              {local ? (
+                <p className="mt-6 flex items-start gap-2.5 text-[var(--fg)]">
+                  <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#00ab61]" />
+                  {local}
                 </p>
               ) : null}
-            </div>
-            <div className="mt-10">
-              <Galeria fotos={galeria} />
-            </div>
-          </Secao>
-        ) : null}
 
-        {plantas.length ? (
-          <Secao className="pt-0 md:pt-0">
-            <div data-revelar>
-              <Titulo antes="Planta" className="text-display-sm" />
-            </div>
-            <div className="mt-8 space-y-6">
-              {plantas.map((planta) => (
-                <figure
-                  key={planta.id}
-                  data-revelar
-                  className="overflow-hidden rounded-2xl border border-[var(--borda)] bg-white p-4"
-                >
-                  <Image
-                    src={planta.url}
-                    alt={planta.legenda ?? "Planta"}
-                    width={1600}
-                    height={900}
-                    sizes="(max-width: 1024px) 100vw, 1100px"
-                    className="h-auto w-full object-contain"
-                  />
-                  {planta.legenda ? (
-                    <figcaption className="pt-4 text-sm text-[var(--fg-tenue)]">
-                      {planta.legenda}
-                    </figcaption>
-                  ) : null}
-                </figure>
-              ))}
-            </div>
-          </Secao>
-        ) : null}
+              {item.localizacao_texto ? (
+                <p className="mt-5 leading-relaxed text-[var(--fg-suave)]">
+                  {item.localizacao_texto}
+                </p>
+              ) : null}
 
-        {/* ===================================== bloco 6: as unidades */}
-        {item.unidades.length ? (
-          <Secao className="pt-0 md:pt-0">
-            <div data-revelar className="max-w-2xl">
-              <Olho>Catálogo</Olho>
-              <Titulo antes="Unidades" className="mt-5" />
-              <p className="mt-4 leading-relaxed text-[var(--fg-suave)]">
-                Veja o que está disponível neste empreendimento.
-              </p>
-            </div>
-            <div className="mt-10">
-              <Unidades
-                unidades={item.unidades as never}
-                slugEmpreendimento={item.slug}
-                observacao={item.unidades[0]?.observacao}
-              />
-            </div>
-          </Secao>
-        ) : null}
-
-        {/* ====================================== bloco 7: localização */}
-        {local || item.mapa_imagem || item.referencias.length ? (
-          <Secao className="pt-0 md:pt-0">
-            <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
-              <div data-revelar>
-                <Olho>Localização</Olho>
-                <Titulo antes="Onde" destaque="fica" className="mt-5" />
-
-                {item.localizacao_texto ? (
-                  <p className="mt-6 leading-relaxed text-[var(--fg-suave)]">
-                    {item.localizacao_texto}
-                  </p>
-                ) : null}
-
-                {local ? (
-                  <p className="mt-5 flex items-start gap-2.5 text-sm text-[var(--fg-suave)]">
-                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[var(--fg-tenue)]" />
-                    {local}
-                  </p>
-                ) : null}
-
-                {item.referencias.length ? (
-                  <ul className="mt-7 space-y-3">
-                    {item.referencias.map((r) => (
-                      <li key={r.id} className="flex gap-3 text-sm">
-                        <Navigation className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--color-ouro-600)]" />
-                        <span className="text-[var(--fg-suave)]">
+              {item.referencias.length ? (
+                <ul className="mt-7 space-y-3">
+                  {item.referencias.map((r) => {
+                    const Icone = iconeDoTexto(r.texto);
+                    return (
+                      <li
+                        key={r.id}
+                        className="flex items-start gap-3 text-[0.9375rem]"
+                      >
+                        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#ebfff6] text-[#004527]">
+                          <Icone className="h-4 w-4" strokeWidth={1.7} />
+                        </span>
+                        <span className="pt-1 text-[var(--fg-suave)]">
                           {r.texto}
                         </span>
                       </li>
-                    ))}
-                  </ul>
-                ) : null}
+                    );
+                  })}
+                </ul>
+              ) : null}
 
+              <div className="mt-8 flex flex-wrap gap-3">
+                {comoChegar ? (
+                  <BotaoExterno href={comoChegar}>Como chegar</BotaoExterno>
+                ) : null}
                 {item.mapa_link ? (
-                  <BotaoExterno href={item.mapa_link} className="mt-8">
-                    Ver no mapa
+                  <BotaoExterno href={item.mapa_link} aparencia="contorno">
+                    Abrir no Google Maps
                   </BotaoExterno>
                 ) : null}
               </div>
-
-              {item.mapa_imagem ? (
-                <div
-                  data-revelar
-                  className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[var(--bg-fundo)]"
-                >
-                  <Image
-                    src={item.mapa_imagem}
-                    alt={`Localização do ${item.nome}`}
-                    fill
-                    data-quadro
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover"
-                  />
-                </div>
-              ) : null}
             </div>
-          </Secao>
-        ) : null}
 
-        {/* ====================================== bloco 8: atendimento */}
-        <Secao id="cadastro" className="pt-0 md:pt-0">
-          <div data-revelar className="max-w-2xl">
-            <Olho>Atendimento</Olho>
-            <Titulo
-              antes="Como você quer ser"
-              destaque="atendido?"
-              className="mt-5"
-            />
-            {item.atendimento_chamada ? (
-              <p className="mt-5 leading-relaxed text-[var(--fg-suave)]">
-                {item.atendimento_chamada}
-              </p>
+            {local ? (
+              <div
+                data-revelar
+                className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-[var(--borda)] bg-[var(--bg-fundo)] lg:aspect-auto lg:min-h-[26rem]"
+              >
+                <iframe
+                  title={`Mapa da localização do ${item.nome}`}
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(enderecoMapa)}&z=15&output=embed`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="absolute inset-0 h-full w-full border-0"
+                />
+              </div>
+            ) : item.mapa_imagem ? (
+              <div
+                data-revelar
+                className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[var(--bg-fundo)]"
+              >
+                <Image
+                  src={item.mapa_imagem}
+                  alt={`Localização do ${item.nome}`}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                />
+              </div>
             ) : null}
           </div>
+        </Secao>
+      ) : null}
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            <Opcao
-              Icone={MapPin}
-              titulo="Atendimento presencial"
-              texto={`Venha conhecer o projeto e tirar suas dúvidas com a nossa equipe. ${empresa.endereco}`}
-              rodape={empresa.atendimento}
-            />
-            <Opcao
-              Icone={Whatsapp}
-              titulo="Contato comercial"
-              texto={`Fale direto com o nosso time comercial pelo WhatsApp ${empresa.whatsapp}.`}
-              acao={
-                <BotaoExterno
-                  href={empresa.whatsapp_link}
-                  icone="zap"
-                  className="mt-5"
-                >
-                  Chamar no WhatsApp
-                </BotaoExterno>
-              }
-            />
-            <Opcao
-              Icone={UserRound}
-              titulo="Cadastro de interessados"
-              texto="Deixe seus dados e receba um atendimento feito para o seu perfil."
-              acao={
-                <BotaoLink href="#formulario" className="mt-5">
-                  Quero ser atendido
-                </BotaoLink>
-              }
-            />
-          </div>
-
-          {/* ------------------------------------------ formulário curto */}
+      {/* ================================ bloco 8: andamento da obra */}
+      {andamento !== null ? (
+        <Secao className="pt-0 md:pt-0">
           <div
-            id="formulario"
             data-revelar
-            className="mt-14 scroll-mt-28 rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] p-7 sm:p-10"
+            className="blog-verde relative overflow-hidden rounded-[1.75rem] px-6 py-10 sm:px-12 sm:py-14"
           >
-            <div className="max-w-xl">
-              <h3 className="font-display text-2xl font-medium">
-                Tenho interesse neste empreendimento
-              </h3>
-              <p className="mt-3 leading-relaxed text-[var(--fg-suave)]">
-                Deixe seus dados e receba o atendimento de um consultor da CS.
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <Olho>Acompanhe a obra</Olho>
+                <p className="mt-5 text-[2rem] leading-tight font-light tracking-[-0.05em] text-white sm:text-[2.6rem]">
+                  {andamento === 100 ? "Obra concluída" : "Obra em andamento"}
+                </p>
+                {textoUtil(item.previsao_entrega) ? (
+                  <p className="mt-2 flex items-center gap-2 text-white/70">
+                    <CalendarCheck className="h-4 w-4" />
+                    Previsão de entrega: {item.previsao_entrega}
+                  </p>
+                ) : null}
+              </div>
+              <p className="tabular text-[3.5rem] leading-none font-light tracking-[-0.06em] text-[var(--color-ouro-300)] sm:text-[4.5rem]">
+                {andamento}%
               </p>
             </div>
-            <FormularioCurto
-              empreendimentos={empreendimentos}
-              empreendimentoPadrao={item.id}
-              origem={`/empreendimentos/${item.slug}`}
-            />
+            <div
+              role="progressbar"
+              aria-valuenow={andamento}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Andamento da obra"
+              className="mt-8 h-3 overflow-hidden rounded-full bg-white/15"
+            >
+              <div
+                className="h-full rounded-full bg-[linear-gradient(90deg,#cfa862,#f3d694)]"
+                style={{ width: `${andamento}%` }}
+              />
+            </div>
           </div>
+        </Secao>
+      ) : null}
 
-          <p className="mt-8 text-xs leading-relaxed text-[var(--fg-tenue)]">
-            Imagens meramente ilustrativas. Valores, condições e prazos podem
-            ser alterados sem aviso prévio.
+      {/* ====================================== bloco 9: atendimento */}
+      <Secao id="cadastro" className="pt-0 md:pt-0">
+        <div data-revelar className="max-w-2xl">
+          <Olho>Atendimento</Olho>
+          <Titulo
+            antes="Ficou interessado no"
+            destaque={item.nome}
+            className="mt-5"
+          />
+          <p className="mt-5 leading-relaxed text-[var(--fg-suave)]">
+            {textoUtil(item.atendimento_chamada) ??
+              "Deixe seus dados e um consultor da CS te mostra as unidades, as condições e marca uma visita."}
           </p>
-        </Secao>
+        </div>
 
-        {/* ---------------------------------------- voltar para a lista */}
-        <Secao className="pt-0 md:pt-0">
-          <Link
-            href="/empreendimentos"
-            className="group -my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-medium text-[var(--acento)]"
-          >
-            <Simbolo className="h-4 w-auto" />
-            Ver todos os empreendimentos
-            <ArrowRight className="h-4 w-4 transition-transform duration-500 group-hover:translate-x-1" />
-          </Link>
-        </Secao>
-      </div>
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <Opcao
+            Icone={MapPin}
+            titulo="Atendimento presencial"
+            texto={`Venha conhecer o projeto e tirar suas dúvidas com a nossa equipe. ${empresa.endereco}`}
+            rodape={empresa.atendimento}
+          />
+          <Opcao
+            Icone={Whatsapp}
+            titulo="Contato comercial"
+            texto={`Fale direto com o nosso time comercial pelo WhatsApp ${empresa.whatsapp}.`}
+            acao={
+              <BotaoExterno
+                href={empresa.whatsapp_link}
+                icone="zap"
+                aparencia="contorno"
+                className="mt-5"
+              >
+                Chamar no WhatsApp
+              </BotaoExterno>
+            }
+          />
+          <Opcao
+            Icone={UserRound}
+            titulo="Cadastro de interessados"
+            texto="Deixe seus dados e receba um atendimento feito para o seu perfil."
+            acao={
+              <BotaoLink href="#formulario" className="mt-5">
+                Quero ser atendido
+              </BotaoLink>
+            }
+          />
+        </div>
+
+        <div
+          id="formulario"
+          data-revelar
+          className="mt-14 scroll-mt-28 rounded-2xl border border-[var(--borda)] bg-white p-6 sm:p-10"
+        >
+          <div className="max-w-xl">
+            <h3 className="text-2xl font-light tracking-[-0.05em] text-[#28513f]">
+              Tenho interesse neste empreendimento
+            </h3>
+            <p className="mt-3 leading-relaxed text-[var(--fg-suave)]">
+              Deixe seus dados e receba o atendimento de um consultor da CS.
+            </p>
+          </div>
+          <FormularioCurto
+            empreendimentos={empreendimentos}
+            empreendimentoPadrao={item.id}
+            origem={`/empreendimentos/${item.slug}`}
+          />
+        </div>
+      </Secao>
+
+      {/* -------------------------------------- voltar para a lista */}
+      <Secao className="pt-0 md:pt-0">
+        <Link
+          href="/empreendimentos"
+          className="group -my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-medium text-[#00552f]"
+        >
+          <Simbolo className="h-4 w-auto" />
+          Ver todos os empreendimentos
+          <ArrowRight className="h-4 w-4 transition-transform duration-500 group-hover:translate-x-1" />
+        </Link>
+      </Secao>
     </>
+  );
+}
+
+/** Características ou diferenciais em cartões, cada um com o seu ícone. */
+function ListaComIcones({
+  itens,
+  destaque = false,
+}: {
+  itens: { id: string; texto: string }[];
+  destaque?: boolean;
+}) {
+  return (
+    <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {itens.map((c, i) => {
+        const Icone = iconeDoTexto(c.texto);
+        return (
+          <li
+            key={c.id}
+            data-revelar
+            style={{ "--atraso": `${(i % 3) * 70}ms` } as React.CSSProperties}
+            className="flex items-start gap-4 rounded-2xl border border-[var(--borda)] bg-white p-5"
+          >
+            <span
+              className={
+                destaque
+                  ? "grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[linear-gradient(135deg,#004527,#00ab61)] text-white"
+                  : "grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#ebfff6] text-[#004527]"
+              }
+            >
+              <Icone className="h-5 w-5" strokeWidth={1.7} />
+            </span>
+            <span className="pt-2.5 leading-snug text-[var(--fg)]">
+              {c.texto}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

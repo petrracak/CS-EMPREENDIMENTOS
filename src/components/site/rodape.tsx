@@ -144,7 +144,23 @@ export async function Rodape() {
             </p>
             <p>{txt(config, "copyright")}</p>
           </div>
-          <p className="mt-3 text-xs text-white/30">{txt(config, "aviso")}</p>
+          <nav
+            aria-label="Documentos"
+            className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/55"
+          >
+            <Link href="/termos-de-uso" className="transition-colors hover:text-[var(--color-ouro-300)]">
+              Termos de uso e compromisso
+            </Link>
+            <Link
+              href="/politica-de-privacidade"
+              className="transition-colors hover:text-[var(--color-ouro-300)]"
+            >
+              Política de privacidade
+            </Link>
+          </nav>
+          {txt(config, "aviso") ? (
+            <p className="mt-3 text-xs text-white/30">{txt(config, "aviso")}</p>
+          ) : null}
         </div>
       </div>
     </footer>

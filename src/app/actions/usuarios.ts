@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { exigirArea } from "@/lib/auth";
+import { senhaFraca } from "@/lib/senha";
 import { emailInterno, FORMATO_USUARIO } from "@/lib/equipe";
 import { ehNivel, type Nivel } from "@/lib/permissoes";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -46,8 +47,15 @@ const schemaNovo = z.object({
   nivel: z.string().refine(ehNivel, "Escolha o nível de acesso."),
   senha: z
     .string()
-    .min(SENHA_MINIMA, `A senha precisa ter pelo menos ${SENHA_MINIMA} caracteres.`)
-    .max(72, "Senha longa demais."),
+    .min(
+      SENHA_MINIMA,
+      `A senha precisa ter pelo menos ${SENHA_MINIMA} caracteres.`,
+    )
+    .max(72, "Senha longa demais.")
+    .refine(
+      (v) => !senhaFraca(v),
+      "Senha fácil de adivinhar. Use uma frase, com letras e números.",
+    ),
 });
 
 export async function criarUsuario(
@@ -66,11 +74,14 @@ export async function criarUsuario(
 
   if (!resultado.success) {
     const erros: Record<string, string> = {};
-    for (const p of resultado.error.issues) erros[String(p.path[0])] ??= p.message;
+    for (const p of resultado.error.issues)
+      erros[String(p.path[0])] ??= p.message;
     return { ok: false, erros };
   }
 
   const { nome, usuario, email, senha } = resultado.data;
+  const pessoal = senhaFraca(senha, [nome, usuario, email]);
+  if (pessoal) return { ok: false, erros: { senha: pessoal } };
   const nivel = resultado.data.nivel as Nivel;
   const admin = createAdminClient();
 
@@ -80,7 +91,10 @@ export async function criarUsuario(
     .eq("usuario", usuario)
     .maybeSingle();
   if (existente) {
-    return { ok: false, erros: { usuario: "Esse usuário já existe. Escolha outro." } };
+    return {
+      ok: false,
+      erros: { usuario: "Esse usuário já existe. Escolha outro." },
+    };
   }
 
   const { data: criado, error } = await admin.auth.admin.createUser({
@@ -109,7 +123,10 @@ export async function criarUsuario(
   if (erroPerfil) {
     // Conta sem perfil certo não serve para nada: desfaz.
     await admin.auth.admin.deleteUser(criado.user.id);
-    return { ok: false, mensagem: "Não conseguimos criar a conta. Tente de novo." };
+    return {
+      ok: false,
+      mensagem: "Não conseguimos criar a conta. Tente de novo.",
+    };
   }
 
   revalidatePath("/admin/usuarios");
@@ -134,7 +151,10 @@ async function alvoEditavel(id: string): Promise<Resposta | null> {
 
   if (!alvo) return { ok: false, mensagem: "Usuário não encontrado." };
   if (alvo.principal) {
-    return { ok: false, mensagem: "A conta principal não pode ser alterada aqui." };
+    return {
+      ok: false,
+      mensagem: "A conta principal não pode ser alterada aqui.",
+    };
   }
   return null;
 }
@@ -151,10 +171,16 @@ export async function mudarNivel(id: string, nivel: string): Promise<Resposta> {
   if (error) return { ok: false, mensagem: "Não conseguimos salvar." };
 
   revalidatePath("/admin/usuarios");
-  return { ok: true, mensagem: "Nível atualizado. Vale no próximo clique da pessoa." };
+  return {
+    ok: true,
+    mensagem: "Nível atualizado. Vale no próximo clique da pessoa.",
+  };
 }
 
-export async function alterarSituacao(id: string, ativo: boolean): Promise<Resposta> {
+export async function alterarSituacao(
+  id: string,
+  ativo: boolean,
+): Promise<Resposta> {
   const recusa = await alvoEditavel(id);
   if (recusa) return recusa;
 
@@ -167,11 +193,16 @@ export async function alterarSituacao(id: string, ativo: boolean): Promise<Respo
   revalidatePath("/admin/usuarios");
   return {
     ok: true,
-    mensagem: ativo ? "Acesso reativado." : "Acesso suspenso. A pessoa sai do painel na hora.",
+    mensagem: ativo
+      ? "Acesso reativado."
+      : "Acesso suspenso. A pessoa sai do painel na hora.",
   };
 }
 
-export async function definirSenha(id: string, senha: string): Promise<Resposta> {
+export async function definirSenha(
+  id: string,
+  senha: string,
+): Promise<Resposta> {
   const recusa = await alvoEditavel(id);
   if (recusa) return recusa;
   if (senha.length < SENHA_MINIMA) {
@@ -180,6 +211,8 @@ export async function definirSenha(id: string, senha: string): Promise<Resposta>
       mensagem: `A senha precisa ter pelo menos ${SENHA_MINIMA} caracteres.`,
     };
   }
+  const fraca = senhaFraca(senha);
+  if (fraca) return { ok: false, mensagem: fraca };
 
   const { error } = await createAdminClient().auth.admin.updateUserById(id, {
     password: senha,

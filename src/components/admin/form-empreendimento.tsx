@@ -8,6 +8,7 @@ import {
   type EstadoEmpreendimento,
 } from "@/app/actions/empreendimentos";
 import { EnviarImagem } from "@/components/admin/enviar-imagem";
+import { ListaComIcones } from "@/components/admin/lista-com-icones";
 import {
   Abas,
   Area,
@@ -243,22 +244,20 @@ export function FormEmpreendimento({
             <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
               <Campo
                 rotulo="Características do imóvel"
-                apoio="Uma por linha. Cada linha vira um item com marcador no site."
+                apoio="Uma por linha. Cada linha vira um cartão com ícone no site. O ícone sai das palavras: “garagem” vira carro, “suíte” vira cama, “piscina” vira água. A prévia aparece embaixo da caixa."
               >
-                <Area
-                  name="caracteristicas"
-                  rows={7}
-                  defaultValue={linhas(dados.caracteristicas)}
+                <ListaComIcones
+                  nome="caracteristicas"
+                  valor={linhas(dados.caracteristicas)}
                 />
               </Campo>
               <Campo
                 rotulo="Diferenciais"
-                apoio="Um por linha. Cada linha vira um item com marcador no site."
+                apoio="Um por linha. Cada linha vira um cartão com ícone verde no site, escolhido pelas palavras. A prévia aparece embaixo da caixa."
               >
-                <Area
-                  name="diferenciais"
-                  rows={7}
-                  defaultValue={linhas(dados.diferenciais)}
+                <ListaComIcones
+                  nome="diferenciais"
+                  valor={linhas(dados.diferenciais)}
                 />
               </Campo>
             </div>
@@ -337,6 +336,20 @@ export function FormEmpreendimento({
               <Campo rotulo="Registro de incorporação">
                 <Entrada name="registro_incorporacao" defaultValue={t("registro_incorporacao")} />
               </Campo>
+              <Campo
+                rotulo="Andamento da obra (%)"
+                apoio="Quanto da obra já foi feito, de 0 a 100. Aparece na ficha como “Acompanhe a obra”, com a barra de progresso. Em branco, ou com o empreendimento entregue, não aparece."
+              >
+                <Entrada
+                  name="andamento_obra"
+                  type="number"
+                  min={0}
+                  max={100}
+                  inputMode="numeric"
+                  defaultValue={t("andamento_obra")}
+                  placeholder="45"
+                />
+              </Campo>
             </div>
 
             <Campo
@@ -388,9 +401,13 @@ export function FormEmpreendimento({
               </Campo>
               <Campo
                 rotulo="Pontos de referência"
-                apoio="Um por linha. Ex.: A 10 minutos do shopping."
+                apoio="Um por linha. Ex.: A 10 minutos do shopping. No site, cada um ganha um ícone pelas palavras."
               >
-                <Area name="referencias" rows={5} defaultValue={linhas(dados.referencias)} />
+                <ListaComIcones
+                  nome="referencias"
+                  valor={linhas(dados.referencias)}
+                  linhas={5}
+                />
               </Campo>
             </div>
             <div className="mt-7">

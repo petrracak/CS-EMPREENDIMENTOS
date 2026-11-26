@@ -12,7 +12,17 @@ import { Simbolo } from "@/components/site/logo";
 import { TextoRico, Trecho } from "@/components/site/texto-rico";
 import { TopoNovo } from "@/components/site/topo-novo";
 import { Olho, Secao, Titulo } from "@/components/site/ui";
-import { listarDestaques, listarMarcos, listarPosts } from "@/lib/queries";
+import {
+  listarDestaques,
+  listarEmpreendimentos,
+  listarMarcos,
+  listarPosts,
+} from "@/lib/queries";
+import type { Metadata } from "next";
+
+import { DadosEstruturados } from "@/components/site/dados-estruturados";
+import { perguntasFrequentes } from "@/lib/seo";
+import { lerConfig } from "@/lib/settings";
 import { lerConfigs, lerEmpresa, lista, txt } from "@/lib/settings";
 import { lerTitulo } from "@/lib/texto-rico";
 import { fotosDaVitrine } from "@/lib/vitrine";
@@ -22,8 +32,20 @@ import { partirNumero } from "@/lib/utils";
 // chama revalidatePath ao salvar, então a CS nunca espera por isso.
 export const revalidate = 3600;
 
+/** Título e descrição do bloco "Como o site aparece no Google" do painel. */
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await lerConfig("seo");
+  const titulo = txt(seo, "titulo");
+  const descricao = txt(seo, "descricao");
+  return {
+    ...(titulo ? { title: { absolute: titulo } } : {}),
+    ...(descricao ? { description: descricao } : {}),
+    alternates: { canonical: "/" },
+  };
+}
+
 export default async function PaginaInicial() {
-  const [configs, empresa, destaques, marcos, posts, vitrine] =
+  const [configs, empresa, destaques, marcos, posts, vitrine, todas] =
     await Promise.all([
       lerConfigs([
         "hero",
@@ -38,10 +60,58 @@ export default async function PaginaInicial() {
       listarMarcos(),
       listarPosts(3),
       fotosDaVitrine(),
+      listarEmpreendimentos(),
     ]);
 
   const hero = configs.hero;
   const construtor = configs.construtor;
+
+  // Perguntas frequentes: as respostas saem dos dados do painel (endereço,
+  // horário, WhatsApp, empreendimentos em obra), então nunca ficam velhas.
+  // É o tipo de trecho que o Google e as IAs citam direto na resposta.
+  const emObra = todas.filter((e) => e.situacao !== "entregue");
+  const juntar = (nomes: string[]) =>
+    nomes.length > 1
+      ? `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}`
+      : (nomes[0] ?? "");
+  const minuscula = (t: string) => (t ? t[0].toLowerCase() + t.slice(1) : t);
+  const perguntas = [
+    {
+      pergunta: "Onde fica a CS Empreendimentos?",
+      resposta: `O escritório da CS fica na ${empresa.endereco}.${empresa.atendimento ? ` O atendimento é de ${minuscula(empresa.atendimento).replace(/^de /, "")}` : ""}`,
+    },
+    {
+      pergunta: "Desde quando a CS constrói em Santarém?",
+      resposta:
+        "Desde 2016. A CS começou com quatro casas feitas em parceria e, até 2026, já entregou 140 unidades em Santarém, entre casas e apartamentos.",
+    },
+    ...(emObra.length
+      ? [
+          {
+            pergunta: "Quais empreendimentos da CS estão em obra agora?",
+            resposta: `${juntar(
+              emObra.map((e) =>
+                e.bairro ? `${e.nome}, no ${e.bairro}` : e.nome,
+              ),
+            )}. Cada um tem página própria no site, com fotos, plantas, ficha técnica e as unidades disponíveis.`,
+          },
+        ]
+      : []),
+    {
+      pergunta: "Que tipo de imóvel a CS constrói?",
+      resposta:
+        "Casas em condomínio fechado, apartamentos, flats e terrenos em Santarém, no Pará. A CS é construtora e incorporadora: projeta, constrói e vende os próprios empreendimentos.",
+    },
+    {
+      pergunta: "Dá para comprar um imóvel da CS na planta?",
+      resposta:
+        "Sim. As unidades dos empreendimentos em obra podem ser compradas antes da entrega, com as condições apresentadas pela equipe comercial. O registro de incorporação e os documentos de cada projeto ficam à disposição de quem pedir.",
+    },
+    {
+      pergunta: "Como falar com um consultor da CS?",
+      resposta: `Pelo WhatsApp ${empresa.whatsapp}, pelo e-mail ${empresa.email} ou pelo cadastro do site. Um consultor entra em contato com as opções que fazem sentido para o seu perfil.`,
+    },
+  ];
 
   // A linha do tempo mora no bloco do fundador, no painel. A tabela
   // marcos é a de antes, e só vale enquanto o bloco não tiver nenhuma.
@@ -336,6 +406,39 @@ export default async function PaginaInicial() {
                 >
                   {txt(construtor, "botao")}
                 </BotaoNovo>
+              </div>
+            </div>
+          </Secao>
+
+          {/* ===================================== perguntas frequentes */}
+          <Secao className="pt-0 md:pt-0">
+            <DadosEstruturados dados={perguntasFrequentes(perguntas)} />
+            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+              <div data-revelar>
+                <Olho>Perguntas frequentes</Olho>
+                <Titulo
+                  antes="O que perguntam"
+                  destaque="sobre a CS"
+                  className="mt-5"
+                />
+              </div>
+              <div className="divide-y divide-[var(--borda)] border-y border-[var(--borda)]">
+                {perguntas.map((p) => (
+                  <details key={p.pergunta} className="pergunta group py-1">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-4 text-[1.0625rem] text-[#28513f] [&::-webkit-details-marker]:hidden">
+                      {p.pergunta}
+                      <span
+                        aria-hidden
+                        className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[var(--borda)] text-[#00552f] transition-transform duration-300 group-open:rotate-45"
+                      >
+                        +
+                      </span>
+                    </summary>
+                    <p className="pr-12 pb-5 leading-relaxed text-[var(--fg-suave)]">
+                      {p.resposta}
+                    </p>
+                  </details>
+                ))}
               </div>
             </div>
           </Secao>

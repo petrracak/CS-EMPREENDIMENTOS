@@ -7,6 +7,7 @@ import { listarPosts } from "@/lib/queries";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/blog" },
   title: "Blog",
   description:
     "Novidades da CS, evolução das obras e dicas para quem quer comprar um imóvel em Santarém.",

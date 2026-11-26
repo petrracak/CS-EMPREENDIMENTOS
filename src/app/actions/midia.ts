@@ -28,8 +28,17 @@ export async function enviarImagem(dados: FormData): Promise<RespostaEnvio> {
   if (grande.size > TAMANHO_MAXIMO) {
     return { erro: "A imagem ficou grande demais. Tente outra foto." };
   }
-  if (!/^[a-z0-9-]+$/.test(nome) || !/^[a-z0-9/-]+$/.test(pasta)) {
+  if (
+    !/^[a-z0-9-]+$/.test(nome) ||
+    !/^[a-z0-9-]+(\/[a-z0-9-]+)*$/.test(pasta)
+  ) {
     return { erro: "Nome de arquivo inválido." };
+  }
+  // O navegador converte tudo para WebP antes de subir. Aqui se confere
+  // que é mesmo WebP (pelo cabeçalho do arquivo, não pelo nome): ninguém
+  // sobe uma página HTML ou um script disfarçado de imagem.
+  if (!(await ehWebp(grande)) || !(await ehWebp(pequena))) {
+    return { erro: "O arquivo não é uma imagem válida." };
   }
 
   const supabase = createAdminClient();
@@ -39,12 +48,10 @@ export async function enviarImagem(dados: FormData): Promise<RespostaEnvio> {
     supabase.storage
       .from("midia")
       .upload(caminho, grande, { contentType: "image/webp", upsert: true }),
-    supabase.storage
-      .from("midia")
-      .upload(`${pasta}/${nome}-sm.webp`, pequena, {
-        contentType: "image/webp",
-        upsert: true,
-      }),
+    supabase.storage.from("midia").upload(`${pasta}/${nome}-sm.webp`, pequena, {
+      contentType: "image/webp",
+      upsert: true,
+    }),
   ]);
 
   if (envios.some((e) => e.error)) {
@@ -54,9 +61,17 @@ export async function enviarImagem(dados: FormData): Promise<RespostaEnvio> {
   return { caminho };
 }
 
+async function ehWebp(arquivo: File) {
+  const b = new Uint8Array(await arquivo.slice(0, 12).arrayBuffer());
+  const texto = (i: number, f: number) => String.fromCharCode(...b.slice(i, f));
+  return b.length === 12 && texto(0, 4) === "RIFF" && texto(8, 12) === "WEBP";
+}
+
 /** Remove as duas versões de uma foto. */
 export async function apagarImagem(caminho: string): Promise<void> {
   await exigirPerfil();
+  // Só caminhos do jeito que o painel grava: pastas e nome simples, .webp.
+  if (!/^[a-z0-9-]+(\/[a-z0-9-]+)*\.webp$/.test(caminho)) return;
   const supabase = createAdminClient();
   await supabase.storage
     .from("midia")

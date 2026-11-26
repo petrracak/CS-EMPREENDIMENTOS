@@ -7,6 +7,7 @@ import { listarEmpreendimentos, listarTipos } from "@/lib/queries";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/empreendimentos" },
   title: "Empreendimentos em Santarém",
   description:
     "Casas, apartamentos e terrenos da CS em Santarém, em obra e já entregues. Veja as unidades de cada empreendimento.",

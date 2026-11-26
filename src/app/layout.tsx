@@ -1,23 +1,34 @@
 import type { Metadata, Viewport } from "next";
 
 import { switzer } from "@/lib/fontes";
+import { IMAGEM_PADRAO, SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "CS Empreendimentos | Casas e apartamentos em Santarém",
     template: "%s | CS Empreendimentos",
   },
   description:
     "Construtora e incorporadora em Santarém desde 2016. Casas, apartamentos e terrenos com projeto bem pensado e acabamento de qualidade.",
+  applicationName: "CS Empreendimentos",
   openGraph: {
     type: "website",
     locale: "pt_BR",
     siteName: "CS Empreendimentos",
+    images: [
+      {
+        url: IMAGEM_PADRAO,
+        width: 1200,
+        height: 630,
+        alt: "CS Empreendimentos, casas e apartamentos em Santarém",
+      },
+    ],
   },
+  twitter: { card: "summary_large_image" },
+  formatDetection: { telephone: false },
   icons: {
     icon: [{ url: "/marca/favicon-fonte.svg", type: "image/svg+xml" }],
   },

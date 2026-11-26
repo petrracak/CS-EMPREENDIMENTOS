@@ -65,6 +65,11 @@ const supabaseHost = (() => {
  * seja enviado para fora.
  */
 const SEGURANCA = [
+  // Só HTTPS por dois anos, também nos subdomínios.
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -120,6 +125,11 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: SEGURANCA },
+      // O painel não aparece em busca nenhuma, nem por link solto.
+      {
+        source: "/admin/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
       // Arquivos de public/ não têm hash no nome: um dia fresco, uma semana
       // servindo o antigo enquanto confere.
       {

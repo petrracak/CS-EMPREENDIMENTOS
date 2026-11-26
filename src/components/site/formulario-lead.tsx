@@ -52,7 +52,7 @@ function Campo({
   padrao?: string;
 }) {
   return (
-    <label className="block">
+    <label className="flex flex-col">
       <span className="text-sm font-medium text-[var(--fg)]">
         {rotulo}
         {obrigatorio ? (
@@ -64,6 +64,8 @@ function Campo({
           {apoio}
         </span>
       ) : null}
+      {/* Empurra a caixa para baixo: lado a lado, as caixas ficam          alinhadas mesmo com textos de apoio de tamanhos diferentes. */}
+      <span aria-hidden className="flex-1" />
       <input
         type={tipo}
         name={nome}
@@ -178,13 +180,14 @@ export function FormularioCompleto({
           apoio="Quanto você tem hoje para a entrada? Se ainda não sabe, pode deixar em branco."
         />
 
-        <label className="block">
+        <label className="flex flex-col">
           <span className="text-sm font-medium text-[var(--fg)]">
             Empreendimento de interesse
           </span>
           <span className="mt-1 block text-xs text-[var(--fg-tenue)]">
             Escolha um empreendimento
           </span>
+          <span aria-hidden className="flex-1" />
           <select
             name="empreendimento_id"
             defaultValue={empreendimentoPadrao ?? ""}
@@ -318,10 +321,11 @@ export function FormularioSaida({
       </div>
 
       {empreendimentos.length ? (
-        <label className="block">
+        <label className="flex flex-col">
           <span className="text-sm font-medium text-[var(--fg)]">
             Empreendimento de interesse
           </span>
+          <span aria-hidden className="flex-1" />
           <select
             name="empreendimento_id"
             defaultValue=""
@@ -356,7 +360,15 @@ function Consentimento({ texto }: { texto: string }) {
         className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--acento)]"
       />
       <span className="text-xs leading-relaxed text-[var(--fg-suave)]">
-        {texto}
+        {texto}{" "}
+        <a
+          href="/politica-de-privacidade"
+          target="_blank"
+          className="text-[#00552f] underline underline-offset-2"
+        >
+          Ver a Política de privacidade
+        </a>
+        .
       </span>
     </label>
   );
