@@ -103,7 +103,7 @@ export function FaixaVisual({
     >
       {/* No celular o texto e o link empilham. Em linha, cada um ficava
           com metade de 375 px e a frase virava seis linhas. */}
-      <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center justify-center gap-x-4 gap-y-2 px-10 py-2.5 text-center text-[0.8125rem] sm:flex-row sm:flex-wrap">
+      <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center justify-center gap-x-4 gap-y-2 px-12 py-2.5 text-center text-[0.8125rem] sm:flex-row sm:flex-wrap">
         <p className="leading-snug">
           {/* O ponto que pulsa: diz "isto é agora" sem precisar de texto.
               Fica na linha do texto, para acompanhar a frase quando ela
@@ -141,9 +141,14 @@ export function FaixaVisual({
           onClick={aoFechar}
           tabIndex={previa ? -1 : undefined}
           aria-label="Fechar aviso"
-          className="absolute top-1/2 right-1 z-10 -translate-y-1/2 rounded-full p-3 opacity-60 transition-[opacity,background-color] hover:bg-black/10 hover:opacity-100"
+          // 44 px de alvo (o mínimo para o dedo), acima do texto (z-20) e,
+          // no celular, no canto de cima: a faixa ali tem duas linhas e o
+          // botão do meio, e o X centrado na altura caía fora do alcance.
+          // Antes era um círculo de 38 px com ícone de 14 px na borda da
+          // tela, e o toque ao lado ia para o texto e não fazia nada.
+          className="absolute top-1 right-1 z-20 grid h-11 w-11 touch-manipulation place-items-center rounded-full bg-white/10 opacity-80 transition-[opacity,background-color] hover:bg-white/20 hover:opacity-100 sm:top-1/2 sm:-translate-y-1/2"
         >
-          <X className="h-3.5 w-3.5" />
+          <X className="h-4 w-4" strokeWidth={2.2} />
         </button>
       ) : null}
     </div>
