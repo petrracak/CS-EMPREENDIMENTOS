@@ -23,6 +23,9 @@ import {
 import { Whatsapp } from "@/components/icones-sociais";
 import { Palavras } from "@/components/site/palavras";
 import { Galeria } from "@/components/site/galeria";
+import { MapaPreguicoso } from "@/components/site/mapa-preguicoso";
+import { VideosEmpreendimento } from "@/components/site/videos-empreendimento";
+import { prepararVideo, type TipoVideo, type VideoPronto } from "@/lib/videos";
 import { iconeDoTexto } from "@/components/site/icone-do-item";
 import { FormularioCurto } from "@/components/site/formulario-lead";
 import { Simbolo } from "@/components/site/logo";
@@ -110,6 +113,9 @@ export default async function PaginaEmpreendimento({
   const situacao = SITUACOES[item.situacao as keyof typeof SITUACOES];
   const galeria = item.imagens.filter((i) => i.categoria === "galeria");
   const plantas = item.imagens.filter((i) => i.categoria === "planta");
+  const videos = item.videos
+    .map((v) => prepararVideo({ ...v, tipo: v.tipo as TipoVideo }))
+    .filter((v): v is VideoPronto => v !== null);
   const local = [item.endereco, item.bairro, item.cidade]
     .filter(Boolean)
     .join(", ");
@@ -225,6 +231,20 @@ export default async function PaginaEmpreendimento({
       { nome: "Empreendimentos", caminho: "/empreendimentos" },
       { nome: item.nome, caminho: `/empreendimentos/${item.slug}` },
     ]),
+    // Vídeos com miniatura entram para o Google (busca de vídeos).
+    ...videos
+      .filter((v) => v.miniatura)
+      .map((v) => ({
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        name: v.titulo || `${item.nome} em vídeo`,
+        description: v.titulo || textoUtil(item.frase_impacto) || item.nome,
+        thumbnailUrl: v.miniatura,
+        uploadDate: item.videos.find((o) => o.id === v.id)?.created_at,
+        ...(v.tipo === "arquivo"
+          ? { contentUrl: v.player }
+          : { embedUrl: v.player }),
+      })),
   ];
 
   return (
@@ -267,6 +287,14 @@ export default async function PaginaEmpreendimento({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={urlDaMidia(item.logo_url)}
+                  // A versão pequena (640 px) basta no celular; a grande
+                  // pesava 130 KB para aparecer com 270 px de largura.
+                  srcSet={
+                    medidas
+                      ? `${urlDaMidia(item.logo_url, { pequena: true })} ${Math.round(Math.min(1, 640 / Math.max(medidas.largura, medidas.altura)) * medidas.largura)}w, ${urlDaMidia(item.logo_url)} ${medidas.largura}w`
+                      : undefined
+                  }
+                  sizes={`(min-width: 640px) ${logo.largura}px, ${Math.round(logo.largura * 0.74)}px`}
                   alt={item.nome}
                   width={logo.largura}
                   height={logo.altura}
@@ -395,21 +423,27 @@ export default async function PaginaEmpreendimento({
               </h2>
               <dl className="mt-4 divide-y divide-[var(--borda)]">
                 {ficha.map((linha) => (
-                  <div key={linha.rotulo} className="flex gap-3.5 py-3.5">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#ebfff6] text-[#004527]">
-                      <linha.Icone
-                        className="h-[1.05rem] w-[1.05rem]"
-                        strokeWidth={1.7}
-                      />
-                    </span>
-                    <div className="min-w-0">
-                      <dt className="text-[0.8125rem] text-[var(--fg-tenue)]">
-                        {linha.rotulo}
-                      </dt>
-                      <dd className="mt-0.5 text-[0.9375rem] leading-snug text-[var(--fg)]">
-                        {linha.valor}
-                      </dd>
-                    </div>
+                  // dt e dd filhos diretos do div: é o que o leitor de
+                  // tela espera numa lista de definições.
+                  <div
+                    key={linha.rotulo}
+                    className="relative py-3.5 pl-[3.25rem]"
+                  >
+                    <dt className="text-[0.8125rem] text-[var(--fg-tenue)]">
+                      <span
+                        aria-hidden
+                        className="absolute top-3.5 left-0 grid h-9 w-9 place-items-center rounded-full bg-[#ebfff6] text-[#004527]"
+                      >
+                        <linha.Icone
+                          className="h-[1.05rem] w-[1.05rem]"
+                          strokeWidth={1.7}
+                        />
+                      </span>
+                      {linha.rotulo}
+                    </dt>
+                    <dd className="mt-0.5 text-[0.9375rem] leading-snug text-[var(--fg)]">
+                      {linha.valor}
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -465,6 +499,19 @@ export default async function PaginaEmpreendimento({
           </div>
           <div data-revelar className="mt-10">
             <Galeria fotos={galeria} />
+          </div>
+        </Secao>
+      ) : null}
+
+      {/* =========================================== bloco 4b: vídeos */}
+      {videos.length ? (
+        <Secao className="pt-0 md:pt-0">
+          <div data-revelar className="max-w-2xl">
+            <Olho>Vídeos</Olho>
+            <Titulo antes="Veja em" destaque="movimento" className="mt-5" />
+          </div>
+          <div data-revelar className="mt-10">
+            <VideosEmpreendimento videos={videos} />
           </div>
         </Secao>
       ) : null}
@@ -567,12 +614,9 @@ export default async function PaginaEmpreendimento({
                 data-revelar
                 className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-[var(--borda)] bg-[var(--bg-fundo)] lg:aspect-auto lg:min-h-[26rem]"
               >
-                <iframe
-                  title={`Mapa da localização do ${item.nome}`}
+                <MapaPreguicoso
+                  titulo={`Mapa da localização do ${item.nome}`}
                   src={`https://maps.google.com/maps?q=${encodeURIComponent(enderecoMapa)}&z=15&output=embed`}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="absolute inset-0 h-full w-full border-0"
                 />
               </div>
             ) : item.mapa_imagem ? (
@@ -707,6 +751,7 @@ export default async function PaginaEmpreendimento({
       {/* -------------------------------------- voltar para a lista */}
       <Secao className="pt-0 md:pt-0">
         <Link
+          prefetch={false}
           href="/empreendimentos"
           className="group -my-2.5 inline-flex items-center gap-2 py-2.5 text-sm font-medium text-[#00552f]"
         >

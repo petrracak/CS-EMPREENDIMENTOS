@@ -104,10 +104,12 @@ dependência de desenvolvimento: o desenho é copiado para
 índice para usar três marcas. Marca de rede social não se redesenha — a
 forma é registrada e o olho reconhece a diferença.
 
-**Imagens em dois tamanhos.** Cada foto é guardada como `foto.webp` (até
-1600px) e `foto-sm.webp` (até 640px). O carregador em `src/lib/image-loader.ts`
-escolhe qual servir, sem passar pelo otimizador da Vercel — que no plano free
-responde 402 quando a cota acaba e faz as imagens sumirem.
+**Imagens em três tamanhos.** Cada foto é guardada como `foto.webp` (até
+1600 px), `foto-md.webp` (680 px de largura, a do celular) e `foto-sm.webp`
+(até 640 px no lado maior, miniatura). O carregador em
+`src/lib/image-loader.ts` escolhe pelo tamanho pedido, sem passar pelo
+otimizador da Vercel — que no plano free responde 402 quando a cota acaba.
+O "-sm" não serve para foto em pé no celular: tem só 357 px de largura.
 
 **O redimensionamento é no navegador.** `src/lib/preparar-imagem.ts` reduz e
 converte para WebP antes de subir, qualquer que seja o formato escolhido (JPG,
@@ -156,6 +158,18 @@ Troca de senha pede a atual; senha comum ou com o próprio nome é recusada
 **Termos e privacidade.** `/termos-de-uso` e `/politica-de-privacidade`,
 com os dados da empresa do painel. O aviso de cookies aparece para todos,
 com ou sem pixel. Os textos são um modelo: vale a revisão de um advogado.
+
+**Vídeos.** Cada empreendimento aceita link (YouTube, Instagram, TikTok,
+Vimeo, `src/lib/videos.ts`) ou arquivo de até 45 MB, que vai do navegador
+direto para o Storage com autorização de uso único. O site mostra só a capa
+e carrega o player no toque. O plano gratuito do Supabase tem 1 GB de espaço
+e 5 GB de tráfego por mês: o painel recomenda o link.
+
+**Desempenho.** Medido com o Lighthouse no celular simulado, todas as páginas
+principais ficaram acima de 90. O que segura a nota: a abertura curta (1,7
+s), a foto principal com prioridade, o mapa e os vídeos carregando só perto
+da tela, a fonte só em 300, 400 e 500, e os links do site sem pré-carregar
+outras páginas (`prefetch={false}`), que disputavam banda com a foto.
 
 **Textos com negrito.** Os textos da página inicial saem do painel com
 negrito (`EditorTitulo` com `tamanho="texto"`; com `paragrafos`, para os

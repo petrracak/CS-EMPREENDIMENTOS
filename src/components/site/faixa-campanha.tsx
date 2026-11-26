@@ -122,6 +122,7 @@ export function FaixaVisual({
             <span className={classeLink}>{conteudoLink}</span>
           ) : (
             <Link
+              prefetch={false}
               href={linkUrl || "/cadastro"}
               className={classeLink}
               {...(externo

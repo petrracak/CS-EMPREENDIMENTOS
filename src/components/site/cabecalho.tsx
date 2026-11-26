@@ -57,9 +57,17 @@ export function Cabecalho({ whatsapp }: { whatsapp: string }) {
     <header className="cabecalho">
       <div
         ref={barra}
-        className={cn("cabecalho-barra", (rolou || menuAberto) && "cabecalho-barra-rolou")}
+        className={cn(
+          "cabecalho-barra",
+          (rolou || menuAberto) && "cabecalho-barra-rolou",
+        )}
       >
-        <Link href="/" aria-label="CS Empreendimentos, página inicial" className="shrink-0">
+        <Link
+          prefetch={false}
+          href="/"
+          aria-label="CS Empreendimentos, página inicial"
+          className="shrink-0"
+        >
           <Logo variante="branca" prioridade className="cabecalho-logo" />
         </Link>
 
@@ -67,6 +75,7 @@ export function Cabecalho({ whatsapp }: { whatsapp: string }) {
           <nav className="hidden items-center gap-7 lg:flex">
             {ITENS.map((item) => (
               <Link
+                prefetch={false}
                 key={item.href}
                 href={item.href}
                 aria-current={ativo(item.href) ? "page" : undefined}
@@ -98,7 +107,11 @@ export function Cabecalho({ whatsapp }: { whatsapp: string }) {
             aria-expanded={menuAberto}
             className="-mr-2 grid h-11 w-11 place-items-center rounded-lg text-[#ebfff6] transition-colors hover:bg-white/10 lg:hidden"
           >
-            {menuAberto ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {menuAberto ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
         </div>
       </div>
@@ -116,6 +129,7 @@ export function Cabecalho({ whatsapp }: { whatsapp: string }) {
               <nav className="flex flex-col px-5 pt-2">
                 {ITENS.map((item, i) => (
                   <Link
+                    prefetch={false}
                     key={item.href}
                     href={item.href}
                     data-entrada
@@ -129,7 +143,11 @@ export function Cabecalho({ whatsapp }: { whatsapp: string }) {
                     <ArrowUpRightIcon
                       size={22}
                       weight="light"
-                      className={ativo(item.href) ? "text-[#f3d694]" : "text-[#ebfff6]/50"}
+                      className={
+                        ativo(item.href)
+                          ? "text-[#f3d694]"
+                          : "text-[#ebfff6]/50"
+                      }
                     />
                   </Link>
                 ))}

@@ -66,6 +66,7 @@ export async function lerEmpreendimento(slug: string) {
        diferenciais:empreendimento_diferenciais (id, texto, ordem),
        referencias:empreendimento_referencias (id, texto, ordem),
        imagens:empreendimento_imagens (id, url, legenda, categoria, ordem),
+       videos:empreendimento_videos (id, tipo, url, capa, titulo, ordem, created_at),
        unidades (
          id, identificacao, andar, area_construida, terreno_dimensoes,
          terreno_area, valor, situacao, observacao, ordem,
@@ -87,6 +88,7 @@ export async function lerEmpreendimento(slug: string) {
     diferenciais: porOrdem(data.diferenciais),
     referencias: porOrdem(data.referencias),
     imagens: porOrdem(data.imagens),
+    videos: porOrdem(data.videos),
     // O RLS já esconde unidade em rascunho; aqui só ordena.
     unidades: porOrdem(data.unidades),
   };

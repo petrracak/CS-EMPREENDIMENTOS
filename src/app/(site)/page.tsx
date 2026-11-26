@@ -195,7 +195,7 @@ export default async function PaginaInicial() {
                 ].map((palavra) => (
                   <span
                     key={palavra}
-                    className="font-display flex items-center gap-10 text-lg font-medium whitespace-nowrap text-[var(--fg-tenue)]"
+                    className="font-display flex items-center gap-10 text-lg font-medium whitespace-nowrap text-[#46695a]"
                   >
                     {palavra}
                     <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-acento)]" />
@@ -306,6 +306,7 @@ export default async function PaginaInicial() {
                   </p>
                 </div>
                 <Link
+                  prefetch={false}
                   href={txt(configs.blog_home, "botao_url", "/blog")}
                   className="group -my-2.5 inline-flex items-center gap-1.5 py-2.5 text-sm font-medium text-[var(--color-ouro-300)] transition-colors hover:text-[var(--color-ouro-100)]"
                 >

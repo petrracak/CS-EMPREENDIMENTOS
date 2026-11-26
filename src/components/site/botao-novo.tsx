@@ -37,22 +37,35 @@ export function BotaoNovo({
   const conteudo = (
     <>
       {ehZap ? <Whatsapp className="botao-novo-zap" /> : null}
-      <span className={tipo === "secundario" ? "botao-novo-gradiente" : undefined}>
+      <span
+        className={tipo === "secundario" ? "botao-novo-gradiente" : undefined}
+      >
         {children}
       </span>
       {ehZap ? null : (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src="/site/seta.svg" alt="" width={24} height={24} className="botao-novo-seta" />
+        <img
+          src="/site/seta.svg"
+          alt=""
+          width={24}
+          height={24}
+          className="botao-novo-seta"
+        />
       )}
     </>
   );
 
   return externo ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={classes}>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={classes}
+    >
       {conteudo}
     </a>
   ) : (
-    <Link href={href} className={classes}>
+    <Link prefetch={false} href={href} className={classes}>
       {conteudo}
     </Link>
   );

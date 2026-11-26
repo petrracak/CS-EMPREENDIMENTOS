@@ -4,6 +4,8 @@ import { ArrowUpRight, DoorOpen } from "lucide-react";
 
 import { FormEmpreendimento } from "@/components/admin/form-empreendimento";
 import { GerenciadorImagens } from "@/components/admin/gerenciador-imagens";
+import { GerenciadorVideos } from "@/components/admin/gerenciador-videos";
+import type { TipoVideo } from "@/lib/videos";
 import { classeBotao } from "@/components/admin/estilos";
 import { Cabecalho, Etiqueta } from "@/components/admin/ui";
 import { exigirArea } from "@/lib/auth";
@@ -26,7 +28,8 @@ export default async function EditarEmpreendimento({
          caracteristicas:empreendimento_caracteristicas (texto, ordem),
          diferenciais:empreendimento_diferenciais (texto, ordem),
          referencias:empreendimento_referencias (texto, ordem),
-         imagens:empreendimento_imagens (id, url, legenda, categoria, ordem)`,
+         imagens:empreendimento_imagens (id, url, legenda, categoria, ordem),
+         videos:empreendimento_videos (id, tipo, url, capa, titulo, ordem)`,
       )
       .eq("id", id)
       .maybeSingle(),
@@ -95,6 +98,13 @@ export default async function EditarEmpreendimento({
           categoria="planta"
           titulo="Plantas"
           apoio="As plantas baixas, mostradas inteiras e sem corte."
+        />
+        <GerenciadorVideos
+          empreendimentoId={item.id}
+          slug={item.slug}
+          videos={[...(item.videos ?? [])]
+            .sort((a, b) => a.ordem - b.ordem)
+            .map((v) => ({ ...v, tipo: v.tipo as TipoVideo }))}
         />
       </div>
     </div>

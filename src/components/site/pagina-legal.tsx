@@ -40,7 +40,10 @@ export function PaginaLegal({
           <ol className="sticky top-28 space-y-2.5 text-sm text-[var(--fg-suave)]">
             {secoes.map((s, i) => (
               <li key={s.titulo}>
-                <a href={`#secao-${i + 1}`} className="transition-colors hover:text-[#00552f]">
+                <a
+                  href={`#secao-${i + 1}`}
+                  className="transition-colors hover:text-[#00552f]"
+                >
                   {i + 1}. {s.titulo}
                 </a>
               </li>
@@ -50,7 +53,11 @@ export function PaginaLegal({
 
         <div className="max-w-3xl space-y-12">
           {secoes.map((s, i) => (
-            <section key={s.titulo} id={`secao-${i + 1}`} className="scroll-mt-28">
+            <section
+              key={s.titulo}
+              id={`secao-${i + 1}`}
+              className="scroll-mt-28"
+            >
               <h2 className="text-[1.5rem] leading-tight font-light tracking-[-0.05em] text-[#28513f]">
                 {i + 1}. {s.titulo}
               </h2>

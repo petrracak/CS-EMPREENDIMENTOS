@@ -28,7 +28,8 @@ export async function generateMetadata({
   const post = await lerPost(slug);
   if (!post) return {};
 
-  const descricao = textoUtil(post.seo_descricao) ?? textoUtil(post.resumo) ?? undefined;
+  const descricao =
+    textoUtil(post.seo_descricao) ?? textoUtil(post.resumo) ?? undefined;
   const imagem = absoluta(post.capa_url);
   return {
     title: textoUtil(post.seo_titulo) ?? post.titulo,
@@ -84,6 +85,7 @@ export default async function PaginaPost({
       <Secao className="pt-14 pb-0 md:pt-20 md:pb-0">
         <div className="mx-auto max-w-3xl">
           <Link
+            prefetch={false}
             href="/blog"
             className="group -my-2.5 inline-flex items-center gap-1.5 py-2.5 text-sm text-[var(--fg-tenue)] transition-colors hover:text-[var(--acento)]"
           >

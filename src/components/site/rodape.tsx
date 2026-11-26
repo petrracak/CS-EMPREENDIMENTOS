@@ -41,6 +41,7 @@ export async function Rodape() {
               {emDestaque.map((e) => (
                 <li key={e.id}>
                   <Link
+                    prefetch={false}
                     href={`/empreendimentos/${e.slug}`}
                     className="inline-block py-2.5 text-white/60 transition-colors hover:text-white"
                   >
@@ -50,6 +51,7 @@ export async function Rodape() {
               ))}
               <li>
                 <Link
+                  prefetch={false}
                   href="/empreendimentos"
                   className="inline-block py-2.5 font-medium text-white underline-offset-4 hover:underline"
                 >
@@ -115,9 +117,17 @@ export async function Rodape() {
             </h3>
             <div className="mt-5 flex gap-3">
               {[
-                { href: empresa.instagram, Icone: Instagram, nome: "Instagram" },
+                {
+                  href: empresa.instagram,
+                  Icone: Instagram,
+                  nome: "Instagram",
+                },
                 { href: empresa.facebook, Icone: Facebook, nome: "Facebook" },
-                { href: empresa.whatsapp_link, Icone: Whatsapp, nome: "WhatsApp" },
+                {
+                  href: empresa.whatsapp_link,
+                  Icone: Whatsapp,
+                  nome: "WhatsApp",
+                },
               ]
                 .filter((r) => r.href)
                 .map(({ href, Icone, nome }) => (
@@ -148,10 +158,15 @@ export async function Rodape() {
             aria-label="Documentos"
             className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/55"
           >
-            <Link href="/termos-de-uso" className="transition-colors hover:text-[var(--color-ouro-300)]">
+            <Link
+              prefetch={false}
+              href="/termos-de-uso"
+              className="transition-colors hover:text-[var(--color-ouro-300)]"
+            >
               Termos de uso e compromisso
             </Link>
             <Link
+              prefetch={false}
               href="/politica-de-privacidade"
               className="transition-colors hover:text-[var(--color-ouro-300)]"
             >

@@ -176,6 +176,7 @@ export function PopupSaida({
                   {destaques.map((item) => (
                     <li key={item.id}>
                       <Link
+                        prefetch={false}
                         href={`/empreendimentos/${item.slug}`}
                         onClick={fechar}
                         className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 pr-4 transition-colors duration-300 hover:border-white/25 hover:bg-white/[0.08]"
@@ -208,6 +209,7 @@ export function PopupSaida({
                   ))}
                 </ul>
                 <Link
+                  prefetch={false}
                   href="/empreendimentos"
                   onClick={fechar}
                   className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-white/80 underline-offset-4 hover:text-white hover:underline"

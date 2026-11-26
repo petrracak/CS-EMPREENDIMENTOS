@@ -164,6 +164,7 @@ function Barra({ editor }: { editor: Editor }) {
       const pronta = await prepararImagem(escolhido);
       const dados = new FormData();
       dados.append("grande", pronta.grande, "grande.webp");
+      dados.append("media", pronta.media, "media.webp");
       dados.append("pequena", pronta.pequena, "pequena.webp");
       dados.append("pasta", "blog");
       dados.append("nome", nomeDeArquivo(escolhido.name));

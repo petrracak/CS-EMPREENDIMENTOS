@@ -31,10 +31,13 @@ export function CardEmpreendimento({
   item,
   atraso = 0,
   className,
+  prioridade = false,
 }: {
   item: CardEmpreendimento;
   atraso?: number;
   className?: string;
+  /** O primeiro card no topo da lista: a foto baixa antes do resto. */
+  prioridade?: boolean;
 }) {
   const situacao = SITUACOES[item.situacao];
   const local = [item.endereco, item.bairro].filter(Boolean).join(", ");
@@ -47,6 +50,7 @@ export function CardEmpreendimento({
     >
       <CartaoVivo className="h-full">
         <Link
+          prefetch={false}
           href={`/empreendimentos/${item.slug}`}
           className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)]"
         >
@@ -59,6 +63,7 @@ export function CardEmpreendimento({
                 src={item.imagem_principal}
                 alt={item.nome}
                 fill
+                priority={prioridade}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 /* A foto anda mais devagar que o cartão (1,4 s contra
                    0,8 s) e menos. Dois tempos dão profundidade. */

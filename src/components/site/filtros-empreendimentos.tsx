@@ -74,6 +74,9 @@ export function FiltrosEmpreendimentos({
         ) : null}
       </div>
 
+      {/* Título para leitor de tela: entre o h1 da página e o h3 de cada
+          card não pode faltar um h2. */}
+      <h2 className="sr-only">Lista de empreendimentos</h2>
       {filtrados.length ? (
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtrados.map((item, i) => (
@@ -81,14 +84,15 @@ export function FiltrosEmpreendimentos({
               key={item.id}
               item={item}
               atraso={(i % 3) * 90}
+              prioridade={i === 0}
             />
           ))}
         </div>
       ) : (
         <div className="mt-12 rounded-2xl border border-dashed border-[var(--borda-forte)] px-6 py-16 text-center">
           <p className="text-[var(--fg-suave)]">
-            Não encontramos empreendimentos com esses filtros. Limpe os
-            filtros ou fale com a gente.
+            Não encontramos empreendimentos com esses filtros. Limpe os filtros
+            ou fale com a gente.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <button

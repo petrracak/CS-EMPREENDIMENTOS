@@ -17,8 +17,9 @@ export const switzer = localFont({
     { path: "../fontes/Switzer-300.woff2", weight: "300", style: "normal" },
     { path: "../fontes/Switzer-400.woff2", weight: "400", style: "normal" },
     { path: "../fontes/Switzer-500.woff2", weight: "500", style: "normal" },
-    { path: "../fontes/Switzer-600.woff2", weight: "600", style: "normal" },
-    { path: "../fontes/Switzer-700.woff2", weight: "700", style: "normal" },
+    // 600 e 700 saíram: o layout novo é Light, e os poucos negritos
+    // ficam em 500 (ver font-synthesis em globals.css). Duas fontes a
+    // menos para baixar antes do primeiro texto, ~40 KB.
   ],
   variable: "--font-switzer",
   display: "swap",

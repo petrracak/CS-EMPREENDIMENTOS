@@ -46,7 +46,7 @@ export function Abertura() {
                 d={d}
                 pathLength={1}
                 className="abertura-traco"
-                style={{ animationDelay: `${i * 140}ms, ${1050 + i * 80}ms` }}
+                style={{ animationDelay: `${i * 80}ms, ${600 + i * 50}ms` }}
               />
             ))}
           </svg>

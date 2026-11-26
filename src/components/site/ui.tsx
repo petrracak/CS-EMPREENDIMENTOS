@@ -20,7 +20,11 @@ import { cn } from "@/lib/utils";
 
 type Aparencia = "solido" | "contorno" | "claro";
 
-const TIPO = { solido: "primario", contorno: "secundario", claro: "secundario" } as const;
+const TIPO = {
+  solido: "primario",
+  contorno: "secundario",
+  claro: "secundario",
+} as const;
 
 export function BotaoLink({
   aparencia = "solido",
@@ -51,9 +55,16 @@ export function BotaoLink({
 export const BotaoExterno = BotaoLink;
 
 /** Botão de formulário, no desenho do principal. */
-export function Botao({ className, children, ...props }: ComponentProps<"button">) {
+export function Botao({
+  className,
+  children,
+  ...props
+}: ComponentProps<"button">) {
   return (
-    <button className={cn("botao-novo botao-novo-primario", className)} {...props}>
+    <button
+      className={cn("botao-novo botao-novo-primario", className)}
+      {...props}
+    >
       <span>{children}</span>
     </button>
   );
@@ -72,7 +83,10 @@ export function Secao({
   ...props
 }: ComponentProps<"section">) {
   return (
-    <section className={cn("px-5 py-20 sm:px-8 md:py-28", className)} {...props}>
+    <section
+      className={cn("px-5 py-20 sm:px-8 md:py-28", className)}
+      {...props}
+    >
       <div className="mx-auto w-full max-w-6xl">{children}</div>
     </section>
   );
@@ -135,10 +149,12 @@ export function Titulo({
 const CORES_SELO: Record<string, string> = {
   em_construcao: "bg-[var(--color-verde-800)] text-white",
   em_acabamento: "bg-[var(--color-ouro-600)] text-white",
-  entregue: "bg-[var(--bg-fundo)] text-[var(--fg-suave)] border border-[var(--borda-forte)]",
+  entregue:
+    "bg-[var(--bg-fundo)] text-[var(--fg-suave)] border border-[var(--borda-forte)]",
   disponivel: "bg-[var(--color-verde-800)] text-white",
   reservada: "bg-[var(--color-ouro-600)] text-white",
-  vendida: "bg-[var(--bg-fundo)] text-[var(--fg-tenue)] border border-[var(--borda-forte)]",
+  vendida:
+    "bg-[var(--bg-fundo)] text-[var(--fg-tenue)] border border-[var(--borda-forte)]",
 };
 
 export function Selo({

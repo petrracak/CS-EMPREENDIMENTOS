@@ -96,7 +96,13 @@ function Enviar({ rotulo }: { rotulo: string }) {
         <Loader2 className="h-5 w-5 animate-spin" />
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src="/site/seta.svg" alt="" width={24} height={24} className="botao-novo-seta" />
+        <img
+          src="/site/seta.svg"
+          alt=""
+          width={24}
+          height={24}
+          className="botao-novo-seta"
+        />
       )}
     </button>
   );
@@ -312,12 +318,7 @@ export function FormularioSaida({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Campo nome="nome" rotulo="Nome" obrigatorio />
-        <Campo
-          nome="contato"
-          rotulo="WhatsApp"
-          tipo="tel"
-          obrigatorio
-        />
+        <Campo nome="contato" rotulo="WhatsApp" tipo="tel" obrigatorio />
       </div>
 
       {empreendimentos.length ? (
@@ -388,7 +389,10 @@ function Erro({ texto }: { texto: string }) {
 /** Campo invisível para gente, visível para robô de formulário. */
 function Armadilha() {
   return (
-    <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+    <div
+      aria-hidden
+      className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
+    >
       <label>
         Não preencha
         <input type="text" name="website" tabIndex={-1} autoComplete="off" />

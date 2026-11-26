@@ -61,7 +61,7 @@ export function BannerCampanha({ dados }: { dados: DadosBanner }) {
       // Sem armazenamento, abre uma vez por página carregada.
     }
 
-    // Na página inicial, a abertura com a logo dura uns 3 s na primeira
+    // Na página inicial, a abertura com a logo dura uns 1,7 s na primeira
     // visita: o banner espera por ela.
     const comAbertura =
       caminho === "/" &&
@@ -75,7 +75,7 @@ export function BannerCampanha({ dados }: { dados: DadosBanner }) {
         } catch {}
         el.showModal();
       },
-      comAbertura ? 4200 : 1600,
+      comAbertura ? 2600 : 1600,
     );
     return () => window.clearTimeout(timer);
   }, [caminho, versao, dados.botaoUrl]);

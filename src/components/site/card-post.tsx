@@ -48,6 +48,7 @@ export function CardPost({
     >
       <CartaoVivo className="h-full">
         <Link
+          prefetch={false}
           href={`/blog/${post.slug}`}
           className={cn(
             "group flex h-full flex-col overflow-hidden rounded-2xl border",

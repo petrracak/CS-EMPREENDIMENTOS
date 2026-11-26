@@ -103,7 +103,9 @@ export function Palavras({
   return (
     <Tag data-palavras={modo} className={className}>
       {palavras.map((palavra, i) => {
-        const estilo = { "--atraso": `${atraso + i * passo}ms` } as CSSProperties;
+        const estilo = {
+          "--atraso": `${atraso + i * passo}ms`,
+        } as CSSProperties;
         const proxima = palavras[i + 1];
         // Sublinhado que continua na palavra seguinte passa pelo espaço.
         const espacoSublinhado =

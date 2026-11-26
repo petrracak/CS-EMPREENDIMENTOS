@@ -139,6 +139,47 @@ export type Database = {
           },
         ]
       }
+      empreendimento_videos: {
+        Row: {
+          capa: string | null
+          created_at: string
+          empreendimento_id: string
+          id: string
+          ordem: number
+          tipo: string
+          titulo: string | null
+          url: string
+        }
+        Insert: {
+          capa?: string | null
+          created_at?: string
+          empreendimento_id: string
+          id?: string
+          ordem?: number
+          tipo: string
+          titulo?: string | null
+          url: string
+        }
+        Update: {
+          capa?: string | null
+          created_at?: string
+          empreendimento_id?: string
+          id?: string
+          ordem?: number
+          tipo?: string
+          titulo?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empreendimento_videos_empreendimento_id_fkey"
+            columns: ["empreendimento_id"]
+            isOneToOne: false
+            referencedRelation: "empreendimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empreendimentos: {
         Row: {
           andamento_obra: number | null

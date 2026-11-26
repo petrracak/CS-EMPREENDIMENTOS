@@ -12,9 +12,10 @@
  * ser reduzida do outro lado, e processar imagem no servidor exigiria a
  * biblioteca nativa (sharp), que é a parte mais frágil de um deploy.
  *
- * Saem duas versões, do mesmo jeito que o resto do site espera:
- *   grande   até 1600 px (ou o limite pedido) — página e galeria
- *   pequena  até  640 px                      — cards e listagens
+ * Saem três versões, do jeito que o site espera (ver lib/midia.ts):
+ *   grande   até 1600 px (ou o limite pedido) — computador
+ *   média    680 px de largura                — celular
+ *   pequena  até  640 px                      — miniaturas
  *
  * WebP guarda transparência, então a logo em PNG continua sem fundo.
  */
@@ -25,6 +26,7 @@ const QUALIDADE = 0.82;
 
 export type ImagemPronta = {
   grande: Blob;
+  media: Blob;
   pequena: Blob;
   largura: number;
   altura: number;
@@ -58,8 +60,20 @@ export async function prepararImagem(
     };
     const grande = await desenhar(fonte.imagem, recorte, limite);
     const pequena = await desenhar(fonte.imagem, recorte, LIMITE_PEQUENA);
+    // Média: 760 px de largura (ou menos, se a foto for mais estreita).
+    const media = await desenhar(
+      fonte.imagem,
+      recorte,
+      Math.min(
+        limite,
+        Math.round(
+          (760 * Math.max(recorte.largura, recorte.altura)) / recorte.largura,
+        ),
+      ),
+    );
     return {
       grande,
+      media,
       pequena,
       largura: recorte.largura,
       altura: recorte.altura,
@@ -164,8 +178,12 @@ async function desenhar(
   imagem: CanvasImageSource,
   recorte: Recorte,
   limite: number,
+  qualidade = QUALIDADE,
 ): Promise<Blob> {
-  const escala = Math.min(1, limite / Math.max(recorte.largura, recorte.altura));
+  const escala = Math.min(
+    1,
+    limite / Math.max(recorte.largura, recorte.altura),
+  );
   const largura = Math.round(recorte.largura * escala);
   const altura = Math.round(recorte.altura * escala);
 
@@ -190,12 +208,14 @@ async function desenhar(
   );
 
   const blob = await new Promise<Blob | null>((resolver) =>
-    tela.toBlob(resolver, "image/webp", QUALIDADE),
+    tela.toBlob(resolver, "image/webp", qualidade),
   );
   // Navegador antigo que não gera WebP devolve PNG sem avisar. Melhor
   // parar aqui do que gravar um PNG com extensão .webp.
   if (!blob || blob.type !== "image/webp") {
-    throw new Error("Este navegador não converte para WebP. Use o Chrome, o Safari ou o Edge atualizados.");
+    throw new Error(
+      "Este navegador não converte para WebP. Use o Chrome, o Safari ou o Edge atualizados.",
+    );
   }
   return blob;
 }

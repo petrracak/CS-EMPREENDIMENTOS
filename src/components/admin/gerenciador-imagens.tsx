@@ -57,6 +57,7 @@ export function GerenciadorImagens({
         const pronta = await prepararImagem(arquivo);
         const dados = new FormData();
         dados.append("grande", pronta.grande, "g.webp");
+        dados.append("media", pronta.media, "media.webp");
         dados.append("pequena", pronta.pequena, "p.webp");
         dados.append("pasta", `empreendimentos/${slug}`);
         dados.append("nome", nomeDeArquivo(arquivo.name));

@@ -57,10 +57,12 @@ export function GradienteContinuo() {
 
       for (const palavra of palavras) {
         const destaque =
-          palavra.classList.contains("destaque") || !!palavra.querySelector(".destaque");
+          palavra.classList.contains("destaque") ||
+          !!palavra.querySelector(".destaque");
         const anterior = trecho[trecho.length - 1];
         // Mesma linha = mesmo topo (com folga de arredondamento).
-        const mesmaLinha = anterior && Math.abs(anterior.offsetTop - palavra.offsetTop) < 4;
+        const mesmaLinha =
+          anterior && Math.abs(anterior.offsetTop - palavra.offsetTop) < 4;
         if (!destaque || (anterior && !mesmaLinha)) fechar();
         if (destaque) trecho.push(palavra);
       }

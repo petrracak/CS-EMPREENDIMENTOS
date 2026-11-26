@@ -165,6 +165,7 @@ export function Unidades({
 
               {disponivel ? (
                 <Link
+                  prefetch={false}
                   href={`/cadastro?empreendimento=${slugEmpreendimento}&unidade=${unidade.id}`}
                   className="group mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--acento)]"
                 >

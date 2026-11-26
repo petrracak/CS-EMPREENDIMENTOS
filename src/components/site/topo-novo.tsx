@@ -55,6 +55,9 @@ export function TopoNovo({
           width={1464}
           height={962}
           alt=""
+          // É o maior elemento da primeira tela (o que o Google mede como
+          // LCP): pede prioridade para baixar antes do resto.
+          fetchPriority="high"
           className="topo-novo-fundo"
         />
       </div>

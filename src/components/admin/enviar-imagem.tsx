@@ -79,6 +79,7 @@ export function useEnvioDeImagem({
 
       const dados = new FormData();
       dados.append("grande", pronta.grande, "grande.webp");
+      dados.append("media", pronta.media, "media.webp");
       dados.append("pequena", pronta.pequena, "pequena.webp");
       dados.append("pasta", pasta);
       dados.append("nome", nomeDeArquivo(arquivo.name));

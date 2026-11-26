@@ -51,7 +51,9 @@ export function Revelar() {
     // Em desenvolvimento, quem cair nela fica sabendo na hora.
     if (process.env.NODE_ENV !== "production") {
       document.querySelectorAll(ALVOS).forEach((el) => {
-        if (/(^|\s)(transition|duration-)/.test(el.getAttribute("class") ?? "")) {
+        if (
+          /(^|\s)(transition|duration-)/.test(el.getAttribute("class") ?? "")
+        ) {
           console.warn(
             "[Revelar] Este elemento tem animação de entrada E transição " +
               "própria — a de entrada vai apagar a outra. Ponha a entrada " +

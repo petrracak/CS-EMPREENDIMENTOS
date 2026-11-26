@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { exigirArea } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { lerLink, VIDEO_MAXIMO_MB } from "@/lib/videos";
 import { slugificar } from "@/lib/utils";
 
 export type EstadoEmpreendimento = { erro?: string; ok?: boolean };
@@ -331,4 +333,146 @@ export async function importarUnidades(
   revalidatePath(`/admin/empreendimentos/${empreendimentoId}/unidades`);
   revalidar(null);
   return { ok: true };
+}
+
+/* ------------------------------------------------------------- vídeos */
+
+export type RespostaVideo = { ok?: boolean; erro?: string };
+
+/** Link de vídeo (YouTube, Instagram, TikTok, Vimeo) ou arquivo já enviado. */
+export async function adicionarVideo(
+  empreendimentoId: string,
+  entrada: {
+    tipo: "link" | "arquivo";
+    url: string;
+    capa?: string | null;
+    titulo?: string | null;
+  },
+): Promise<RespostaVideo> {
+  await exigirArea("obras");
+  const supabase = await createClient();
+
+  let tipo: "arquivo" | "youtube" | "instagram" | "tiktok" | "vimeo";
+  const url = entrada.url.trim();
+  if (entrada.tipo === "link") {
+    const link = lerLink(url);
+    if (!link) {
+      return {
+        erro: "Esse link não é de um vídeo do YouTube, Instagram, TikTok ou Vimeo. Copie o endereço do vídeo e cole de novo.",
+      };
+    }
+    tipo = link.tipo;
+  } else {
+    // Só caminho do próprio balde, do jeito que o envio grava.
+    if (
+      !/^empreendimentos\/[a-z0-9-]+\/videos\/[a-z0-9-]+\.(mp4|webm|mov)$/.test(
+        url,
+      )
+    ) {
+      return { erro: "Arquivo de vídeo inválido." };
+    }
+    tipo = "arquivo";
+  }
+  const capa =
+    entrada.capa && /^[a-z0-9/-]+\.webp$/.test(entrada.capa)
+      ? entrada.capa
+      : null;
+
+  const { data: ultima } = await supabase
+    .from("empreendimento_videos")
+    .select("ordem")
+    .eq("empreendimento_id", empreendimentoId)
+    .order("ordem", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { error } = await supabase.from("empreendimento_videos").insert({
+    empreendimento_id: empreendimentoId,
+    tipo,
+    url,
+    capa,
+    titulo: entrada.titulo?.trim().slice(0, 160) || null,
+    ordem: (ultima?.ordem ?? 0) + 1,
+  });
+  if (error) return { erro: "Não conseguimos salvar o vídeo." };
+
+  revalidatePath(`/admin/empreendimentos/${empreendimentoId}`);
+  revalidar(null);
+  return { ok: true };
+}
+
+export async function removerVideo(id: string, empreendimentoId: string) {
+  await exigirArea("obras");
+  const supabase = await createClient();
+  const { data: video } = await supabase
+    .from("empreendimento_videos")
+    .select("tipo, url, capa")
+    .eq("id", id)
+    .maybeSingle();
+  await supabase.from("empreendimento_videos").delete().eq("id", id);
+
+  // Arquivo enviado sai do Storage junto, para não ocupar o espaço grátis.
+  if (video?.tipo === "arquivo") {
+    await createAdminClient()
+      .storage.from("midia")
+      .remove([
+        video.url,
+        ...(video.capa
+          ? [
+              video.capa,
+              video.capa.replace(/\.webp$/, "-md.webp"),
+              video.capa.replace(/\.webp$/, "-sm.webp"),
+            ]
+          : []),
+      ]);
+  }
+  revalidatePath(`/admin/empreendimentos/${empreendimentoId}`);
+  revalidar(null);
+}
+
+/**
+ * Autorização de envio de um arquivo de vídeo, direto do navegador para o
+ * Storage. O arquivo não passa pelo servidor do site (a Vercel aceita só
+ * 4,5 MB por requisição); o servidor só confere quem pede, o tipo e o
+ * tamanho, e devolve uma autorização de uso único para aquele caminho.
+ */
+export async function autorizarEnvioDeVideo(
+  slug: string,
+  nomeOriginal: string,
+  tamanho: number,
+  tipoMime: string,
+): Promise<{ caminho?: string; token?: string; erro?: string }> {
+  await exigirArea("obras");
+
+  const extensao = {
+    "video/mp4": "mp4",
+    "video/webm": "webm",
+    "video/quicktime": "mov",
+  }[tipoMime];
+  if (!extensao)
+    return { erro: "Use um vídeo MP4 (é o formato que o celular grava)." };
+  if (tamanho > VIDEO_MAXIMO_MB * 1024 * 1024) {
+    return {
+      erro: `O vídeo tem ${Math.round(tamanho / 1024 / 1024)} MB e o limite é ${VIDEO_MAXIMO_MB} MB. Para vídeos maiores, suba no YouTube e cole o link aqui.`,
+    };
+  }
+  if (!/^[a-z0-9-]+$/.test(slug)) return { erro: "Empreendimento inválido." };
+
+  const base =
+    nomeOriginal
+      .replace(/\.[^.]+$/, "")
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 40) || "video";
+  const caminho = `empreendimentos/${slug}/videos/${base}-${Date.now().toString(36)}.${extensao}`;
+
+  const { data, error } = await createAdminClient()
+    .storage.from("midia")
+    .createSignedUploadUrl(caminho);
+  if (error || !data)
+    return { erro: "Não conseguimos preparar o envio. Tente de novo." };
+  return { caminho, token: data.token };
 }
