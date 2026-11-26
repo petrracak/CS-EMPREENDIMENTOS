@@ -14,6 +14,7 @@ import { Olho, Secao, Titulo } from "@/components/site/ui";
 import { listarDestaques, listarMarcos, listarPosts } from "@/lib/queries";
 import { lerConfigs, lerEmpresa, txt } from "@/lib/settings";
 import { lerTitulo } from "@/lib/texto-rico";
+import { fotosDaVitrine } from "@/lib/vitrine";
 import { partirNumero } from "@/lib/utils";
 
 // As páginas públicas são geradas e revalidadas de hora em hora. O painel
@@ -37,7 +38,7 @@ const MARCOS_REVISTOS: Record<string, string> = {
 
 
 export default async function PaginaInicial() {
-  const [configs, empresa, destaques, marcos, posts] = await Promise.all([
+  const [configs, empresa, destaques, marcos, posts, vitrine] = await Promise.all([
     lerConfigs([
       "hero",
       "construtor",
@@ -50,6 +51,7 @@ export default async function PaginaInicial() {
     listarDestaques(3),
     listarMarcos(),
     listarPosts(3),
+    fotosDaVitrine(),
   ]);
 
   const hero = configs.hero;
@@ -83,6 +85,7 @@ export default async function PaginaInicial() {
         botaoPrimarioUrl={txt(hero, "botao_primario_url", "/empreendimentos")}
         botaoSecundario="Falar com um consultor"
         whatsapp={empresa.whatsapp_link}
+        fotos={vitrine}
       />
 
       {/* Ordem da página inicial: destaques e todos os empreendimentos, o

@@ -3,21 +3,23 @@ import type { CSSProperties, ReactNode } from "react";
 import { BotaoNovo } from "@/components/site/botao-novo";
 import { Simbolo } from "@/components/site/logo";
 import { Palavras } from "@/components/site/palavras";
+import { VitrineLogo } from "@/components/site/vitrine-logo";
+import type { FotoVitrine } from "@/lib/vitrine";
 
 /**
  * A primeira dobra do redesenho (Figma "DOBRAS SITE PRINCIPAL", 83:96 e
  * 83:124), a primeira dobra da página inicial.
  *
- * O fundo é uma imagem só, exportada do Figma: as linhas da marca, o
- * prédio dentro do "C" e o Girlan, já com o esfumado do pé. O texto, o
- * selo do fundador e os botões ficam por cima, em HTML.
+ * O fundo é uma imagem só, exportada do Figma: as linhas da marca sobre
+ * o menta. À direita, a logo da CS com os empreendimentos passando por
+ * dentro em preto e branco (VitrineLogo; quem escolhe as fotos é
+ * lib/vitrine.ts). O texto e os botões ficam por cima, em HTML.
  *
  * No computador tudo é medido na unidade do quadro do Figma (--u, ver
  * .topo-novo em globals.css): 1 px do desenho até 1280 px de tela, e
  * proporcional abaixo disso. Assim foto, texto e botões encolhem juntos
  * e não se atropelam. Abaixo de 1024 px (celular e tablet em pé) vale o
- * quadro MOBILE: foto grande no topo, selo sobre o peito do Girlan e o
- * texto centrado logo abaixo, subindo sobre o esfumado da foto.
+ * quadro MOBILE: a logo no topo, centrada, e o texto logo abaixo.
  */
 export function TopoNovo({
   chamada,
@@ -27,6 +29,7 @@ export function TopoNovo({
   botaoPrimarioUrl,
   botaoSecundario,
   whatsapp,
+  fotos,
 }: {
   chamada: string;
   titulo: string;
@@ -35,44 +38,36 @@ export function TopoNovo({
   botaoPrimarioUrl: string;
   botaoSecundario: string;
   whatsapp: string;
+  fotos: FotoVitrine[];
 }) {
   const atraso = (ms: number) => ({ "--atraso": `${ms}ms` }) as CSSProperties;
 
   return (
     <section className="topo-novo">
-      {/* Uma imagem só, a do quadro do computador. No celular ela é a
-          mesma composição em escala menor e recortada em volta do Girlan,
-          como no quadro MOBILE do Figma (ver .topo-novo-foto). */}
-      <div className="topo-novo-foto">
+      {/* O fundo do Figma: as linhas da marca sobre o menta. No celular é
+          a mesma imagem em escala menor (ver .topo-novo-foto). */}
+      <div className="topo-novo-foto" aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/site/topo-computador.webp"
-          srcSet="/site/topo-computador.webp 1464w, /site/topo-computador@2x.webp 2928w"
+          src="/site/topo-fundo.webp"
+          srcSet="/site/topo-fundo.webp 1464w, /site/topo-fundo@2x.webp 2928w"
           sizes="(min-width: 1280px) 1464px, (min-width: 1024px) 114.4vw, min(142vw, 796px)"
           width={1464}
           height={962}
-          alt="Girlan Carneiro, CEO e fundador da CS, em frente a um dos prédios da construtora"
-          fetchPriority="high"
+          alt=""
           className="topo-novo-fundo"
         />
       </div>
 
-      {/* Selo do fundador: o quadro de vidro do Figma com a assinatura
-          no centro. Por fora, a entrada; por dentro, a flutuação lenta —
-          as duas são animação, e no mesmo elemento uma apagaria a outra. */}
-      <div className="topo-novo-selo" data-entrada style={atraso(900)}>
-        <div className="topo-novo-selo-quadro">
-          {/* "CEO e fundador" e a assinatura vêm num SVG só, em curvas:
-              a fonte manuscrita não precisa vir junto com o site. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/site/selo-girlan.svg"
-            alt="Girlan Carneiro, CEO e fundador"
-            width={288}
-            height={35}
-            className="topo-novo-assinatura"
-          />
-        </div>
+      {/* A logo da CS com os empreendimentos passando por dentro. */}
+      <div
+        className="topo-novo-vitrine"
+        role="img"
+        aria-label="Empreendimentos da CS em Santarém"
+        data-entrada
+        style={atraso(300)}
+      >
+        <VitrineLogo fotos={fotos} />
       </div>
 
       <div className="topo-novo-texto">

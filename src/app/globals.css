@@ -1547,44 +1547,79 @@
   height: calc(962 * var(--m));
 }
 
-/* ------- selo do fundador: vidro com a assinatura, flutuando devagar */
+/* ------- a logo com os empreendimentos (Figma 83:98 e 83:101) */
+/* No celular, a logo fica centrada no topo e um pouco mais baixa que no
+   Figma (350 de altura em vez de 365), para terminar antes do selo do
+   texto: lá o Girlan cobria esse encontro. O alto dela passa por baixo
+   do vidro do cabeçalho. */
 
-.topo-novo-selo {
+.topo-novo-vitrine {
   position: absolute;
+  z-index: 0;
+  top: calc(var(--cab) - 58 * var(--k));
+  left: calc(50% - 94.35 * var(--k));
+  width: calc(188.7 * var(--k));
+  aspect-ratio: 453 / 840.177;
+  pointer-events: none;
+  /* O pé da logo some no fundo, como no Figma (lá o retângulo menta do
+     rodapé da dobra passava por cima dela). */
+  mask-image: linear-gradient(to bottom, #000 72%, transparent 98%);
+}
+
+.vitrine-logo-mascara {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  mask: url("/site/logo-mascara.svg") center / 100% 100% no-repeat;
+  -webkit-mask: url("/site/logo-mascara.svg") center / 100% 100% no-repeat;
+}
+
+/* Preto e branco a 63%, como no Figma: o menta do fundo atravessa a foto
+   e ela fica esverdeada, da cor da página. A transparência fica no grupo,
+   e não em cada foto, para a anterior não aparecer através da atual. */
+.vitrine-logo-fotos {
+  position: absolute;
+  inset: 0;
+  opacity: 0.63;
+}
+
+.vitrine-logo-foto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  opacity: 0;
+  filter: grayscale(1) contrast(1.05);
+  transition: opacity 0s 1.6s;
+}
+
+.vitrine-logo-foto[data-estado] {
+  opacity: 1;
+  animation: vitrine-zoom 9s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+/* A nova entra por cima e cobre a anterior, que só some depois. */
+.vitrine-logo-foto[data-estado="atual"] {
   z-index: 1;
-  top: calc(var(--cab) + 206 * var(--k));
-  left: calc(50% + 26 * var(--k));
+  transition: opacity 1.6s ease-in-out;
 }
 
-@keyframes selo-flutuar {
-  0%,
-  100% {
-    transform: translateY(0);
+@keyframes vitrine-zoom {
+  from {
+    transform: scale(1.12);
   }
-  50% {
-    transform: translateY(var(--flutua, -5px));
+  to {
+    transform: scale(1);
   }
 }
 
-.topo-novo-selo-quadro {
-  --flutua: calc(-6 * var(--k));
-  display: flex;
-  width: calc(149 * var(--k));
-  height: calc(21.681 * var(--k));
-  align-items: center;
-  justify-content: center;
-  border: 0.5px solid rgb(255 255 255 / 0.46);
-  border-radius: calc(2.239 * var(--k));
-  background: rgb(0 69 39 / 0.32);
-  backdrop-filter: blur(2.906px);
-  animation: selo-flutuar 6s ease-in-out infinite;
-}
-
-/* O SVG ocupa a mesma fração do quadro que no Figma (288 de 323). */
-.topo-novo-assinatura {
-  display: block;
-  width: 89.2%;
-  height: auto;
+.vitrine-logo-degrade {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(0 69 39 / 0), #004527);
 }
 
 /* ------------------------------------------------------------ texto */
@@ -1803,7 +1838,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .topo-novo-selo-quadro,
+  .vitrine-logo-foto[data-estado],
   .botao-novo-primario {
     animation: none;
   }
@@ -1840,18 +1875,12 @@
     height: calc(962 * var(--u));
   }
 
-  .topo-novo-selo {
-    top: calc(602 * var(--u));
-    left: calc(var(--x) + 667 * var(--u));
+  /* A posição do Figma: x 1398, y 25, 453 × 840. */
+  .topo-novo-vitrine {
+    top: calc(25 * var(--u));
+    left: calc(var(--x) + 688 * var(--u));
+    width: calc(453 * var(--u));
   }
-
-  .topo-novo-selo-quadro {
-    --flutua: calc(-9 * var(--u));
-    width: calc(323 * var(--u));
-    height: calc(47 * var(--u));
-    border-radius: calc(4.855 * var(--u));
-    backdrop-filter: blur(6.3px);
-    }
 
   .topo-novo-texto {
     position: absolute;
@@ -1878,9 +1907,7 @@
   }
 
   .site .topo-novo-subtitulo {
-    /* Mais estreito que o título: a última linha chegava ao ombro do
-       Girlan e perdia o contraste. */
-    max-width: calc(585 * var(--u));
+    max-width: none;
     margin-top: calc(11.328 * var(--u));
     font-size: max(15px, calc(22.655 * var(--u)));
     line-height: 1.2;
