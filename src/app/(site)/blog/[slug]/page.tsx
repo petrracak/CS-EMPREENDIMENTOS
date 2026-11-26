@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 
-import { Markdown } from "@/components/site/texto";
+import { ConteudoBlog } from "@/components/site/conteudo-blog";
 import { BotaoExterno, BotaoLink, Secao } from "@/components/site/ui";
 import { lerPost, listarSlugsPosts } from "@/lib/queries";
 import { lerEmpresa } from "@/lib/settings";
@@ -99,7 +99,7 @@ export default async function PaginaPost({
 
       <Secao>
         <div data-revelar className="mx-auto max-w-3xl">
-          <Markdown texto={post.conteudo} />
+          <ConteudoBlog conteudo={post.conteudo} />
         </div>
       </Secao>
 

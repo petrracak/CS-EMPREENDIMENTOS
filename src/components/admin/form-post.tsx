@@ -4,6 +4,7 @@ import { Check, Trash2 } from "lucide-react";
 import { useActionState, useTransition } from "react";
 
 import { apagarPost, salvarPost, type EstadoPost } from "@/app/actions/blog";
+import { EditorConteudo } from "@/components/admin/editor-conteudo";
 import { EnviarImagem } from "@/components/admin/enviar-imagem";
 import {
   Area,
@@ -80,16 +81,9 @@ export function FormPost({ post }: { post: Post }) {
       <Cartao className="space-y-5 p-5 sm:p-7">
         <Campo
           rotulo="Conteúdo"
-          apoio={
-            'Use "## " no começo da linha para um subtítulo, "- " para itens de lista e **texto** para negrito. Deixe uma linha em branco entre os parágrafos.'
-          }
+          apoio="Escreva como no Word: o texto já aparece como vai ficar no site. Na barra de cima, escolha Título ou Subtítulo para as divisões do texto e use negrito, listas, citação, link e imagem. Colar de um documento do Word ou do Google Docs também traz a formatação."
         >
-          <Area
-            name="conteudo"
-            rows={20}
-            defaultValue={t("conteudo")}
-            className="font-mono text-base leading-relaxed sm:text-xs"
-          />
+          <EditorConteudo nome="conteudo" valor={t("conteudo")} />
         </Campo>
       </Cartao>
 
@@ -115,9 +109,7 @@ export function FormPost({ post }: { post: Post }) {
             disabled={pendente}
             onClick={() => {
               if (
-                confirm(
-                  "Apagar esta publicação? Ela sai do site e não volta.",
-                )
+                confirm("Apagar esta publicação? Ela sai do site e não volta.")
               ) {
                 iniciar(() => {
                   void apagarPost(String(post.id));

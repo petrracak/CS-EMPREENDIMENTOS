@@ -2580,3 +2580,155 @@
     transform: translate(-50%, -50%);
   }
 }
+
+/* ===================================================== TEXTO DO BLOG */
+/* O corpo de uma publicação. A mesma classe vale no site
+   (components/site/conteudo-blog.tsx) e no editor do painel
+   (components/admin/editor-conteudo.tsx): o que a pessoa vê enquanto
+   escreve é o que vai sair na página. */
+
+.texto-blog {
+  color: #393939;
+  font-size: 1.0625rem;
+  font-weight: 300;
+  line-height: 1.65;
+}
+
+.texto-blog > * + * {
+  margin-top: 1.15em;
+}
+
+.texto-blog h2 {
+  margin-top: 1.9em;
+  color: #28513f;
+  font-size: 1.75rem;
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -0.05em;
+}
+
+.texto-blog h3 {
+  margin-top: 1.8em;
+  color: #28513f;
+  font-size: 1.3125rem;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.04em;
+}
+
+.texto-blog h2 + *,
+.texto-blog h3 + * {
+  margin-top: 0.6em;
+}
+
+.texto-blog > :first-child {
+  margin-top: 0;
+}
+
+.texto-blog strong {
+  color: #28513f;
+  font-weight: 500;
+}
+
+.texto-blog a {
+  color: #00552f;
+  text-decoration: underline;
+  text-decoration-color: rgb(0 171 97 / 0.45);
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color 0.3s;
+}
+
+.texto-blog a:hover {
+  text-decoration-color: currentColor;
+}
+
+.texto-blog ul,
+.texto-blog ol {
+  padding-left: 1.4em;
+}
+
+.texto-blog ul {
+  list-style: none;
+}
+
+.texto-blog ol {
+  list-style: decimal;
+}
+
+.texto-blog ol li::marker {
+  color: #49836a;
+  font-weight: 500;
+}
+
+.texto-blog li {
+  position: relative;
+}
+
+.texto-blog li + li {
+  margin-top: 0.45em;
+}
+
+.texto-blog ul > li::before {
+  position: absolute;
+  top: 0.68em;
+  left: -1.05em;
+  width: 0.38em;
+  height: 0.38em;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #004527, #00ab61);
+  content: "";
+}
+
+.texto-blog li p {
+  margin: 0;
+}
+
+.texto-blog blockquote {
+  padding: 1em 1.25em;
+  border-left: 3px solid #00ab61;
+  border-radius: 0 0.75rem 0.75rem 0;
+  background: #ebfff6;
+  color: #28513f;
+  font-size: 1.125rem;
+}
+
+.texto-blog blockquote p + p {
+  margin-top: 0.6em;
+}
+
+.texto-blog img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 1.8em;
+  margin-bottom: 0.6em;
+  border-radius: 1rem;
+}
+
+.texto-blog hr {
+  height: 1px;
+  margin: 2.4em 0;
+  border: 0;
+  background: linear-gradient(90deg, transparent, #cfa862, transparent);
+}
+
+@media (min-width: 640px) {
+  .texto-blog h2 {
+    font-size: 2rem;
+  }
+}
+
+/* O editor do blog no painel: o aviso do campo vazio e a imagem
+   selecionada. */
+.editor-conteudo .ProseMirror p.is-editor-empty:first-child::before {
+  float: left;
+  height: 0;
+  color: rgb(57 57 57 / 0.4);
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
+.editor-conteudo .ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid #00ab61;
+  outline-offset: 3px;
+}

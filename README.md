@@ -126,6 +126,12 @@ do site (`banner-campanha.tsx`), uma vez por visita: arte de computador
 da campanha e um botão de fechar do mesmo tamanho. O painel tem as medidas
 para o designer e a prévia num notebook e num iPhone, sempre à vista no bloco.
 
+**O blog é escrito como no Word.** O corpo da publicação usa um editor
+com barra de formatação (`editor-conteudo.tsx`): título, subtítulo,
+negrito, listas, citação, link, imagem. Grava HTML, e o site lê por
+`src/lib/conteudo-blog.ts`, que só deixa passar essas marcas e endereços
+seguros. As publicações antigas, em Markdown, abrem já convertidas.
+
 **Textos com negrito.** Os textos da página inicial saem do painel com
 negrito (`EditorTitulo` com `tamanho="texto"`; com `paragrafos`, para os
 textos longos). O site lê pelo `Trecho` e pelo `TextoRico`
