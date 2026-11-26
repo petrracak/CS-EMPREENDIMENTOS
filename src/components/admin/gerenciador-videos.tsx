@@ -51,7 +51,11 @@ export function GerenciadorVideos({
   function adicionarLink() {
     setErro(null);
     iniciar(async () => {
-      const r = await adicionarVideo(empreendimentoId, { tipo: "link", url: link, titulo });
+      const r = await adicionarVideo(empreendimentoId, {
+        tipo: "link",
+        url: link,
+        titulo,
+      });
       if (r.erro) setErro(r.erro);
       else {
         setLink("");
@@ -91,9 +95,12 @@ export function GerenciadorVideos({
       const capa = await gerarCapa(escolhido).catch(() => null);
       let caminhoCapa: string | null = null;
       if (capa) {
-        const pronta = await prepararImagem(new File([capa], "capa.webp", { type: "image/webp" }), {
-          limite: 1280,
-        });
+        const pronta = await prepararImagem(
+          new File([capa], "capa.webp", { type: "image/webp" }),
+          {
+            limite: 1280,
+          },
+        );
         const dados = new FormData();
         dados.append("grande", pronta.grande, "g.webp");
         dados.append("media", pronta.media, "media.webp");
@@ -137,20 +144,34 @@ export function GerenciadorVideos({
       {/* ------------------------------------------------- por link */}
       <div className="grid gap-3 lg:grid-cols-[1fr_16rem_auto] lg:items-end">
         <label className="block">
-          <span className="text-[0.8125rem] font-medium">Link do vídeo (recomendado)</span>
+          <span className="text-[0.8125rem] font-medium">
+            Link do vídeo (recomendado)
+          </span>
           <Entrada
             value={link}
             onChange={(e) => setLink(e.target.value)}
+            // Dentro do formulário do empreendimento: Enter adiciona o
+            // vídeo, e não salva o formulário inteiro.
+            onKeyDown={(e) => {
+              if (e.key !== "Enter") return;
+              e.preventDefault();
+              if (reconhecido && !ocupado) adicionarLink();
+            }}
             placeholder="Cole o link do YouTube, Instagram, TikTok ou Vimeo"
             inputMode="url"
             className="mt-1.5"
           />
         </label>
         <label className="block">
-          <span className="text-[0.8125rem] font-medium">Título (opcional)</span>
+          <span className="text-[0.8125rem] font-medium">
+            Título (opcional)
+          </span>
           <Entrada
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.preventDefault();
+            }}
             placeholder="Tour pelo decorado"
             className="mt-1.5"
           />
@@ -161,7 +182,11 @@ export function GerenciadorVideos({
           disabled={!reconhecido || ocupado}
           className={classeBotao("principal")}
         >
-          {pendente ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
+          {pendente ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Link2 className="h-4 w-4" />
+          )}
           Adicionar link
         </button>
       </div>
@@ -181,13 +206,18 @@ export function GerenciadorVideos({
           disabled={ocupado}
           className={classeBotao("neutro")}
         >
-          {etapa ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+          {etapa ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Upload className="h-4 w-4" />
+          )}
           {etapa ?? "Enviar arquivo de vídeo"}
         </button>
         <p className="min-w-0 flex-1 text-xs leading-relaxed text-[var(--fg-tenue)]">
-          MP4 de até {VIDEO_MAXIMO_MB} MB. O plano gratuito do Supabase tem 1 GB de espaço e 5 GB
-          de tráfego por mês, e cada vez que alguém assiste o vídeo conta no tráfego. Para vídeos
-          longos ou muito vistos, prefira o YouTube.
+          MP4 de até {VIDEO_MAXIMO_MB} MB. O plano gratuito do Supabase tem 1 GB
+          de espaço e 5 GB de tráfego por mês, e cada vez que alguém assiste o
+          vídeo conta no tráfego. Para vídeos longos ou muito vistos, prefira o
+          YouTube.
         </p>
         <input
           ref={arquivo}
@@ -204,7 +234,10 @@ export function GerenciadorVideos({
       </div>
 
       {erro ? (
-        <p role="alert" className="mt-3 text-sm text-[var(--color-acento-forte)]">
+        <p
+          role="alert"
+          className="mt-3 text-sm text-[var(--color-acento-forte)]"
+        >
           {erro}
         </p>
       ) : null}
@@ -239,9 +272,13 @@ export function GerenciadorVideos({
                 </div>
                 <div className="flex items-center justify-between gap-3 px-3 py-2.5">
                   <div className="min-w-0">
-                    <p className="truncate text-sm">{v.titulo || NOME_DO_SERVICO[v.tipo]}</p>
+                    <p className="truncate text-sm">
+                      {v.titulo || NOME_DO_SERVICO[v.tipo]}
+                    </p>
                     <p className="text-xs text-[var(--fg-tenue)]">
-                      {v.tipo === "arquivo" ? "Arquivo enviado" : NOME_DO_SERVICO[v.tipo]}
+                      {v.tipo === "arquivo"
+                        ? "Arquivo enviado"
+                        : NOME_DO_SERVICO[v.tipo]}
                     </p>
                   </div>
                   <button
@@ -278,12 +315,18 @@ function gerarCapa(arquivo: File): Promise<Blob> {
     video.playsInline = true;
     video.preload = "auto";
     video.src = url;
-    const desistir = window.setTimeout(() => rejeitar(new Error("tempo")), 15000);
+    const desistir = window.setTimeout(
+      () => rejeitar(new Error("tempo")),
+      15000,
+    );
     video.onloadedmetadata = () => {
       video.currentTime = Math.min(1, (video.duration || 2) / 2);
     };
     video.onseeked = () => {
-      const escala = Math.min(1, 1280 / Math.max(video.videoWidth, video.videoHeight));
+      const escala = Math.min(
+        1,
+        1280 / Math.max(video.videoWidth, video.videoHeight),
+      );
       const tela = document.createElement("canvas");
       tela.width = Math.round(video.videoWidth * escala);
       tela.height = Math.round(video.videoHeight * escala);

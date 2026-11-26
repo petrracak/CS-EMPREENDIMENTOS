@@ -13,10 +13,13 @@ import { createClient } from "@/lib/supabase/server";
 
 export default async function EditarEmpreendimento({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ aba?: string }>;
 }) {
   const { id } = await params;
+  const { aba } = await searchParams;
   await exigirArea("obras");
   const supabase = await createClient();
 
@@ -55,7 +58,11 @@ export default async function EditarEmpreendimento({
       <Cabecalho
         voltar={{ href: "/admin/empreendimentos", rotulo: "Empreendimentos" }}
         titulo={item.nome}
-        selo={<Etiqueta tom={noAr ? "verde" : "neutro"}>{noAr ? "No site" : "Rascunho"}</Etiqueta>}
+        selo={
+          <Etiqueta tom={noAr ? "verde" : "neutro"}>
+            {noAr ? "No site" : "Rascunho"}
+          </Etiqueta>
+        }
         descricao={`/empreendimentos/${item.slug}`}
         acoes={
           <>
@@ -80,33 +87,38 @@ export default async function EditarEmpreendimento({
         }
       />
 
-      <FormEmpreendimento dados={dados} tipos={tipos ?? []} />
-
-      <div className="space-y-5">
-        <GerenciadorImagens
-          empreendimentoId={item.id}
-          slug={item.slug}
-          imagens={item.imagens ?? []}
-          categoria="galeria"
-          titulo="Galeria"
-          apoio="As fotos do projeto. A primeira aparece maior na página."
-        />
-        <GerenciadorImagens
-          empreendimentoId={item.id}
-          slug={item.slug}
-          imagens={item.imagens ?? []}
-          categoria="planta"
-          titulo="Plantas"
-          apoio="As plantas baixas, mostradas inteiras e sem corte."
-        />
-        <GerenciadorVideos
-          empreendimentoId={item.id}
-          slug={item.slug}
-          videos={[...(item.videos ?? [])]
-            .sort((a, b) => a.ordem - b.ordem)
-            .map((v) => ({ ...v, tipo: v.tipo as TipoVideo }))}
-        />
-      </div>
+      <FormEmpreendimento
+        dados={dados}
+        tipos={tipos ?? []}
+        abaInicial={aba}
+        midia={
+          <>
+            <GerenciadorImagens
+              empreendimentoId={item.id}
+              slug={item.slug}
+              imagens={item.imagens ?? []}
+              categoria="galeria"
+              titulo="Galeria de fotos"
+              apoio="As fotos do projeto, num carrossel na página. A legenda aparece embaixo de cada uma; as setas mudam a ordem."
+            />
+            <GerenciadorImagens
+              empreendimentoId={item.id}
+              slug={item.slug}
+              imagens={item.imagens ?? []}
+              categoria="planta"
+              titulo="Plantas"
+              apoio="As plantas baixas do projeto, mostradas inteiras e sem corte, num carrossel no fundo verde. Use a legenda para dizer qual é (ex.: Planta da casa de 56 m²)."
+            />
+            <GerenciadorVideos
+              empreendimentoId={item.id}
+              slug={item.slug}
+              videos={[...(item.videos ?? [])]
+                .sort((a, b) => a.ordem - b.ordem)
+                .map((v) => ({ ...v, tipo: v.tipo as TipoVideo }))}
+            />
+          </>
+        }
+      />
     </div>
   );
 }

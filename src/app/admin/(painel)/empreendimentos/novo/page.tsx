@@ -16,7 +16,7 @@ export default async function NovoEmpreendimento() {
       <Cabecalho
         voltar={{ href: "/admin/empreendimentos", rotulo: "Empreendimentos" }}
         titulo="Novo empreendimento"
-        descricao="Preencha o básico e salve. A galeria, as plantas e as unidades entram depois, na tela de edição."
+        descricao="Preencha o básico e salve. Logo depois abre a aba de fotos, plantas e vídeos; as unidades ficam no botão Unidades."
       />
       <FormEmpreendimento dados={{}} tipos={tipos ?? []} />
     </div>

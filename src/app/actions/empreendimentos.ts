@@ -161,7 +161,9 @@ export async function salvarEmpreendimento(
 
   revalidar(slug);
 
-  if (!id) redirect(`/admin/empreendimentos/${empreendimentoId}`);
+  // Novo empreendimento: abre a edição já na aba das fotos, plantas e
+  // vídeos, que só existe depois do primeiro salvamento.
+  if (!id) redirect(`/admin/empreendimentos/${empreendimentoId}?aba=midia`);
   return { ok: true };
 }
 
@@ -475,4 +477,66 @@ export async function autorizarEnvioDeVideo(
   if (error || !data)
     return { erro: "Não conseguimos preparar o envio. Tente de novo." };
   return { caminho, token: data.token };
+}
+
+/* ------------------------------------------- legenda e ordem das fotos */
+
+/** A legenda que aparece embaixo da foto ou da planta no carrossel. */
+export async function atualizarLegendaImagem(
+  id: string,
+  empreendimentoId: string,
+  legenda: string,
+) {
+  await exigirArea("obras");
+  const supabase = await createClient();
+  await supabase
+    .from("empreendimento_imagens")
+    .update({ legenda: legenda.trim().slice(0, 160) || null })
+    .eq("id", id)
+    .eq("empreendimento_id", empreendimentoId);
+  revalidatePath(`/admin/empreendimentos/${empreendimentoId}`);
+  revalidar(null);
+}
+
+/** Troca a foto de lugar com a vizinha (−1 para trás, 1 para a frente). */
+export async function moverImagem(
+  id: string,
+  empreendimentoId: string,
+  direcao: -1 | 1,
+) {
+  await exigirArea("obras");
+  const supabase = await createClient();
+  const { data: atual } = await supabase
+    .from("empreendimento_imagens")
+    .select("id, categoria, ordem")
+    .eq("id", id)
+    .eq("empreendimento_id", empreendimentoId)
+    .maybeSingle();
+  if (!atual) return;
+
+  const { data: irmas } = await supabase
+    .from("empreendimento_imagens")
+    .select("id, ordem")
+    .eq("empreendimento_id", empreendimentoId)
+    .eq("categoria", atual.categoria)
+    .order("ordem")
+    .order("id");
+  const lista = irmas ?? [];
+  const i = lista.findIndex((f) => f.id === id);
+  const j = i + direcao;
+  if (i < 0 || j < 0 || j >= lista.length) return;
+
+  // Renumera a categoria inteira já com a troca: ordens repetidas (de
+  // fotos enviadas juntas) não deixam a seta "travar".
+  [lista[i], lista[j]] = [lista[j], lista[i]];
+  await Promise.all(
+    lista.map((f, n) =>
+      supabase
+        .from("empreendimento_imagens")
+        .update({ ordem: n + 1 })
+        .eq("id", f.id),
+    ),
+  );
+  revalidatePath(`/admin/empreendimentos/${empreendimentoId}`);
+  revalidar(null);
 }
