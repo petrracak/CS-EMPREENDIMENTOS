@@ -124,7 +124,7 @@ A tela de login usa a mesma cena.
 do site (`banner-campanha.tsx`), uma vez por visita: arte de computador
 1920 × 1080 e, opcional, de celular 1080 × 1350. Embaixo da arte, o botão
 da campanha e um botão de fechar do mesmo tamanho. O painel tem as medidas
-para o designer e a prévia num notebook e num iPhone, numa janela.
+para o designer e a prévia num notebook e num iPhone, sempre à vista no bloco.
 
 **Textos com negrito.** Os textos da página inicial saem do painel com
 negrito (`EditorTitulo` com `tamanho="texto"`; com `paragrafos`, para os

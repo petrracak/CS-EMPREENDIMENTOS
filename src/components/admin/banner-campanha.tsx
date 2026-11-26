@@ -1,11 +1,10 @@
 "use client";
 
-import { CircleCheck, Eye, Laptop, Smartphone, X } from "lucide-react";
+import { CircleCheck, Laptop, Smartphone } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Moldura, Palco, Vaga } from "@/components/admin/aparelhos";
 import { useEnvioDeImagem } from "@/components/admin/enviar-imagem";
-import { classeBotao } from "@/components/admin/estilos";
 import {
   CartaoDoBanner,
   FORMATO_CELULAR,
@@ -15,7 +14,7 @@ import {
 
 /**
  * As artes do banner de campanha, as medidas para o designer e a prévia
- * nos aparelhos, que abre numa janela por cima do painel.
+ * num MacBook e num iPhone, sempre à vista no bloco.
  *
  * A prévia desenha o pop-up do site no tamanho real de cada tela (1440 ×
  * 900 no notebook, 390 × 844 no iPhone) e só depois reduz o conjunto,
@@ -35,7 +34,6 @@ export function ArtesDoBanner({
   textos: Textos;
 }) {
   const raiz = useRef<HTMLDivElement>(null);
-  const janela = useRef<HTMLDialogElement>(null);
   const [textos, setTextos] = useState(iniciais);
 
   const pc = useEnvioDeImagem({
@@ -86,6 +84,42 @@ export function ArtesDoBanner({
       <input type="hidden" name="imagem_desktop" value={pc.caminho ?? ""} />
       <input type="hidden" name="imagem_mobile" value={cel.caminho ?? ""} />
 
+      {/* A prévia fica sempre à vista: muda na hora em que a arte sobe e
+          enquanto os textos são digitados. Os botões dela não funcionam. */}
+      <Palco>
+        <div
+          className="absolute"
+          style={{ left: 0, top: 70, width: 740, height: 434 }}
+        >
+          <Moldura aparelho="macbook-pro">
+            <div
+              className="absolute top-0 left-0 origin-top-left"
+              style={{
+                width: 1440,
+                height: 900,
+                transform: "scale(0.41389)",
+              }}
+            >
+              <TelaComBanner dados={dados} modo="computador" />
+            </div>
+          </Moldura>
+        </div>
+        <div
+          className="absolute origin-top-left"
+          style={{
+            left: 690,
+            top: 40,
+            width: 428,
+            height: 868,
+            transform: "scale(0.56)",
+          }}
+        >
+          <Moldura aparelho="iphone-14-pro">
+            <TelaComBanner dados={dados} modo="celular" />
+          </Moldura>
+        </div>
+      </Palco>
+
       <div className="grid gap-4 md:grid-cols-2">
         <Vaga
           titulo="Computador"
@@ -134,80 +168,6 @@ export function ArtesDoBanner({
           ))}
         </ul>
       </div>
-
-      <button
-        type="button"
-        onClick={() => janela.current?.showModal()}
-        className={classeBotao("neutro")}
-      >
-        <Eye className="h-4 w-4" strokeWidth={1.8} />
-        Ver no notebook e no celular
-      </button>
-
-      {/* ------------------------------------------------ janela da prévia */}
-      <dialog
-        ref={janela}
-        aria-label="Prévia do banner nos aparelhos"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) janela.current?.close();
-        }}
-        className="previa-banner m-auto w-[min(72rem,calc(100vw-1.5rem))] max-w-none rounded-[1.5rem] border-0 bg-[var(--painel-fundo)] p-0 shadow-2xl backdrop:bg-[rgb(1_38_22/0.6)] backdrop:backdrop-blur-sm"
-      >
-        <div className="flex items-start justify-between gap-4 border-b border-[var(--borda)] px-5 py-4 sm:px-7">
-          <div>
-            <p className="text-lg font-light tracking-[-0.03em] text-[#28513f]">
-              Como o banner aparece no site
-            </p>
-            <p className="mt-0.5 text-sm text-[var(--fg-tenue)]">
-              No tamanho real de cada tela. Os botões não funcionam aqui.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => janela.current?.close()}
-            className={classeBotao("neutro")}
-          >
-            <X className="h-4 w-4" />
-            Fechar
-          </button>
-        </div>
-
-        <div className="p-4 sm:p-7">
-          <Palco>
-            <div
-              className="absolute"
-              style={{ left: 0, top: 70, width: 740, height: 434 }}
-            >
-              <Moldura aparelho="macbook-pro">
-                <div
-                  className="absolute top-0 left-0 origin-top-left"
-                  style={{
-                    width: 1440,
-                    height: 900,
-                    transform: "scale(0.41389)",
-                  }}
-                >
-                  <TelaComBanner dados={dados} modo="computador" />
-                </div>
-              </Moldura>
-            </div>
-            <div
-              className="absolute origin-top-left"
-              style={{
-                left: 690,
-                top: 40,
-                width: 428,
-                height: 868,
-                transform: "scale(0.56)",
-              }}
-            >
-              <Moldura aparelho="iphone-14-pro">
-                <TelaComBanner dados={dados} modo="celular" />
-              </Moldura>
-            </div>
-          </Palco>
-        </div>
-      </dialog>
     </div>
   );
 }
