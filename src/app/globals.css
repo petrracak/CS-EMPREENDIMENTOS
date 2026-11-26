@@ -2576,7 +2576,7 @@
 @media (min-width: 1024px) {
   .login-vitrine {
     top: 50%;
-    height: min(68%, 620px);
-    transform: translate(-50%, -58%);
+    height: min(76%, 700px);
+    transform: translate(-50%, -50%);
   }
 }

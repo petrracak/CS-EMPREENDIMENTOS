@@ -16,7 +16,7 @@ import type { FotoVitrine } from "@/lib/vitrine";
  * Computador: o formulário à esquerda e, à direita, a mesma cena do topo
  * do site: o menta com as linhas da marca e a logo da CS com os
  * empreendimentos passando por dentro (VitrineLogo, as mesmas fotos que o
- * site escolhe). Celular: a cena vira uma faixa no topo e o formulário
+ * site escolhe), sozinha, sem texto. Celular: a cena vira uma faixa no topo e o formulário
  * fica logo abaixo, no alcance do polegar.
  */
 export function TelaLogin({ fotos }: { fotos: FotoVitrine[] }) {
@@ -159,11 +159,6 @@ export function TelaLogin({ fotos }: { fotos: FotoVitrine[] }) {
         >
           <VitrineLogo fotos={fotos} />
         </div>
-
-        <p className="absolute inset-x-0 bottom-0 hidden px-12 pb-12 text-[1.75rem] leading-tight font-light tracking-[-0.05em] text-[#28513f] lg:block xl:text-[2rem]">
-          Há <span className="destaque">10 anos</span> construindo{" "}
-          <span className="destaque">lares</span> em Santarém
-        </p>
       </section>
     </main>
   );
