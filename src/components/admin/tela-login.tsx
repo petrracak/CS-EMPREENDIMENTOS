@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useActionState, useState, type CSSProperties } from "react";
 
 import { entrar, type EstadoLogin } from "@/app/actions/auth";
+import { BotaoInstalar } from "@/components/admin/instalar-app";
 import { Aviso, Campo, Entrada, Salvar } from "@/components/admin/ui";
 import { Logo } from "@/components/site/logo";
 import { VitrineLogo } from "@/components/site/vitrine-logo";
@@ -123,6 +124,13 @@ export function TelaLogin({ fotos }: { fotos: FotoVitrine[] }) {
           >
             Esqueceu a senha? Peça uma nova a quem administra o painel.
           </p>
+
+          {/* Instalar já daqui: o app abre direto no painel (o manifesto
+              do /admin vale também para o login). Some se já estiver
+              instalado. */}
+          <div className="login-entra mt-6" style={entra(7)}>
+            <BotaoInstalar aparencia="lateral" />
+          </div>
         </div>
 
         <a
