@@ -62,7 +62,7 @@ export function FormEmpreendimento({
 }: {
   dados: Dados;
   tipos: Tipo[];
-  /** Galeria, plantas e vídeos (só na edição: dependem do id). */
+  /** Galeria, plantas e vídeos (no cadastro novo, só fotos e plantas). */
   midia?: React.ReactNode;
   abaInicial?: string;
 }) {
@@ -490,8 +490,9 @@ export function FormEmpreendimento({
           {midia ? (
             <>
               <p className="rounded-2xl border border-[var(--borda)] bg-[#ebfff6] px-4 py-3 text-sm leading-relaxed text-[#2c6149]">
-                Fotos, plantas e vídeos salvam na hora em que você envia ou
-                muda, sem precisar do botão Salvar.
+                {t("id")
+                  ? "Fotos, plantas e vídeos salvam na hora em que você envia ou muda, sem precisar do botão Salvar."
+                  : "Pode subir as fotos e as plantas agora. Elas ficam guardadas no empreendimento quando você tocar em Salvar empreendimento."}
               </p>
               {midia}
             </>

@@ -10,7 +10,7 @@ import {
   moverImagem,
   removerImagem,
 } from "@/app/actions/empreendimentos";
-import { enviarImagem } from "@/app/actions/midia";
+import { apagarImagem, enviarImagem } from "@/app/actions/midia";
 import { Cartao, TituloBloco } from "@/components/admin/ui";
 import { nomeDeArquivo, prepararImagem } from "@/lib/preparar-imagem";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,11 @@ type Foto = {
  *
  * Aceita várias fotos de uma vez: a CS recebe a pasta do fotógrafo e sobe
  * tudo junto, em vez de repetir o mesmo caminho vinte vezes.
+ *
+ * Sem empreendimentoId (cadastro novo, ainda não salvo), as fotos sobem
+ * para o Storage na hora, mas a lista, a legenda e a ordem ficam aqui no
+ * navegador, num campo escondido do formulário. Quando o empreendimento é
+ * salvo pela primeira vez, o servidor grava tudo junto.
  */
 export function GerenciadorImagens({
   empreendimentoId,
@@ -36,8 +41,8 @@ export function GerenciadorImagens({
   titulo,
   apoio,
 }: {
-  empreendimentoId: string;
-  slug: string;
+  empreendimentoId?: string;
+  slug?: string;
   imagens: Foto[];
   categoria: "galeria" | "planta";
   titulo: string;
@@ -48,7 +53,54 @@ export function GerenciadorImagens({
   const [pendente, iniciar] = useTransition();
   const entrada = useRef<HTMLInputElement>(null);
 
-  const fotos = imagens.filter((i) => i.categoria === categoria);
+  const salvo = Boolean(empreendimentoId);
+  // Só no cadastro novo: as fotos ainda sem empreendimento.
+  const [locais, setLocais] = useState<Foto[]>([]);
+  const fotos = salvo
+    ? imagens.filter((i) => i.categoria === categoria)
+    : locais;
+
+  function remover(foto: Foto) {
+    if (!confirm("Remover esta imagem da página?")) return;
+    if (!salvo) {
+      setLocais((l) => l.filter((f) => f.id !== foto.id));
+      void apagarImagem(foto.url);
+      return;
+    }
+    iniciar(() => {
+      void removerImagem(foto.id, empreendimentoId!);
+    });
+  }
+
+  function legendar(foto: Foto, nova: string) {
+    if (nova.trim() === (foto.legenda ?? "").trim()) return;
+    if (!salvo) {
+      setLocais((l) =>
+        l.map((f) => (f.id === foto.id ? { ...f, legenda: nova.trim() } : f)),
+      );
+      return;
+    }
+    iniciar(() => {
+      void atualizarLegendaImagem(foto.id, empreendimentoId!, nova);
+    });
+  }
+
+  function mover(foto: Foto, direcao: -1 | 1) {
+    if (!salvo) {
+      setLocais((l) => {
+        const i = l.findIndex((f) => f.id === foto.id);
+        const j = i + direcao;
+        if (i < 0 || j < 0 || j >= l.length) return l;
+        const nova = [...l];
+        [nova[i], nova[j]] = [nova[j], nova[i]];
+        return nova;
+      });
+      return;
+    }
+    iniciar(() => {
+      void moverImagem(foto.id, empreendimentoId!, direcao);
+    });
+  }
 
   async function aoEscolher(arquivos: FileList) {
     setErro(null);
@@ -61,17 +113,18 @@ export function GerenciadorImagens({
         dados.append("grande", pronta.grande, "g.webp");
         dados.append("media", pronta.media, "media.webp");
         dados.append("pequena", pronta.pequena, "p.webp");
-        dados.append("pasta", `empreendimentos/${slug}`);
+        dados.append("pasta", `empreendimentos/${slug || "novo"}`);
         dados.append("nome", nomeDeArquivo(arquivo.name));
 
         const resposta = await enviarImagem(dados);
-        if (resposta.caminho) {
-          await adicionarImagem(
-            empreendimentoId,
-            resposta.caminho,
-            categoria,
-            null,
-          );
+        const caminho = resposta.caminho;
+        if (caminho && salvo) {
+          await adicionarImagem(empreendimentoId!, caminho, categoria, null);
+        } else if (caminho) {
+          setLocais((l) => [
+            ...l,
+            { id: caminho, url: caminho, legenda: null, categoria },
+          ]);
         } else if (resposta.erro) {
           setErro(resposta.erro);
         }
@@ -99,6 +152,16 @@ export function GerenciadorImagens({
       >
         {titulo}
       </TituloBloco>
+
+      {salvo ? null : (
+        <input
+          type="hidden"
+          name={`imagens_${categoria}`}
+          value={JSON.stringify(
+            locais.map((f) => ({ url: f.url, legenda: f.legenda })),
+          )}
+        />
+      )}
 
       <input
         ref={entrada}
@@ -142,12 +205,7 @@ export function GerenciadorImagens({
                 aria-label="Remover"
                 title="Remover"
                 disabled={pendente}
-                onClick={() => {
-                  if (!confirm("Remover esta imagem da página?")) return;
-                  iniciar(() => {
-                    void removerImagem(foto.id, empreendimentoId);
-                  });
-                }}
+                onClick={() => remover(foto)}
                 className="absolute top-2 right-2 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-[var(--fg)] shadow-sm backdrop-blur-md transition-[opacity,color] duration-200 hover:text-[var(--color-acento-forte)] focus-visible:opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
               >
                 <Trash2 className="h-4 w-4" />
@@ -168,17 +226,7 @@ export function GerenciadorImagens({
                     e.currentTarget.blur();
                   }
                 }}
-                onBlur={(e) => {
-                  const nova = e.currentTarget.value;
-                  if (nova.trim() === (foto.legenda ?? "").trim()) return;
-                  iniciar(() => {
-                    void atualizarLegendaImagem(
-                      foto.id,
-                      empreendimentoId,
-                      nova,
-                    );
-                  });
-                }}
+                onBlur={(e) => legendar(foto, e.currentTarget.value)}
                 className="min-h-10 w-full min-w-0 rounded-lg border border-[var(--borda)] bg-[var(--bg)] px-2.5 text-base outline-none focus:border-[var(--color-verde-700)] sm:text-[0.8125rem]"
               />
               <div className="flex items-center justify-between gap-1">
@@ -187,11 +235,7 @@ export function GerenciadorImagens({
                   aria-label="Passar para antes"
                   title="Passar para antes"
                   disabled={pendente || i === 0}
-                  onClick={() =>
-                    iniciar(() => {
-                      void moverImagem(foto.id, empreendimentoId, -1);
-                    })
-                  }
+                  onClick={() => mover(foto, -1)}
                   className="grid h-10 w-10 place-items-center rounded-lg text-[var(--fg-suave)] transition-colors hover:bg-[var(--bg-fundo)] disabled:opacity-30"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -202,11 +246,7 @@ export function GerenciadorImagens({
                   aria-label="Passar para depois"
                   title="Passar para depois"
                   disabled={pendente || i === fotos.length - 1}
-                  onClick={() =>
-                    iniciar(() => {
-                      void moverImagem(foto.id, empreendimentoId, 1);
-                    })
-                  }
+                  onClick={() => mover(foto, 1)}
                   className="grid h-10 w-10 place-items-center rounded-lg text-[var(--fg-suave)] transition-colors hover:bg-[var(--bg-fundo)] disabled:opacity-30"
                 >
                   <ArrowRight className="h-4 w-4" />

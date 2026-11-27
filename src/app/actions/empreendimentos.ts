@@ -37,6 +37,34 @@ const porcentagem = (v: FormDataEntryValue | null) => {
   return Number.isFinite(n) && n >= 0 && n <= 100 ? n : null;
 };
 
+/**
+ * As fotos que o cadastro novo guardou no campo escondido. Só aceita
+ * caminhos do jeito que o painel grava no Storage.
+ */
+function fotosDoRascunho(v: FormDataEntryValue | null) {
+  let lista: unknown;
+  try {
+    lista = JSON.parse(String(v ?? "[]"));
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(lista)) return [];
+  return lista
+    .slice(0, 200)
+    .filter(
+      (f): f is { url: string; legenda?: unknown } =>
+        typeof f?.url === "string" &&
+        /^empreendimentos\/[a-z0-9-]+\/[a-z0-9-]+\.webp$/.test(f.url),
+    )
+    .map((f) => ({
+      url: f.url,
+      legenda:
+        typeof f.legenda === "string"
+          ? f.legenda.trim().slice(0, 160) || null
+          : null,
+    }));
+}
+
 /** Recalcula as páginas que mostram este empreendimento. */
 function revalidar(slug?: string | null) {
   revalidatePath("/");
@@ -159,10 +187,26 @@ export async function salvarEmpreendimento(
     }),
   );
 
+  // Cadastro novo: fotos e plantas enviadas antes do primeiro salvamento.
+  if (!id) {
+    const imagens = (["galeria", "planta"] as const).flatMap((categoria) =>
+      fotosDoRascunho(dados.get(`imagens_${categoria}`)).map((f, i) => ({
+        empreendimento_id: empreendimentoId,
+        url: f.url,
+        legenda: f.legenda,
+        categoria,
+        ordem: i + 1,
+      })),
+    );
+    if (imagens.length) {
+      await supabase.from("empreendimento_imagens").insert(imagens);
+    }
+  }
+
   revalidar(slug);
 
   // Novo empreendimento: abre a edição já na aba das fotos, plantas e
-  // vídeos, que só existe depois do primeiro salvamento.
+  // vídeos (os vídeos só entram depois do primeiro salvamento).
   if (!id) redirect(`/admin/empreendimentos/${empreendimentoId}?aba=midia`);
   return { ok: true };
 }
