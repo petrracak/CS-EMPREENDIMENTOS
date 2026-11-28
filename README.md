@@ -247,6 +247,7 @@ Server Action remonta o objeto — assim a CS nunca vê JSON.
 - **Selo redondo** (`selo-cs.tsx`): no topo da home, no banner do empreendimento e no rodapé.
 - **Rodapé**: grade fina e o símbolo da CS em contorno no canto, que se desenha, espera e se apaga em loop (`.rodape-esboco`).
 - **Ponteiro da CS** (`components/cursor.tsx`, no layout raiz, vale para site e painel): só com mouse; em campo de texto volta o cursor de digitar. Link com `data-cursor="Ver"` (cards) mostra a palavra no anel.
+- **Assinatura Racak Studio** (`assinatura-racak.tsx`): no pé do rodapé, leva ao Instagram do estúdio; o ícone dá um tique de 45° em loop e ganha o degradê da marca no hover.
 - **Granulado** (`.grao`, só no site): ruído gerado pelo navegador, parado, numa camada fixa.
 
 ## Dados do cliente

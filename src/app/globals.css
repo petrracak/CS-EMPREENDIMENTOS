@@ -2952,3 +2952,125 @@ html {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.12 0 0 0 0 0.08 0 0 0 0.55 -0.16'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
   background-size: 220px 220px;
 }
+
+/* ===================================================================
+   ASSINATURA RACAK STUDIO (assinatura-racak.tsx), no pé do rodapé
+   =================================================================== */
+.assinatura-racak {
+  --racak: linear-gradient(90deg, #a900ff, #ff5379 50%, #feb012);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  font-size: 0.75rem;
+  color: rgb(255 255 255 / 0.45);
+  text-decoration: none;
+  transition: color 0.4s ease;
+}
+
+.assinatura-racak-marca {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-block: 0.25rem;
+  font-weight: 500;
+  color: rgb(255 246 228 / 0.8);
+}
+
+/* O fio em degradê que corre sob o nome no hover. */
+.assinatura-racak-marca::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--racak);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s var(--ease-saida);
+}
+
+.assinatura-racak-icone {
+  display: grid;
+  width: 0.95rem;
+  height: 0.95rem;
+  animation: racak-tique 6s var(--ease-entrada-saida) infinite;
+}
+
+.assinatura-racak-icone svg {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transition: transform 0.7s var(--ease-saida);
+}
+
+.assinatura-racak-liso {
+  fill: rgb(255 246 228 / 0.8);
+  transition: opacity 0.4s ease;
+}
+
+.assinatura-racak-cor {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.assinatura-racak-nome {
+  background-image: var(--racak);
+  background-size: 0% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  transition:
+    color 0.4s ease,
+    background-size 0.5s var(--ease-saida);
+}
+
+.assinatura-racak:is(:hover, :focus-visible) {
+  color: rgb(255 255 255 / 0.7);
+}
+
+.assinatura-racak:is(:hover, :focus-visible) .assinatura-racak-marca::after {
+  transform: scaleX(1);
+}
+
+.assinatura-racak:is(:hover, :focus-visible) .assinatura-racak-icone {
+  animation-play-state: paused;
+}
+
+.assinatura-racak:is(:hover, :focus-visible) .assinatura-racak-icone svg {
+  transform: rotate(90deg);
+}
+
+.assinatura-racak:is(:hover, :focus-visible) .assinatura-racak-liso {
+  opacity: 0;
+}
+
+.assinatura-racak:is(:hover, :focus-visible) .assinatura-racak-cor {
+  opacity: 1;
+}
+
+.assinatura-racak:is(:hover, :focus-visible) .assinatura-racak-nome {
+  color: transparent;
+  background-size: 100% 100%;
+}
+
+/* Parado quase o tempo todo; no fim do ciclo, um oitavo de volta. Como
+   o ícone é idêntico a cada 45°, voltar ao zero não aparece. */
+@keyframes racak-tique {
+  0%,
+  82% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(45deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assinatura-racak-icone {
+    animation: none;
+  }
+}

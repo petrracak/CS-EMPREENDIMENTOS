@@ -7,6 +7,7 @@ import {
   TRACOS_DO_SIMBOLO,
   VIEWBOX_DO_SIMBOLO,
 } from "@/components/site/logo";
+import { AssinaturaRacak } from "@/components/site/assinatura-racak";
 import { SeloCS } from "@/components/site/selo-cs";
 import { listarEmpreendimentos } from "@/lib/queries";
 import { lerConfig, lerEmpresa, txt } from "@/lib/settings";
@@ -179,25 +180,28 @@ export async function Rodape() {
             </p>
             <p>{txt(config, "copyright")}</p>
           </div>
-          <nav
-            aria-label="Documentos"
-            className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/55"
-          >
-            <Link
-              prefetch={false}
-              href="/termos-de-uso"
-              className="transition-colors hover:text-[var(--color-ouro-300)]"
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <nav
+              aria-label="Documentos"
+              className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/55"
             >
-              Termos de uso e compromisso
-            </Link>
-            <Link
-              prefetch={false}
-              href="/politica-de-privacidade"
-              className="transition-colors hover:text-[var(--color-ouro-300)]"
-            >
-              Política de privacidade
-            </Link>
-          </nav>
+              <Link
+                prefetch={false}
+                href="/termos-de-uso"
+                className="transition-colors hover:text-[var(--color-ouro-300)]"
+              >
+                Termos de uso e compromisso
+              </Link>
+              <Link
+                prefetch={false}
+                href="/politica-de-privacidade"
+                className="transition-colors hover:text-[var(--color-ouro-300)]"
+              >
+                Política de privacidade
+              </Link>
+            </nav>
+            <AssinaturaRacak />
+          </div>
           {txt(config, "aviso") ? (
             <p className="mt-3 text-xs text-white/30">{txt(config, "aviso")}</p>
           ) : null}
