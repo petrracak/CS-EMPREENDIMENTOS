@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { BannerCampanha } from "@/components/site/banner-campanha";
 import { Cabecalho } from "@/components/site/cabecalho";
 import { DadosEstruturados } from "@/components/site/dados-estruturados";
+import { Efeitos } from "@/components/site/efeitos";
 import { GradienteContinuo } from "@/components/site/gradiente-continuo";
 import { FaixaCampanha } from "@/components/site/faixa-campanha";
 import { PopupSaida } from "@/components/site/popup-saida";
@@ -117,6 +118,9 @@ export default async function LayoutDoSite({
       {/* Liga as animações de entrada depois que a página monta. */}
       <Revelar />
       <GradienteContinuo />
+      <Efeitos />
+      {/* Película de grão leve sobre o site (ver .grao em globals.css). */}
+      <div aria-hidden className="grao" />
     </div>
   );
 }

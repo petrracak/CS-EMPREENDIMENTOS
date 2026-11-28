@@ -2,7 +2,12 @@ import Link from "next/link";
 import { MapPin, Mail, Clock } from "lucide-react";
 
 import { Facebook, Instagram, Whatsapp } from "@/components/icones-sociais";
-import { Logo } from "@/components/site/logo";
+import {
+  Logo,
+  TRACOS_DO_SIMBOLO,
+  VIEWBOX_DO_SIMBOLO,
+} from "@/components/site/logo";
+import { SeloCS } from "@/components/site/selo-cs";
 import { listarEmpreendimentos } from "@/lib/queries";
 import { lerConfig, lerEmpresa, txt } from "@/lib/settings";
 
@@ -17,8 +22,24 @@ export async function Rodape() {
   const emDestaque = empreendimentos.slice(0, 4);
 
   return (
-    <footer className="rodape text-[var(--fg-sobre-tinta)]">
-      <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 md:py-20">
+    <footer className="rodape relative isolate overflow-hidden text-[var(--fg-sobre-tinta)]">
+      {/* O símbolo da CS em contorno, grande, no canto: um esboço a lápis
+          que se desenha, fica um tempo e se apaga, em loop (ver
+          .rodape-esboco em globals.css). */}
+      <div aria-hidden className="rodape-esboco">
+        <svg viewBox={VIEWBOX_DO_SIMBOLO}>
+          {TRACOS_DO_SIMBOLO.map((d, i) => (
+            <path
+              key={i}
+              d={d}
+              pathLength={1}
+              style={{ "--i": i } as React.CSSProperties}
+            />
+          ))}
+        </svg>
+      </div>
+
+      <div className="relative mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 md:py-20">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* ---------------------------------------------- institucional */}
           <div className="lg:pr-6">
@@ -147,8 +168,12 @@ export async function Rodape() {
         </div>
 
         {/* ------------------------------------------------- linha legal */}
-        <div className="mt-14 border-t border-white/10 pt-8">
-          <div className="flex flex-col gap-3 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative mt-14 border-t border-white/10 pt-8">
+          <SeloCS
+            cor="creme"
+            className="absolute -top-12 right-0 w-24 sm:w-28"
+          />
+          <div className="flex flex-col gap-3 pr-28 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between sm:pr-36">
             <p>
               {empresa.razao_social}. CNPJ {empresa.cnpj}
             </p>

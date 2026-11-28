@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 
+import { Cursor } from "@/components/cursor";
 import { switzer } from "@/lib/fontes";
 import { IMAGEM_PADRAO, SITE_URL } from "@/lib/seo";
 import "./globals.css";
@@ -46,7 +47,10 @@ export default function RootLayout({
     // a abertura da página inicial marca data-sem-abertura nele antes de
     // o React carregar (ver components/site/abertura.tsx).
     <html lang="pt-BR" className={switzer.variable} suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Cursor />
+      </body>
     </html>
   );
 }

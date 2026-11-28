@@ -240,6 +240,15 @@ e descarta um `text-white` no mesmo `cn()`. Nesses casos, string comum.
 jsonb. O formulário do painel manda campos achatados (`numeros.0.valor`) e a
 Server Action remonta o objeto — assim a CS nunca vê JSON.
 
+### Efeitos de movimento
+
+- **Luz no hover** (`data-luz`): mancha suave que segue o mouse em perguntas frequentes, no bloco "Todos os empreendimentos" e nos quadros da página do empreendimento.
+- **Faixa final da home** (`faixa-final.tsx`): o símbolo da CS cresce com a rolagem até a tela ficar verde; o convite aparece depois. Quem pede menos movimento vê direto o estado final.
+- **Selo redondo** (`selo-cs.tsx`): no topo da home, no banner do empreendimento e no rodapé.
+- **Rodapé**: grade fina e o símbolo da CS em contorno no canto, que se desenha, espera e se apaga em loop (`.rodape-esboco`).
+- **Ponteiro da CS** (`components/cursor.tsx`, no layout raiz, vale para site e painel): só com mouse; em campo de texto volta o cursor de digitar. Link com `data-cursor="Ver"` (cards) mostra a palavra no anel.
+- **Granulado** (`.grao`, só no site): ruído gerado pelo navegador, parado, numa camada fixa.
+
 ## Dados do cliente
 
 O briefing, a ata e as apresentações ficam fora do repositório. O

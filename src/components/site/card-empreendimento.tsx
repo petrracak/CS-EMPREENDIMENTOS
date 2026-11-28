@@ -52,6 +52,7 @@ export function CardEmpreendimento({
         <Link
           prefetch={false}
           href={`/empreendimentos/${item.slug}`}
+          data-cursor="Ver"
           className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)]"
         >
           <div
@@ -69,7 +70,9 @@ export function CardEmpreendimento({
                    0,8 s) e menos. Dois tempos dão profundidade. */
                 className="object-cover transition-[transform,filter] duration-[1400ms] [transition-timing-function:var(--ease-lento)] group-hover:scale-[1.06] group-hover:brightness-[1.04]"
               />
-            ) : (
+            ) : null}
+
+            {item.imagem_principal ? null : (
               <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[var(--color-verde-800)] to-[var(--color-verde-950)]">
                 <Simbolo className="h-16 w-auto text-white/10" />
               </div>

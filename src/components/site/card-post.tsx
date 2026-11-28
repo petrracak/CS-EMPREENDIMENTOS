@@ -50,6 +50,7 @@ export function CardPost({
         <Link
           prefetch={false}
           href={`/blog/${post.slug}`}
+          data-cursor="Ler"
           className={cn(
             "group flex h-full flex-col overflow-hidden rounded-2xl border",
             escuro

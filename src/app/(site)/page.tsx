@@ -8,7 +8,6 @@ import { CardEmpreendimento } from "@/components/site/card-empreendimento";
 import { CardPost } from "@/components/site/card-post";
 import { IconeAtendimento } from "@/components/site/icone-atendimento";
 import { Palavras } from "@/components/site/palavras";
-import { Simbolo } from "@/components/site/logo";
 import { TextoRico, Trecho } from "@/components/site/texto-rico";
 import { TopoNovo } from "@/components/site/topo-novo";
 import { Olho, Secao, Titulo } from "@/components/site/ui";
@@ -20,6 +19,7 @@ import {
 } from "@/lib/queries";
 import type { Metadata } from "next";
 
+import { FaixaFinal } from "@/components/site/faixa-final";
 import { DadosEstruturados } from "@/components/site/dados-estruturados";
 import { perguntasFrequentes } from "@/lib/seo";
 import { lerConfig } from "@/lib/settings";
@@ -244,7 +244,10 @@ export default async function PaginaInicial() {
           {/* ============================= dobra 4: todos os empreendimentos */}
           <Secao className="pt-0 md:pt-0">
             <div data-revelar>
-              <div className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] p-8 transition-shadow duration-[1100ms] [transition-timing-function:var(--ease-lento)] hover:shadow-[var(--sombra-card)] sm:p-12 lg:flex-row lg:items-center">
+              <div
+                data-luz
+                className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] p-8 transition-shadow duration-[1100ms] [transition-timing-function:var(--ease-lento)] hover:shadow-[var(--sombra-card)] sm:p-12 lg:flex-row lg:items-center"
+              >
                 <div className="max-w-xl">
                   <Titulo
                     html={lerTitulo(
@@ -425,7 +428,11 @@ export default async function PaginaInicial() {
               </div>
               <div className="divide-y divide-[var(--borda)] border-y border-[var(--borda)]">
                 {perguntas.map((p) => (
-                  <details key={p.pergunta} className="pergunta group py-1">
+                  <details
+                    key={p.pergunta}
+                    data-luz
+                    className="pergunta group py-1"
+                  >
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-4 text-[1.0625rem] text-[#28513f] [&::-webkit-details-marker]:hidden">
                       {p.pergunta}
                       <span
@@ -445,67 +452,49 @@ export default async function PaginaInicial() {
           </Secao>
 
           {/* ========================================== faixa de contato */}
-          {/* Três camadas de luz sobre o verde mais escuro da marca: a aurora
-            vindo do alto à direita, um brilho quente subindo da esquerda e
-            a grade fina do topo da página, que fecha a página com o mesmo
-            gesto com que ela abre. O `isolate` segura o modo de mistura da
-            aurora dentro do bloco. */}
-          <Secao className="pt-0 md:pt-0">
-            <div data-revelar>
-              <div className="relative isolate overflow-hidden rounded-[2rem] bg-[var(--color-verde-950)] px-6 py-16 text-center sm:px-12 md:py-24">
-                <div aria-hidden className="aurora" />
-                <div
-                  aria-hidden
-                  className="brilho pointer-events-none absolute -bottom-48 -left-40 h-[30rem] w-[30rem] rounded-full opacity-70"
-                />
-                <div
-                  aria-hidden
-                  className="linhas absolute inset-0 opacity-70"
-                />
-                <Simbolo className="pointer-events-none absolute -bottom-10 -left-8 h-56 w-auto text-white/[0.04]" />
+          {/* O símbolo da CS cresce com a rolagem até a tela virar o verde
+            escuro da marca, e aí o convite aparece (ver faixa-final.tsx). */}
+          <FaixaFinal>
+            <div className="relative mx-auto max-w-2xl">
+              <IconeAtendimento className="mx-auto mb-8" />
 
-                <div className="relative mx-auto max-w-2xl">
-                  <IconeAtendimento className="mx-auto mb-8" />
-
-                  <Palavras
-                    como="h2"
-                    passo={50}
-                    html={lerTitulo(configs.faixa_contato)}
-                    tom="ouro"
-                    className="font-display text-display-sm sm:text-display-md font-medium text-balance text-white"
-                  />
-                  <p className="mt-5 leading-relaxed text-white/70">
-                    <Trecho
-                      html={txt(configs.faixa_contato, "texto")}
-                      forte="text-white"
-                    />
-                  </p>
-                  <div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-                    <BotaoNovo
-                      href={txt(
-                        configs.faixa_contato,
-                        "botao_primario_url",
-                        "/cadastro",
-                      )}
-                    >
-                      {txt(configs.faixa_contato, "botao_primario")}
-                    </BotaoNovo>
-                    <BotaoNovo
-                      href={
-                        txt(configs.faixa_contato, "botao_secundario_url") ||
-                        empresa.whatsapp_link
-                      }
-                      tipo="secundario"
-                      icone="zap"
-                      className="sobre-escuro"
-                    >
-                      {txt(configs.faixa_contato, "botao_secundario")}
-                    </BotaoNovo>
-                  </div>
-                </div>
+              <Palavras
+                como="h2"
+                passo={50}
+                html={lerTitulo(configs.faixa_contato)}
+                tom="ouro"
+                className="font-display text-display-sm sm:text-display-md font-medium text-balance text-white"
+              />
+              <p className="mt-5 leading-relaxed text-white/70">
+                <Trecho
+                  html={txt(configs.faixa_contato, "texto")}
+                  forte="text-white"
+                />
+              </p>
+              <div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+                <BotaoNovo
+                  href={txt(
+                    configs.faixa_contato,
+                    "botao_primario_url",
+                    "/cadastro",
+                  )}
+                >
+                  {txt(configs.faixa_contato, "botao_primario")}
+                </BotaoNovo>
+                <BotaoNovo
+                  href={
+                    txt(configs.faixa_contato, "botao_secundario_url") ||
+                    empresa.whatsapp_link
+                  }
+                  tipo="secundario"
+                  icone="zap"
+                  className="sobre-escuro"
+                >
+                  {txt(configs.faixa_contato, "botao_secundario")}
+                </BotaoNovo>
               </div>
             </div>
-          </Secao>
+          </FaixaFinal>
         </div>
       </div>
     </div>

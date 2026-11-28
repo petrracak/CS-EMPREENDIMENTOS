@@ -1228,6 +1228,16 @@
   mask-image: linear-gradient(to bottom, #000 72%, transparent 98%);
 }
 
+/* O selo redondo encostado no pé da logo, à direita. */
+.topo-novo-selo {
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--cab) + 214 * var(--k));
+  left: calc(50% + 52 * var(--k));
+  width: calc(78 * var(--k));
+  pointer-events: none;
+}
+
 .vitrine-logo-mascara {
   position: absolute;
   inset: 0;
@@ -1542,6 +1552,12 @@
     top: calc(25 * var(--u));
     left: calc(var(--x) + 688 * var(--u));
     width: calc(453 * var(--u));
+  }
+
+  .topo-novo-selo {
+    top: calc(560 * var(--u));
+    left: calc(var(--x) + 652 * var(--u));
+    width: calc(132 * var(--u));
   }
 
   .topo-novo-texto {
@@ -2004,7 +2020,76 @@
 .rodape {
   background:
     radial-gradient(50rem 24rem at 10% -10%, rgb(243 214 148 / 0.08), transparent 70%),
+    linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px) 0 0 / 64px 64px,
+    linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px) 0 0 / 64px 64px,
     #004527;
+}
+
+/* O símbolo da CS em contorno, no canto de baixo à esquerda, cortado
+   pela borda. Cada traço tem comprimento 1 (pathLength), e o tracejado
+   de 1 cheio e 1 vazio permite três estados só pelo deslocamento:
+   1 = nada desenhado, 0 = tudo desenhado, -1 = apagado a partir do
+   começo. O laço vai de 1 a 0 (desenha), espera, e vai a -1 (apaga),
+   como uma mão passando o lápis de novo. O segundo traço vem um pouco
+   depois do primeiro. */
+.rodape-esboco {
+  position: absolute;
+  left: -0.5rem;
+  bottom: -5rem;
+  z-index: -1;
+  height: 20rem;
+  pointer-events: none;
+}
+
+.rodape-esboco svg {
+  display: block;
+  height: 100%;
+  width: auto;
+  overflow: visible;
+}
+
+.rodape-esboco path {
+  fill: none;
+  stroke: rgb(243 214 148 / 0.26);
+  /* Em unidades do desenho (556 de altura em 20rem): ~1,2 px. */
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  animation: rodape-lapis 11s var(--ease-entrada-saida) infinite;
+  animation-delay: calc(var(--i) * 0.6s);
+}
+
+@keyframes rodape-lapis {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  42%,
+  70% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rodape-esboco {
+    left: 1.5rem;
+    bottom: -7rem;
+    height: 30rem;
+  }
+
+  .rodape-esboco path {
+    stroke-width: 1.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rodape-esboco path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
 }
 
 /* ===================================================================
@@ -2508,4 +2593,362 @@ html {
   .instalar-tutorial[open] {
     animation: none;
   }
+}
+
+/* ===================================================================
+   LUZ NO HOVER (data-luz)
+
+   Uma mancha suave, dourada no centro e verde nas bordas, acompanha o
+   mouse dentro do quadro. Fica numa camada abaixo do conteúdo e acima
+   do fundo do próprio quadro (o isolate cria a pilha só dele). A posição
+   vem de efeitos.tsx; sem mouse, nada acende.
+   =================================================================== */
+/* Na camada de componentes: um utilitário do elemento (sticky, por
+   exemplo) continua valendo por cima do position daqui. */
+@layer components {
+  [data-luz] {
+    position: relative;
+    isolation: isolate;
+  }
+
+  [data-luz]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+      var(--luz-raio, 420px) circle at var(--lx, 50%) var(--ly, 50%),
+      rgb(243 214 148 / 0.26),
+      rgb(139 193 167 / 0.1) 42%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-lento);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    [data-luz]:hover::after {
+      opacity: 1;
+    }
+  }
+}
+
+/* ===================================================================
+   FAIXA FINAL DA PÁGINA INICIAL (faixa-final.tsx)
+
+   Estado de partida (servidor, sem JS, menos movimento): o bloco verde
+   com o convite e o símbolo grande e apagado ao fundo. Com .faixa-final-
+   viva, a seção fica alta, o palco gruda no topo e as variáveis que o
+   componente escreve (--escala, --fundo, --simbolo, --conteudo) mandam.
+   =================================================================== */
+.faixa-final {
+  --escala: 26;
+  --fundo: 1;
+  --simbolo: 0.08;
+  --conteudo: 1;
+  position: relative;
+}
+
+.faixa-final-palco {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 34rem;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 7rem 1.25rem;
+  text-align: center;
+}
+
+.faixa-final-fundo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: var(--color-verde-950);
+  opacity: var(--fundo);
+}
+
+.faixa-final-simbolo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  height: min(22vh, 11rem);
+  aspect-ratio: 299 / 556;
+  color: var(--color-verde-800);
+  opacity: var(--simbolo);
+  /* Sem will-change de propósito: com ele o navegador desenha o símbolo
+     uma vez, pequeno, e só amplia o desenho, que fica borrado. Sem ele,
+     o SVG é redesenhado nítido a cada passo (é um traço simples). */
+  transform: translate(-50%, -50%) scale(var(--escala));
+}
+
+/* No fundo verde, o símbolo grande clareia um pouco para aparecer. */
+.faixa-final:not(.faixa-final-viva) .faixa-final-simbolo {
+  color: #ffffff;
+  opacity: 0.04;
+  transform: translate(-50%, -50%) scale(5);
+}
+
+.faixa-final-conteudo {
+  position: relative;
+  width: 100%;
+  opacity: var(--conteudo);
+  transform: translateY(calc((1 - var(--conteudo)) * 2.5rem));
+}
+
+.faixa-final-viva {
+  height: 240svh;
+}
+
+.faixa-final-viva .faixa-final-palco {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  min-height: 0;
+  padding-block: 5rem;
+}
+
+/* Enquanto o convite não apareceu, os botões não recebem toque. */
+.faixa-final-viva:not([data-faixa-pronta]) .faixa-final-conteudo {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* ===================================================================
+   SELO REDONDO DA CS (selo-cs.tsx)
+   =================================================================== */
+/* Na camada de componentes: posição e largura vêm das classes de quem
+   usa o selo (absolute, w-24...), que precisam vencer as daqui. */
+@layer components {
+  .selo-cs {
+    --selo-fundo: var(--color-verde-800);
+    --selo-texto: var(--color-ouro-300);
+    --selo-simbolo: var(--color-ouro-300);
+    --selo-fio: rgb(243 214 148 / 0.22);
+    position: relative;
+    display: block;
+    width: 8rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    filter: drop-shadow(0 14px 22px rgb(1 38 22 / 0.28))
+      drop-shadow(0 2px 3px rgb(1 38 22 / 0.18));
+  }
+
+  .selo-cs-creme {
+    --selo-fundo: #fff6e4;
+    --selo-texto: var(--color-verde-800);
+    --selo-simbolo: var(--color-verde-800);
+    --selo-fio: rgb(0 69 39 / 0.16);
+  }
+
+  .selo-cs-anel {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    animation: selo-cs-gira 48s linear infinite;
+  }
+
+  .selo-cs-fundo {
+    fill: var(--selo-fundo);
+  }
+
+  .selo-cs-fio {
+    fill: none;
+    stroke: var(--selo-fio);
+    stroke-width: 1;
+  }
+
+  .selo-cs-texto {
+    fill: var(--selo-texto);
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+
+  .selo-cs-simbolo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    height: 34%;
+    width: auto;
+    color: var(--selo-simbolo);
+    transform: translate(-50%, -50%);
+  }
+
+  @keyframes selo-cs-gira {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .selo-cs-anel {
+      animation: none;
+    }
+  }
+}
+
+/* ===================================================================
+   PONTEIRO DA CS (cursor.tsx), no site e no painel
+
+   Só com mouse. O ponteiro do sistema some (cursor: none) enquanto o da
+   CS está ligado, menos nos campos de texto, onde volta o de digitar.
+   =================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  html.cursor-proprio,
+  html.cursor-proprio * {
+    cursor: none !important;
+  }
+
+  html.cursor-proprio
+    :is(
+      input:not(
+          [type="checkbox"],
+          [type="radio"],
+          [type="submit"],
+          [type="button"],
+          [type="range"],
+          [type="file"],
+          [type="color"]
+        ),
+      textarea,
+      [contenteditable=""],
+      [contenteditable="true"],
+      [contenteditable=""] *,
+      [contenteditable="true"] *
+    ) {
+    cursor: text !important;
+  }
+}
+
+.cursor-cs {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.cursor-cs[data-visivel] {
+  opacity: 1;
+}
+
+.cursor-cs-ponto,
+.cursor-cs-anel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate3d(-100px, -100px, 0);
+  will-change: transform;
+}
+
+.cursor-cs-ponto-forma,
+.cursor-cs-anel-forma {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  translate: -50% -50%;
+}
+
+.cursor-cs-ponto-forma {
+  width: 8px;
+  height: 8px;
+  background: var(--color-verde-800);
+  box-shadow: 0 0 0 2px #fff6e4;
+  transition:
+    scale 0.3s var(--ease-saida),
+    opacity 0.2s ease;
+}
+
+.cursor-cs-anel-forma {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid var(--color-ouro-500);
+  background: rgb(243 214 148 / 0);
+  transition:
+    width 0.45s var(--ease-saida),
+    height 0.45s var(--ease-saida),
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    opacity 0.25s ease,
+    scale 0.2s ease;
+}
+
+.cursor-cs-rotulo {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-verde-900);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Sobre link ou botão: o anel cresce e acende, o ponto some. */
+.cursor-cs[data-estado="link"] .cursor-cs-anel-forma {
+  width: 54px;
+  height: 54px;
+  border-color: var(--color-acento);
+  background: rgb(243 214 148 / 0.22);
+}
+
+.cursor-cs[data-estado="link"] .cursor-cs-ponto-forma,
+.cursor-cs[data-estado="palavra"] .cursor-cs-ponto-forma {
+  scale: 0;
+}
+
+/* Sobre um card com data-cursor: o anel vira um selo com a palavra. */
+.cursor-cs[data-estado="palavra"] .cursor-cs-anel-forma {
+  width: 76px;
+  height: 76px;
+  border-color: transparent;
+  background: var(--color-ouro-300);
+}
+
+.cursor-cs[data-estado="palavra"] .cursor-cs-rotulo {
+  opacity: 1;
+}
+
+/* Botão desativado: o anel apaga. */
+.cursor-cs[data-estado="bloqueado"] .cursor-cs-anel-forma {
+  border-style: dashed;
+  opacity: 0.45;
+}
+
+/* Campo de texto: volta o cursor de digitar do sistema. */
+.cursor-cs[data-estado="texto"] .cursor-cs-anel-forma,
+.cursor-cs[data-estado="texto"] .cursor-cs-ponto-forma {
+  opacity: 0;
+}
+
+.cursor-cs[data-apertado] .cursor-cs-anel-forma {
+  scale: 0.82;
+}
+
+/* ===================================================================
+   GRANULADO (teste)
+
+   Uma película de grão bem leve por cima do site, como papel ou filme.
+   É um ruído gerado pelo próprio navegador (feTurbulence), num ladrilho
+   de 220 px repetido: não baixa imagem nenhuma. Fica parado (sem
+   animação), numa camada fixa que não muda com a rolagem.
+   =================================================================== */
+.grao {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.12 0 0 0 0 0.08 0 0 0 0.55 -0.16'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
 }

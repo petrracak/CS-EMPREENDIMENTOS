@@ -22,6 +22,7 @@ import {
 
 import { Whatsapp } from "@/components/icones-sociais";
 import { Palavras } from "@/components/site/palavras";
+import { SeloCS } from "@/components/site/selo-cs";
 import { Galeria } from "@/components/site/galeria";
 import { MapaPreguicoso } from "@/components/site/mapa-preguicoso";
 import { VideosEmpreendimento } from "@/components/site/videos-empreendimento";
@@ -271,6 +272,7 @@ export default async function PaginaEmpreendimento({
             <div className="absolute inset-0 bg-gradient-to-br from-[#00552f] to-[#01261a]" />
           )}
           <div className="absolute inset-0 bg-[linear-gradient(to_top,rgb(1_38_22/0.88),rgb(1_38_22/0.35)_55%,rgb(1_38_22/0.2))]" />
+          <SeloCS className="absolute top-4 right-4 z-10 w-20 sm:top-6 sm:right-6 sm:w-28" />
 
           <div className="relative flex h-full flex-col items-center justify-end px-5 pb-8 text-center sm:pb-12">
             {item.logo_url ? (
@@ -416,6 +418,7 @@ export default async function PaginaEmpreendimento({
           {ficha.length ? (
             <aside
               data-revelar
+              data-luz
               className="h-fit rounded-2xl border border-[var(--borda)] bg-white p-6 sm:p-7 lg:sticky lg:top-28"
             >
               <h2 className="text-lg font-normal tracking-[-0.04em] text-[#28513f]">
@@ -780,6 +783,7 @@ function ListaComIcones({
           <li
             key={c.id}
             data-revelar
+            data-luz
             style={{ "--atraso": `${(i % 3) * 70}ms` } as React.CSSProperties}
             className="flex items-start gap-4 rounded-2xl border border-[var(--borda)] bg-white p-5"
           >
@@ -818,6 +822,7 @@ function Opcao({
   return (
     <div
       data-revelar
+      data-luz
       className="flex flex-col rounded-2xl border border-[var(--borda)] bg-[var(--bg-elevado)] p-7"
     >
       <Icone className="h-5 w-5 text-[var(--color-ouro-600)]" />

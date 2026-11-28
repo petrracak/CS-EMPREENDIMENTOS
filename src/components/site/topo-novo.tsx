@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { BotaoNovo } from "@/components/site/botao-novo";
 import { Simbolo } from "@/components/site/logo";
 import { Palavras } from "@/components/site/palavras";
+import { SeloCS } from "@/components/site/selo-cs";
 import { VitrineLogo } from "@/components/site/vitrine-logo";
 import type { FotoVitrine } from "@/lib/vitrine";
 
@@ -71,6 +72,11 @@ export function TopoNovo({
         style={atraso(300)}
       >
         <VitrineLogo fotos={fotos} />
+      </div>
+
+      {/* O selo redondo, encostado no pé da logo. */}
+      <div className="topo-novo-selo" data-entrada style={atraso(900)}>
+        <SeloCS className="w-full" />
       </div>
 
       <div className="topo-novo-texto">
